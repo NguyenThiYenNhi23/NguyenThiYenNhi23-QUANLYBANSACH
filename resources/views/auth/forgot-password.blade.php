@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập</title>
+    <title>Quên mật khẩu</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -49,18 +49,10 @@
             font-size: 13px;
         }
 
-        .subtitle {
-            text-align: center;
-            font-size: 13px;
-            color: #4b5563;
-            margin: 0 0 16px;
-        }
-
         h1 {
-            margin: 0 0 6px;
+            margin: 0 0 8px;
             text-align: center;
-            font-size: 22px;
-            line-height: 1.25;
+            font-size: 24px;
             color: #111827;
         }
 
@@ -69,9 +61,19 @@
             font-size: 14px;
             color: #4b5563;
             margin: 0 0 14px;
+            line-height: 1.6;
         }
 
         .alert {
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 14px;
+        }
+
+        .error {
             margin: 0 0 12px;
             padding: 10px 12px;
             border-radius: 8px;
@@ -108,25 +110,11 @@
             padding: 12px 11px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .input:focus {
             border-color: #1e88e5;
             box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.12);
-        }
-
-        .inline-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin: 4px 0 14px;
-        }
-
-        .link-btn {
-            font-size: 13px;
-            color: #1f2937;
-            text-decoration: none;
-            font-weight: 600;
         }
 
         .primary-btn {
@@ -139,12 +127,6 @@
             font-size: 17px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.15s ease, opacity 0.2s ease;
-        }
-
-        .primary-btn:hover {
-            opacity: 0.96;
-            transform: translateY(-1px);
         }
 
         .switch-box {
@@ -161,28 +143,25 @@
         }
     </style>
 </head>
-
 <body>
     <div class="auth-card">
         <div class="brand">
             <span class="brand-mark">◌</span>
-            <span>Nhà Sách Kim Đồng</span>
+            <span>ttshop</span>
         </div>
 
-        <p class="subtitle">Truy cập tài khoản</p>
+        <h1>Quên mật khẩu</h1>
+        <p class="intro">Nhập email của bạn để nhận liên kết đặt lại mật khẩu.</p>
 
-        <h1>Chào mừng bạn quay trở lại</h1>
-        <p class="intro">Nhập thông tin để truy cập tài khoản của bạn</p>
-
-        @if (session('success'))
-            <div class="alert">{{ session('success') }}</div>
+        @if (session('status'))
+            <div class="alert">{{ session('status') }}</div>
         @endif
 
         @if ($errors->any())
-            <div class="alert">{{ $errors->first() }}</div>
+            <div class="error">{{ $errors->first() }}</div>
         @endif
 
-        <form method="POST" action="{{ route('login.store') }}">
+        <form method="POST" action="{{ route('password.email') }}">
             @csrf
 
             <div class="form-group">
@@ -190,43 +169,14 @@
                     <label for="email">Địa chỉ email</label>
                     <span class="required">Required</span>
                 </div>
-                <input
-                    id="email"
-                    class="input"
-                    type="email"
-                    name="email"
-                    value="{{ old('email') }}"
-                    placeholder="you@example.com"
-                >
+                <input id="email" class="input" type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com">
             </div>
 
-            <div class="form-group">
-                <div class="field-label">
-                    <label for="password">Mật khẩu</label>
-                    <span class="required">Required</span>
-                </div>
-                <input
-                    id="password"
-                    class="input"
-                    type="password"
-                    name="password"
-                    placeholder="••••••••"
-                >
-            </div>
-
-            <div class="inline-actions">
-                <a href="{{ route('password.request') }}" class="link-btn">Quên mật khẩu?</a>
-            </div>
-
-            <button class="primary-btn" type="submit">Đăng nhập</button>
+            <button class="primary-btn" type="submit">Gửi liên kết</button>
         </form>
 
         <div class="switch-box">
-            Chưa có tài khoản? <a href="{{ route('register') }}">Đăng ký</a>
-        </div>
-
-        <div class="switch-box" style="margin-top: 10px;">
-            <a href="{{ url('/') }}">← Về trang chủ</a>
+            <a href="{{ route('login') }}">← Quay lại đăng nhập</a>
         </div>
     </div>
 </body>
