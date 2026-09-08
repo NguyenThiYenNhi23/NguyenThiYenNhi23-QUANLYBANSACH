@@ -23,4 +23,8 @@ class DanhMuc extends Model
     protected $casts = [
         'isActive' => 'boolean',
     ];
+        public function sachs()
+    {
+        return $this->hasMany(Sach::class, 'maDanhMuc', 'maDanhMuc');
+    }
 }
