@@ -2,7 +2,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DanhMucController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\CustomerHomeController;
+use App\Http\Controllers\CustomerSearchController;
+use App\Http\Controllers\CustomerDanhMucController;
+use App\Http\Controllers\CustomerGioiThieuController;
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -55,3 +58,15 @@ Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
 
 Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
     ->name('admin.danhmuc.destroy');
+
+
+
+
+Route::get('/customer', [CustomerHomeController::class, 'index'])
+    ->name('customer.home');
+Route::get('/customer/search', [CustomerSearchController::class, 'index'])
+    ->name('customer.search');
+Route::get('/customer/danhmuc', [CustomerDanhMucController::class, 'index'])
+    ->name('customer.danhmuc');
+Route::get('/customer/gioi-thieu', [CustomerGioiThieuController::class, 'index'])
+    ->name('customer.gioithieu');
