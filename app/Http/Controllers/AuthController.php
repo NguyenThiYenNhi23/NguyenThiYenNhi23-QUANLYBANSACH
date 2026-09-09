@@ -33,6 +33,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => $request->password,
+            'role' => 'customer',
         ]);
 
         return redirect()
@@ -56,6 +57,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if (($user->role ?? '') === 'customer') {
+                return redirect()->route('customer.home');
+            }
 
             return redirect()->route('admin.danhmuc.index');
         }

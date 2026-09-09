@@ -209,6 +209,11 @@
             transition: 0.2s;
         }
 
+        .book-card-link {
+            display: block;
+            color: inherit;
+        }
+
         .book-card:hover {
             transform: translateY(-3px);
 
@@ -406,13 +411,16 @@
 
             <div class="header-actions">
 
-                <a href="#">
+                <a href="{{ route('login') }}">
                     Đăng nhập
                 </a>
 
-                <a href="#">
-                     Đăng xuất
-                </a>
+                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" style="background:none;border:none;color:#1f2937;padding:0;font:inherit;cursor:pointer;">
+                        Đăng xuất
+                    </button>
+                </form>
                 <a href="#">
                     🛒 Giỏ hàng
                 </a>
@@ -503,69 +511,71 @@
 
             @forelse ($sachNoiBat as $sach)
 
-                <div class="book-card">
+                <a href="{{ route('customer.book.show', $sach->maSach) }}" class="book-card-link">
+                    <div class="book-card">
 
-                    <div class="book-image">
+                        <div class="book-image">
 
-                        @if ($sach->hinhAnh)
+                            @if ($sach->hinhAnh)
 
-                            <img
-                                src="{{ asset('storage/' . $sach->hinhAnh) }}"
-                                alt="{{ $sach->tenSach }}"
-                            >
+                                <img
+                                    src="{{ asset('storage/' . $sach->hinhAnh) }}"
+                                    alt="{{ $sach->tenSach }}"
+                                >
 
-                        @else
+                            @else
 
-                            <span class="no-image">
-                                Chưa có hình ảnh
-                            </span>
+                                <span class="no-image">
+                                    Chưa có hình ảnh
+                                </span>
 
-                        @endif
-
-                    </div>
-
-
-                    <div class="book-info">
-
-                        <div class="book-name">
-                            {{ $sach->tenSach }}
-                        </div>
-
-
-                        <div class="book-price">
-
-                            {{ number_format(
-                                $sach->giaBan,
-                                0,
-                                ',',
-                                '.'
-                            ) }} đ
+                            @endif
 
                         </div>
 
 
-                        @if ($sach->tonKho)
+                        <div class="book-info">
 
-                            <div class="book-stock">
+                            <div class="book-name">
+                                {{ $sach->tenSach }}
+                            </div>
 
-                                @if ($sach->tonKho->soLuongTon > 0)
 
-                                    Còn hàng:
-                                    {{ $sach->tonKho->soLuongTon }}
+                            <div class="book-price">
 
-                                @else
-
-                                    Hết hàng
-
-                                @endif
+                                {{ number_format(
+                                    $sach->giaBan,
+                                    0,
+                                    ',',
+                                    '.'
+                                ) }} đ
 
                             </div>
 
-                        @endif
+
+                            @if ($sach->tonKho)
+
+                                <div class="book-stock">
+
+                                    @if ($sach->tonKho->soLuongTon > 0)
+
+                                        Còn hàng:
+                                        {{ $sach->tonKho->soLuongTon }}
+
+                                    @else
+
+                                        Hết hàng
+
+                                    @endif
+
+                                </div>
+
+                            @endif
+
+                        </div>
 
                     </div>
-
-                </div>
+                </a>
 
             @empty
 
@@ -604,78 +614,80 @@
 
             @forelse ($sachBanChay as $sach)
 
-                <div class="book-card">
+                <a href="{{ route('customer.book.show', $sach->maSach) }}" class="book-card-link">
+                    <div class="book-card">
 
-                    <div class="book-image">
+                        <div class="book-image">
 
-                        @if ($sach->hinhAnh)
+                            @if ($sach->hinhAnh)
 
-                            <img
-                                src="{{ asset('storage/' . $sach->hinhAnh) }}"
-                                alt="{{ $sach->tenSach }}"
-                            >
+                                <img
+                                    src="{{ asset('storage/' . $sach->hinhAnh) }}"
+                                    alt="{{ $sach->tenSach }}"
+                                >
 
-                        @else
+                            @else
 
-                            <span class="no-image">
-                                Chưa có hình ảnh
-                            </span>
+                                <span class="no-image">
+                                    Chưa có hình ảnh
+                                </span>
 
-                        @endif
-
-                    </div>
-
-
-                    <div class="book-info">
-
-                        <div class="book-name">
-                            {{ $sach->tenSach }}
-                        </div>
-
-
-                        <div class="book-price">
-
-                            {{ number_format(
-                                $sach->giaBan,
-                                0,
-                                ',',
-                                '.'
-                            ) }} đ
+                            @endif
 
                         </div>
 
 
-                        <div class="sold">
+                        <div class="book-info">
 
-                            Đã bán:
-                            {{ $sach->tongDaBan }}
-                            cuốn
-
-                        </div>
+                            <div class="book-name">
+                                {{ $sach->tenSach }}
+                            </div>
 
 
-                        @if ($sach->tonKho)
+                            <div class="book-price">
 
-                            <div class="book-stock">
-
-                                @if ($sach->tonKho->soLuongTon > 0)
-
-                                    Còn hàng:
-                                    {{ $sach->tonKho->soLuongTon }}
-
-                                @else
-
-                                    Hết hàng
-
-                                @endif
+                                {{ number_format(
+                                    $sach->giaBan,
+                                    0,
+                                    ',',
+                                    '.'
+                                ) }} đ
 
                             </div>
 
-                        @endif
+
+                            <div class="sold">
+
+                                Đã bán:
+                                {{ $sach->tongDaBan }}
+                                cuốn
+
+                            </div>
+
+
+                            @if ($sach->tonKho)
+
+                                <div class="book-stock">
+
+                                    @if ($sach->tonKho->soLuongTon > 0)
+
+                                        Còn hàng:
+                                        {{ $sach->tonKho->soLuongTon }}
+
+                                    @else
+
+                                        Hết hàng
+
+                                    @endif
+
+                                </div>
+
+                            @endif
+
+                        </div>
 
                     </div>
-
-                </div>
+                </a>
 
             @empty
 
@@ -714,69 +726,71 @@
 
             @forelse ($sachMoi as $sach)
 
-                <div class="book-card">
+                <a href="{{ route('customer.book.show', $sach->maSach) }}" class="book-card-link">
+                    <div class="book-card">
 
-                    <div class="book-image">
+                        <div class="book-image">
 
-                        @if ($sach->hinhAnh)
+                            @if ($sach->hinhAnh)
 
-                            <img
-                                src="{{ asset('storage/' . $sach->hinhAnh) }}"
-                                alt="{{ $sach->tenSach }}"
-                            >
+                                <img
+                                    src="{{ asset('storage/' . $sach->hinhAnh) }}"
+                                    alt="{{ $sach->tenSach }}"
+                                >
 
-                        @else
+                            @else
 
-                            <span class="no-image">
-                                Chưa có hình ảnh
-                            </span>
+                                <span class="no-image">
+                                    Chưa có hình ảnh
+                                </span>
 
-                        @endif
-
-                    </div>
-
-
-                    <div class="book-info">
-
-                        <div class="book-name">
-                            {{ $sach->tenSach }}
-                        </div>
-
-
-                        <div class="book-price">
-
-                            {{ number_format(
-                                $sach->giaBan,
-                                0,
-                                ',',
-                                '.'
-                            ) }} đ
+                            @endif
 
                         </div>
 
 
-                        @if ($sach->tonKho)
+                        <div class="book-info">
 
-                            <div class="book-stock">
+                            <div class="book-name">
+                                {{ $sach->tenSach }}
+                            </div>
 
-                                @if ($sach->tonKho->soLuongTon > 0)
 
-                                    Còn hàng:
-                                    {{ $sach->tonKho->soLuongTon }}
+                            <div class="book-price">
 
-                                @else
-
-                                    Hết hàng
-
-                                @endif
+                                {{ number_format(
+                                    $sach->giaBan,
+                                    0,
+                                    ',',
+                                    '.'
+                                ) }} đ
 
                             </div>
 
-                        @endif
+
+                            @if ($sach->tonKho)
+
+                                <div class="book-stock">
+
+                                    @if ($sach->tonKho->soLuongTon > 0)
+
+                                        Còn hàng:
+                                        {{ $sach->tonKho->soLuongTon }}
+
+                                    @else
+
+                                        Hết hàng
+
+                                    @endif
+
+                                </div>
+
+                            @endif
+
+                        </div>
 
                     </div>
-
-                </div>
+                </a>
 
             @empty
 
