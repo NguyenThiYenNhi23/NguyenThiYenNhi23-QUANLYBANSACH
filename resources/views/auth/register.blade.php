@@ -205,7 +205,7 @@
         </div>
 
         <div class="switch-box" style="margin-top: 10px;">
-            <a href="{{ url('/') }}">← Về trang chủ</a>
+            <a href="{{ route('customer.home') }}">← Về trang chủ</a>
         </div>
     </div>
 </body>

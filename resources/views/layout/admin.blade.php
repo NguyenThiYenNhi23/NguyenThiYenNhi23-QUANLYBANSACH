@@ -72,7 +72,7 @@
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 20px;
         }
 
         .notification {
@@ -97,6 +97,27 @@
             justify-content: center;
             color: #5559bd;
             font-weight: bold;
+        }
+
+        .logout-form {
+            margin-left: 4px;
+        }
+
+        .logout-btn {
+            border: none;
+            border-radius: 8px;
+            background: #ef4444;
+            color: #fff;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
         }
 
         /* SIDEBAR */
@@ -440,10 +461,17 @@
     <div class="topbar-right">
         <div class="notification">🔔</div>
 
-        <div class="user-box">
-            <div class="avatar">QT</div>
-            <span>Quản trị viên</span>
-        </div>
+        @auth
+            <div class="user-box">
+                <div class="avatar">{{ strtoupper(substr(Auth::user()->name ?? 'QT', 0, 2)) }}</div>
+                <span>{{ Auth::user()->name ?? 'Quản trị viên' }}</span>
+            </div>
+
+            <form action="{{ route('logout') }}" method="POST" class="logout-form">
+                @csrf
+                <button type="submit" class="logout-btn">Đăng xuất</button>
+            </form>
+        @endauth
     </div>
 </header>
 
@@ -457,7 +485,7 @@
         <span>Tổng Quan</span>
     </a>
 
-    <a href="#" class="menu-item">
+    <a href="{{ route('sach.index') }}" class="menu-item {{ request()->routeIs('sach.*') ? 'active' : '' }}">
         <span class="menu-icon">▣</span>
         <span>Quản lý sách</span>
     </a>

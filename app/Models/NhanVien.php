@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class NhanVien extends Model
 {
@@ -13,15 +14,15 @@ class NhanVien extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'maTK',
+        'user_id',
         'hoTen',
         'sdt',
         'email',
         'diaChi',
     ];
-        public function taiKhoan()
+    public function user()
     {
-        return $this->belongsTo(TaiKhoan::class, 'maTK', 'maTK');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function phieuNhaps()

@@ -267,13 +267,22 @@
 
             <div class="header-actions">
 
-                <a href="#">
-                    Đăng nhập
-                </a>
+                @auth
+                    <a href="{{ route('customer.account') }}">
+                        {{ auth()->user()->name }}
+                    </a>
+                @else
+                    <a href="{{ route('login') }}">
+                        Đăng nhập
+                    </a>
+                @endauth
 
-                <a href="#">
-                    Đăng xuất
-                </a>
+                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" style="background:none;border:none;color:#1f2937;padding:0;font:inherit;cursor:pointer;">
+                        Đăng xuất
+                    </button>
+                </form>
 
                 <a href="#">
                     🛒 Giỏ hàng
