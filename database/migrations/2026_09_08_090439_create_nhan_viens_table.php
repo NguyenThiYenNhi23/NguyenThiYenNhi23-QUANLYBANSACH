@@ -14,18 +14,18 @@ return new class extends Migration
        Schema::create('nhan_viens', function (Blueprint $table) {
         $table->id('maNV');
 
-        $table->unsignedBigInteger('maTK')->unique();
+        $table->foreignId('user_id')
+        ->unique()
+        ->constrained('users')
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
 
         $table->string('hoTen', 100);
         $table->string('sdt', 15)->nullable();
         $table->string('email', 100)->nullable();
         $table->string('diaChi', 255)->nullable();
 
-        $table->foreign('maTK')
-            ->references('maTK')
-            ->on('tai_khoans')
-            ->onUpdate('cascade')
-            ->onDelete('cascade');
+
     });
     }
 

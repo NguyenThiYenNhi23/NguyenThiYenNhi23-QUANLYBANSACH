@@ -72,10 +72,10 @@ Route::get('/customer/danhmuc', [CustomerDanhMucController::class, 'index'])
     ->name('customer.danhmuc');
 Route::get('/customer/gioi-thieu', [CustomerGioiThieuController::class, 'index'])
     ->name('customer.gioithieu');
-
+// SÁCH KHÁCH HÀNG
 Route::get('/customer/book/{sach}', [CustomerBookController::class, 'show'])
     ->name('customer.book.show');
-
+// GIỎ HÀNG
 Route::post('/customer/cart/add', [CustomerBookController::class, 'addToCart'])
     ->name('customer.cart.add');
 
@@ -84,6 +84,25 @@ Route::post('/customer/cart/buy-now', [CustomerBookController::class, 'buyNow'])
 
 Route::get('/customer/cart', [CustomerBookController::class, 'cart'])
     ->name('customer.cart');
+// CHECKOUT
+Route::get('/customer/checkout', [CustomerBookController::class, 'checkout'])
+    ->name('customer.checkout');
+// Thêm địa chỉ
+Route::post('/customer/checkout/address', [CustomerBookController::class, 'storeAddress'])
+    ->name('customer.checkout.address.store');
+// Xác nhận đặt hàng
+Route::post('/customer/checkout/order', [CustomerBookController::class, 'placeOrder'])
+    ->name('customer.checkout.order');
+// Hiển thị trang thanh toán VNPay
+Route::get('/customer/checkout/vnpay', [CustomerBookController::class, 'vnpayPayment'])
+    ->name('customer.checkout.vnpay');
+
+// Xử lý kết quả thanh toán VNPay
+Route::post('/customer/checkout/vnpay/result', [CustomerBookController::class, 'vnpayPaymentResult'])
+    ->name('customer.checkout.vnpay.result');
+//Đơn hàng thành công
+Route::get('/customer/order/{donHang}', [CustomerBookController::class, 'orderSuccess'])
+    ->name('customer.order.success');
 
 // Quản lý sách
 

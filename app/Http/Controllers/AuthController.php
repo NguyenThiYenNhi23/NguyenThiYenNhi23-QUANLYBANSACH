@@ -77,11 +77,23 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            if (($user->role ?? '') === 'customer') {
-                return redirect()->route('customer.home');
-            }
+        if ($user->role === 'customer') {
+            return redirect()->route('customer.home');
+        }
 
+        if ($user->role === 'employee') {
             return redirect()->route('admin.danhmuc.index');
+        }
+
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.danhmuc.index');
+        }
+
+        Auth::logout();
+
+        return back()->withErrors([
+            'email' => 'Tài khoản không có quyền truy cập.',
+        ]);
         }
 
         return back()
