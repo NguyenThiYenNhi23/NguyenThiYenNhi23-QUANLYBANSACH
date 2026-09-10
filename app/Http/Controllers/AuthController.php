@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use App\Models\KhachHang;
 
 class AuthController extends Controller
 {
@@ -19,27 +20,34 @@ class AuthController extends Controller
     }
 
     // Xử lý đăng ký
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:15|unique:users,phone',
-            'password' => 'required|min:6|confirmed',
-        ]);
+public function register(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'phone' => 'required|string|max:15|unique:users,phone',
+        'password' => 'required|min:6|confirmed',
+    ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => $request->password,
-            'role' => 'customer',
-        ]);
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'password' => Hash::make($request->password),
+        'role' => 'customer',
+    ]);
 
-        return redirect()
-            ->route('login')
-            ->with('success', 'Đăng ký tài khoản thành công!');
-    }
+    KhachHang::create([
+        'user_id' => $user->id,
+        'hoTen' => $request->name,
+        'sdt' => $request->phone,
+        'email' => $request->email,
+    ]);
+
+    return redirect()
+        ->route('login')
+        ->with('success', 'Đăng ký tài khoản thành công!');
+}
 
     // Hiển thị trang đăng nhập
     public function showLogin()
@@ -60,11 +68,23 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            if (($user->role ?? '') === 'customer') {
-                return redirect()->route('customer.home');
-            }
+        if ($user->role === 'customer') {
+            return redirect()->route('customer.home');
+        }
 
+        if ($user->role === 'employee') {
             return redirect()->route('admin.danhmuc.index');
+        }
+
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.danhmuc.index');
+        }
+
+        Auth::logout();
+
+        return back()->withErrors([
+            'email' => 'Tài khoản không có quyền truy cập.',
+        ]);
         }
 
         return back()
