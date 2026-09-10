@@ -411,9 +411,15 @@
 
             <div class="header-actions">
 
-                <a href="{{ route('login') }}">
-                    Đăng nhập
-                </a>
+                @auth
+                    <a href="{{ route('customer.account') }}">
+                        {{ auth()->user()->name }}
+                    </a>
+                @else
+                    <a href="{{ route('login') }}">
+                        Đăng nhập
+                    </a>
+                @endauth
 
                 <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                     @csrf

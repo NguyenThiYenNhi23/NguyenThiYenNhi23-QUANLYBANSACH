@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -23,18 +24,34 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,email|unique:tai_khoans,tenDangNhap',
             'phone' => 'required|string|max:15|unique:users,phone',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => $request->password,
-            'role' => 'customer',
-        ]);
+        DB::transaction(function () use ($request): void {
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => $request->password,
+                'role' => 'customer',
+            ]);
+
+            $accountId = DB::table('tai_khoans')->insertGetId([
+                'tenDangNhap' => $request->email,
+                'matKhau' => Hash::make($request->password),
+                'vaiTro' => 'customer',
+                'trangThai' => true,
+            ], 'maTK');
+
+            DB::table('khach_hangs')->insert([
+                'maTK' => $accountId,
+                'hoTen' => $request->name,
+                'sdt' => $request->phone,
+                'email' => $request->email,
+            ]);
+        });
 
         return redirect()
             ->route('login')
@@ -142,6 +159,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('customer.home');
     }
 }

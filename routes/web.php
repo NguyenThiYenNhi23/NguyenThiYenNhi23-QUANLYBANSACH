@@ -1,13 +1,16 @@
 <?php
+
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DanhMucController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CustomerHomeController;
-use App\Http\Controllers\CustomerSearchController;
+use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\CustomerBookController;
 use App\Http\Controllers\CustomerDanhMucController;
 use App\Http\Controllers\CustomerGioiThieuController;
-use App\Http\Controllers\CustomerBookController;
+use App\Http\Controllers\CustomerHomeController;
+use App\Http\Controllers\CustomerSearchController;
+use App\Http\Controllers\DanhMucController;
 use App\Http\Controllers\SachController;
+use Illuminate\Support\Facades\Route;
+
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -61,7 +64,6 @@ Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
 Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
     ->name('admin.danhmuc.destroy');
 
-
 Route::get('/customer', [CustomerHomeController::class, 'index'])
     ->name('customer.home');
 Route::get('/customer/search', [CustomerSearchController::class, 'index'])
@@ -83,7 +85,7 @@ Route::post('/customer/cart/buy-now', [CustomerBookController::class, 'buyNow'])
 Route::get('/customer/cart', [CustomerBookController::class, 'cart'])
     ->name('customer.cart');
 
-    //Quản lý sách
+// Quản lý sách
 
 Route::prefix('sach')->group(function () {
 
@@ -121,4 +123,29 @@ Route::prefix('sach')->group(function () {
         [SachController::class, 'destroy']
     )->name('sach.destroy');
 });
+// taikhoan
+Route::middleware('auth')->prefix('customer/account')->group(function () {
+    Route::get('/', [CustomerAccountController::class, 'index'])
+        ->name('customer.account');
 
+    Route::put('/password', [CustomerAccountController::class, 'updatePassword'])
+        ->name('customer.account.password.update');
+
+    Route::post('/addresses', [CustomerAccountController::class, 'storeAddress'])
+        ->name('customer.account.addresses.store');
+
+    Route::get('/addresses/{diaChi}/edit', [CustomerAccountController::class, 'editAddress'])
+        ->name('customer.account.addresses.edit');
+
+    Route::put('/addresses/{diaChi}', [CustomerAccountController::class, 'updateAddress'])
+        ->name('customer.account.addresses.update');
+
+    Route::delete('/addresses/{diaChi}', [CustomerAccountController::class, 'destroyAddress'])
+        ->name('customer.account.addresses.destroy');
+
+    Route::patch('/addresses/{diaChi}/default', [CustomerAccountController::class, 'setDefaultAddress'])
+        ->name('customer.account.addresses.default');
+
+    Route::post('/logout', [CustomerAccountController::class, 'logout'])
+        ->name('customer.account.logout');
+});
