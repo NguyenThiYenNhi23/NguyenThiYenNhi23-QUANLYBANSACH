@@ -13,6 +13,9 @@ class CustomerHomeController extends Controller
         // ==============================
         // SÁCH BÁN CHẠY
         // ==============================
+        // Chỉ hiển thị sách:
+        // - Đang kinh doanh
+        // - Còn hàng (soLuongTon > 0)
         $sachBanChay = Sach::query()
             ->select(
                 'sachs.maSach',
@@ -32,6 +35,10 @@ class CustomerHomeController extends Controller
                 'ct_don_hangs.maSach'
             )
             ->with('tonKho')
+            ->where('sachs.trangThai', 'Đang kinh doanh')
+            ->whereHas('tonKho', function ($query) {
+                $query->where('soLuongTon', '>', 0);
+            })
             ->groupBy(
                 'sachs.maSach',
                 'sachs.maDanhMuc',
@@ -56,10 +63,18 @@ class CustomerHomeController extends Controller
         // ==============================
         // SÁCH MỚI
         // ==============================
+        // Chỉ lấy sách:
+        // - Đang kinh doanh
+        // - Còn hàng
+        //
         // Bảng sachs chưa có created_at,
         // nên tạm lấy maSach lớn nhất.
         $sachMoi = Sach::query()
             ->with('tonKho')
+            ->where('trangThai', 'Đang kinh doanh')
+            ->whereHas('tonKho', function ($query) {
+                $query->where('soLuongTon', '>', 0);
+            })
             ->orderByDesc('maSach')
             ->take(8)
             ->get();

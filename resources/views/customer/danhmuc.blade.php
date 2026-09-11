@@ -234,6 +234,20 @@
             border-radius: 8px;
             color: #777;
         }
+        .book-card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .book-card {
+            transition: 0.2s;
+        }
+
+        .book-card-link:hover .book-card {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
@@ -526,6 +540,11 @@
 
                             @foreach ($sachs as $sach)
 
+                            <a
+                                href="{{ route('customer.book.show', $sach->maSach) }}"
+                                class="book-card-link"
+                            >
+
                                 <div class="book-card">
 
                                     <div class="book-image">
@@ -562,9 +581,17 @@
 
                                             @if ($sach->tonKho)
 
-                                                Còn
-                                                {{ $sach->tonKho->soLuongTon }}
-                                                sản phẩm
+                                                @if ($sach->tonKho->soLuongTon > 0)
+
+                                                    Còn
+                                                    {{ $sach->tonKho->soLuongTon }}
+                                                    sản phẩm
+
+                                                @else
+
+                                                    Hết hàng
+
+                                                @endif
 
                                             @else
 
@@ -578,7 +605,9 @@
 
                                 </div>
 
-                            @endforeach
+                            </a>
+
+                        @endforeach
 
                         </div>
 

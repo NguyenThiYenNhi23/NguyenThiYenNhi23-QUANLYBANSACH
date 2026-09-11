@@ -63,6 +63,7 @@
         background: #fff;
         color: #1f2937;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
     }
 
     .form-control:focus,
@@ -102,6 +103,7 @@
         border: 1px solid #d6dbe4;
         background: #fff;
         padding: 10px 12px;
+        box-sizing: border-box;
     }
 
     .preview-card {
@@ -121,6 +123,17 @@
         object-fit: cover;
         border-radius: 10px;
         display: block;
+    }
+
+    .status-note {
+        margin-top: 8px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.5;
     }
 
     .form-actions {
@@ -152,12 +165,12 @@
     .btn-primary {
         background: linear-gradient(135deg, #5b5fc7, #4c6ef5);
         color: #fff;
-        box-shadow: 0 8px 18px rgba(89, 93, 199, 0.24);
+        box-shadow: 0 8px 18px rgba(89, 93, 198, 0.24);
     }
 
     .btn-primary:hover {
         transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(89, 93, 199, 0.28);
+        box-shadow: 0 10px 20px rgba(89, 93, 198, 0.28);
     }
 
     .btn-secondary {
@@ -189,34 +202,65 @@
     }
 </style>
 
-<h1 class="page-title" style="text-align: center;">THÊM SÁCH</h1>
+<h1 class="page-title" style="text-align: center;">
+    THÊM SÁCH
+</h1>
 
 <div class="form-card">
-    <form action="{{ route('sach.store') }}" method="POST" enctype="multipart/form-data">
+
+    <form
+        action="{{ route('sach.store') }}"
+        method="POST"
+        enctype="multipart/form-data"
+    >
         @csrf
 
         <div class="form-grid">
+
+            {{-- DANH MỤC --}}
             <div class="form-group full">
+
                 <label class="form-label" for="maDanhMuc">
-                    Danh mục <span class="required">*</span>
+                    Danh mục
+                    <span class="required">*</span>
                 </label>
-                <select name="maDanhMuc" id="maDanhMuc" class="form-select">
-                    <option value="">-- Chọn danh mục --</option>
+
+                <select
+                    name="maDanhMuc"
+                    id="maDanhMuc"
+                    class="form-select"
+                >
+                    <option value="">
+                        -- Chọn danh mục --
+                    </option>
+
                     @foreach($danhMucs as $danhMuc)
-                        <option value="{{ $danhMuc->maDanhMuc }}" {{ old('maDanhMuc') == $danhMuc->maDanhMuc ? 'selected' : '' }}>
+                        <option
+                            value="{{ $danhMuc->maDanhMuc }}"
+                            {{ old('maDanhMuc') == $danhMuc->maDanhMuc ? 'selected' : '' }}
+                        >
                             {{ $danhMuc->tenDanhMuc }}
                         </option>
                     @endforeach
                 </select>
+
                 @error('maDanhMuc')
-                    <div class="form-error">{{ $message }}</div>
+                    <div class="form-error">
+                        {{ $message }}
+                    </div>
                 @enderror
+
             </div>
 
+
+            {{-- TÊN SÁCH --}}
             <div class="form-group full">
+
                 <label class="form-label" for="tenSach">
-                    Tên sách <span class="required">*</span>
+                    Tên sách
+                    <span class="required">*</span>
                 </label>
+
                 <input
                     type="text"
                     name="tenSach"
@@ -225,15 +269,24 @@
                     value="{{ old('tenSach') }}"
                     placeholder="Nhập tên sách"
                 >
+
                 @error('tenSach')
-                    <div class="form-error">{{ $message }}</div>
+                    <div class="form-error">
+                        {{ $message }}
+                    </div>
                 @enderror
+
             </div>
 
+
+            {{-- GIÁ BÁN --}}
             <div class="form-group">
+
                 <label class="form-label" for="giaBan">
-                    Giá bán <span class="required">*</span>
+                    Giá bán
+                    <span class="required">*</span>
                 </label>
+
                 <input
                     type="number"
                     name="giaBan"
@@ -244,51 +297,87 @@
                     value="{{ old('giaBan') }}"
                     placeholder="0"
                 >
+
                 @error('giaBan')
-                    <div class="form-error">{{ $message }}</div>
+                    <div class="form-error">
+                        {{ $message }}
+                    </div>
                 @enderror
+
             </div>
 
+
+            {{-- TRẠNG THÁI --}}
             <div class="form-group">
+
                 <label class="form-label" for="trangThai">
-                    Trạng thái <span class="required">*</span>
+                    Trạng thái
+                    <span class="required">*</span>
                 </label>
-                <select name="trangThai" id="trangThai" class="form-select">
-                    <option value="Đang kinh doanh" {{ old('trangThai', 'Đang kinh doanh') == 'Đang kinh doanh' ? 'selected' : '' }}>
+
+                <select
+                    name="trangThai"
+                    id="trangThai"
+                    class="form-select"
+                >
+
+                    <option
+                        value="Đang kinh doanh"
+                        {{ old('trangThai', 'Đang kinh doanh') == 'Đang kinh doanh' ? 'selected' : '' }}
+                    >
                         Đang kinh doanh
                     </option>
-                    <option value="Hết hàng" {{ old('trangThai') == 'Hết hàng' ? 'selected' : '' }}>
-                        Hết hàng
-                    </option>
-                    <option value="Ngừng kinh doanh" {{ old('trangThai') == 'Ngừng kinh doanh' ? 'selected' : '' }}>
+
+                    <option
+                        value="Ngừng kinh doanh"
+                        {{ old('trangThai') == 'Ngừng kinh doanh' ? 'selected' : '' }}
+                    >
                         Ngừng kinh doanh
                     </option>
+
                 </select>
+
                 @error('trangThai')
-                    <div class="form-error">{{ $message }}</div>
+                    <div class="form-error">
+                        {{ $message }}
+                    </div>
                 @enderror
+
             </div>
 
+
+            {{-- MÔ TẢ --}}
             <div class="form-group full">
+
                 <label class="form-label" for="moTa">
                     Mô tả
                 </label>
+
                 <textarea
                     name="moTa"
                     id="moTa"
                     class="form-control"
                     placeholder="Nhập mô tả chi tiết về sách"
                 >{{ old('moTa') }}</textarea>
+
                 @error('moTa')
-                    <div class="form-error">{{ $message }}</div>
+                    <div class="form-error">
+                        {{ $message }}
+                    </div>
                 @enderror
+
             </div>
 
+
+            {{-- HÌNH ẢNH --}}
             <div class="form-group full">
+
                 <label class="form-label" for="hinhAnh">
                     Hình ảnh
                 </label>
+
                 <div class="upload-box">
+
                     <input
                         type="file"
                         name="hinhAnh"
@@ -296,19 +385,46 @@
                         class="file-input"
                         accept="image/*"
                     >
-                    <div class="helper-text">Định dạng hỗ trợ: JPG, PNG, WEBP. Kích thước tối ưu dưới 2MB.</div>
+
+                    <div class="helper-text">
+                        Định dạng hỗ trợ: JPG, PNG, WEBP.
+                        Kích thước tối ưu dưới 2MB.
+                    </div>
+
                 </div>
+
                 @error('hinhAnh')
-                    <div class="form-error">{{ $message }}</div>
+                    <div class="form-error">
+                        {{ $message }}
+                    </div>
                 @enderror
+
             </div>
+
         </div>
 
+
+        {{-- NÚT --}}
         <div class="form-actions">
-            <a href="{{ route('sach.index') }}" class="btn-secondary">Hủy</a>
-            <button type="submit" class="btn-primary">Lưu sách</button>
+
+            <a
+                href="{{ route('sach.index') }}"
+                class="btn-secondary"
+            >
+                Hủy
+            </a>
+
+            <button
+                type="submit"
+                class="btn-primary"
+            >
+                Lưu sách
+            </button>
+
         </div>
+
     </form>
+
 </div>
 
 @endsection
