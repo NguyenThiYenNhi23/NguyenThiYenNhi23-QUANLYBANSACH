@@ -12,6 +12,7 @@ use App\Http\Controllers\SachController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuanLyNhanVienController;
 use App\Http\Controllers\QuanLyKhachHangController;
+use App\Http\Controllers\TonKhoController;
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -65,6 +66,10 @@ Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
 Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
     ->name('admin.danhmuc.destroy');
 // trang chủ 
+// Tồn kho
+Route::get('/tonkho', [TonKhoController::class, 'index'])
+    ->name('tonkho.index');
+
 Route::get('/customer', [CustomerHomeController::class, 'index'])
     ->name('customer.home');
 Route::get('/customer/search', [CustomerSearchController::class, 'index'])

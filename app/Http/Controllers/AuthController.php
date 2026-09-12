@@ -30,7 +30,7 @@ class AuthController extends Controller
         ]);
 
         DB::transaction(function () use ($request): void {
-            User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
@@ -46,7 +46,7 @@ class AuthController extends Controller
             ], 'maTK');
 
             DB::table('khach_hangs')->insert([
-                'maTK' => $accountId,
+                'user_id' => $user->id,
                 'hoTen' => $request->name,
                 'sdt' => $request->phone,
                 'email' => $request->email,
@@ -77,9 +77,9 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-        if ($user->role === 'customer') {
-            return redirect()->route('customer.home');
-        }
+            if ($user->role === 'customer') {
+                return redirect()->route('customer.home');
+            }
 
         if ($user->role === 'employee') {
             return redirect()->route('quantri.trangchu');
@@ -89,11 +89,11 @@ class AuthController extends Controller
             return redirect()->route('quantri.trangchu');
         }
 
-        Auth::logout();
+            Auth::logout();
 
-        return back()->withErrors([
-            'email' => 'Tài khoản không có quyền truy cập.',
-        ]);
+            return back()->withErrors([
+                'email' => 'Tài khoản không có quyền truy cập.',
+            ]);
         }
 
         return back()

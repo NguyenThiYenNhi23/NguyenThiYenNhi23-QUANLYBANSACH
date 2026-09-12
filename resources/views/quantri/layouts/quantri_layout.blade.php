@@ -335,12 +335,14 @@
                 <span>Trang chủ</span>
             </a>
 
-            <a href="#">
-                <span class="menu-icon">📂</span>
-                <span>Quản lý danh mục</span>
-            </a>
+            <a href="{{ route('admin.danhmuc.index') }}"
+                class="{{ request()->routeIs('admin.danhmuc.*') ? 'active' : '' }}">
+                    <span class="menu-icon">📂</span>
+                    <span>Quản lý danh mục</span>
+                </a>
 
-            <a href="#">
+            <a href="{{ route('sach.index') }}"
+            class="{{ request()->routeIs('sach.*') ? 'active' : '' }}">
                 <span class="menu-icon">📚</span>
                 <span>Quản lý sách</span>
             </a>
@@ -361,7 +363,8 @@
                 <span>Quản lý khách hàng</span>
             </a>
 
-            <a href="#">
+            <a href="{{ route('tonkho.index') }}"
+            class="{{ request()->routeIs('tonkho.*') ? 'active' : '' }}">
                 <span class="menu-icon">📦</span>
                 <span>Quản lý tồn kho</span>
             </a>

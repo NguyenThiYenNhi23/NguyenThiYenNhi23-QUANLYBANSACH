@@ -26,9 +26,10 @@ class CustomerAccountController extends Controller
         return view('customer.account', [
             'user' => $request->user(),
             'section' => $request->query('section', 'info'),
-            'addresses' => $customerId
+            'addresses' => $addresses = $customerId
                 ? DiaChi::where('maKH', $customerId)->orderByDesc('isDefault')->get()
                 : collect(),
+            'defaultAddress' => $addresses->firstWhere('isDefault', true),
             'editingAddress' => $editingAddress,
         ]);
     }
@@ -155,7 +156,7 @@ class CustomerAccountController extends Controller
         }
 
         return (int) DB::table('khach_hangs')->insertGetId([
-            'maTK' => $accountId,
+            'user_id' => $user->id,
             'hoTen' => $user->name,
             'sdt' => $user->phone,
             'email' => $user->email,

@@ -575,6 +575,24 @@
     @yield('content')
 </main>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const alerts = document.querySelectorAll('.alert');
+
+        alerts.forEach(function (alert) {
+            setTimeout(function () {
+                alert.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-4px)';
+
+                setTimeout(function () {
+                    alert.remove();
+                }, 300);
+            }, 2500);
+        });
+    });
+</script>
+
 @stack('scripts')
 
 </body>

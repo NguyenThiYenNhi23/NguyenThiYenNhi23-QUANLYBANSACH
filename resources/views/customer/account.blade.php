@@ -245,7 +245,7 @@
                     <div><strong>Họ tên:</strong> {{ $user->name ?: 'Chưa cập nhật' }}</div>
                     <div><strong>Email:</strong> {{ $user->email ?: 'Chưa cập nhật' }}</div>
                     <div><strong>Điện thoại:</strong> {{ $user->phone ?: 'Chưa cập nhật' }}</div>
-                    <div><strong>Địa chỉ:</strong> {{ $user->address ?? 'Chưa cập nhật' }}</div>
+                    <div><strong>Địa chỉ:</strong> {{ $defaultAddress?->diaChiChiTiet ?? 'Chưa cập nhật' }}</div>
                 </div>
             @endif
 
