@@ -10,7 +10,8 @@ use App\Http\Controllers\CustomerSearchController;
 use App\Http\Controllers\DanhMucController;
 use App\Http\Controllers\SachController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\QuanLyNhanVienController;
+use App\Http\Controllers\QuanLyKhachHangController;
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -63,7 +64,7 @@ Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
 
 Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
     ->name('admin.danhmuc.destroy');
-
+// trang chủ 
 Route::get('/customer', [CustomerHomeController::class, 'index'])
     ->name('customer.home');
 Route::get('/customer/search', [CustomerSearchController::class, 'index'])
@@ -72,6 +73,42 @@ Route::get('/customer/danhmuc', [CustomerDanhMucController::class, 'index'])
     ->name('customer.danhmuc');
 Route::get('/customer/gioi-thieu', [CustomerGioiThieuController::class, 'index'])
     ->name('customer.gioithieu');
+
+// TRANG CHỦ QUẢN TRỊ
+Route::get('/quantri', function () {
+    return view('quantri.trangchu');
+})->middleware(['auth', 'role:admin,employee'])
+  ->name('quantri.trangchu');
+// QUẢN LÝ NHÂN VIÊN
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('quantri/nhanvien')
+    ->group(function () {
+
+        Route::get('/', [QuanLyNhanVienController::class, 'index'])
+            ->name('quantri.nhanvien.index');
+
+        Route::get('/create', [QuanLyNhanVienController::class, 'create'])
+            ->name('quantri.nhanvien.create');
+
+        Route::post('/', [QuanLyNhanVienController::class, 'store'])
+            ->name('quantri.nhanvien.store');
+
+        Route::get('/{nhanVien}/edit', [QuanLyNhanVienController::class, 'edit'])
+            ->name('quantri.nhanvien.edit');
+
+        Route::put('/{nhanVien}', [QuanLyNhanVienController::class, 'update'])
+            ->name('quantri.nhanvien.update');
+
+        Route::patch('/{nhanVien}/status', [QuanLyNhanVienController::class, 'toggleStatus'])
+            ->name('quantri.nhanvien.status');
+    });
+//quan lý khách hàng 
+Route::middleware(['auth', 'role:admin,employee'])
+    ->prefix('quantri/khachhang')
+    ->group(function () {
+        Route::get('/', [QuanLyKhachHangController::class, 'index'])
+            ->name('quantri.khachhang.index');
+    });
 // SÁCH KHÁCH HÀNG
 Route::get('/customer/book/{sach}', [CustomerBookController::class, 'show'])
     ->name('customer.book.show');
