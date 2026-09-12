@@ -14,21 +14,12 @@
         max-width: 1000px;
         margin: 0 auto;
     }
-    .page-kicker {
-        margin: 0;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #6f6ef3;
+    .add-book-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1px;
     }
 
-    .page-title {
-        margin: 6px 0 0;
-        font-size: 32px;
-        font-weight: 800;
-        color: #1f2937;
-    }
 
     .btn {
         display: inline-flex;
@@ -73,28 +64,26 @@
     .btn-ghost:hover {
         background: #e5e7eb;
     }
-
-    .btn-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 700;
-        text-decoration: none;
-        border: 1px solid transparent;
-    }
-
     .btn-edit {
         background: #fef3c7;
         color: #b45309;
+        border-color: #fde68a;
+    }
+    .btn-edit:hover {
+        background: #fde68a;
+        color: #92400e;
+        transform: translateY(-1px);
     }
 
     .btn-delete {
         background: #fee2e2;
         color: #b91c1c;
+        border-color: #fecaca;
+    }
+    .btn-delete:hover {
+        background: #fecaca;
+        color: #991b1b;
+        transform: translateY(-1px);
     }
 
     .stats-grid {
@@ -363,7 +352,23 @@
     .action-group {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+    }
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 70px;
+        height: 36px;
+        padding: 0 14px;
+        border-radius: 9px;
+        border: 1px solid transparent;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
     }
 
     .empty-box {
@@ -418,10 +423,6 @@
     }
 
     @media (max-width: 720px) {
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
 
         .stats-grid,
         .filters-form {
@@ -437,19 +438,12 @@
 
 <div class="book-management">
 
-    {{-- HEADER --}}
-    <div class="page-header">
-        <div>
-            <p class="page-kicker">Tổng quan</p>
-            <h1 class="page-title">Quản lý sách</h1>
-        </div>
-
+    <div class="add-book-wrapper">
         <a href="{{ route('sach.create') }}" class="btn btn-primary">
             <span>＋</span>
             <span>Thêm sách</span>
         </a>
     </div>
-
 
     {{-- BỘ LỌC --}}
     <div class="toolbar-panel">
@@ -578,19 +572,6 @@
 
                             @php
 
-                                /*
-                                 * Trạng thái hiển thị:
-                                 *
-                                 * 1. Nếu nhân viên chọn "Ngừng kinh doanh"
-                                 *    → hiển thị "Ngừng kinh doanh".
-                                 *
-                                 * 2. Nếu đang kinh doanh nhưng tồn kho = 0
-                                 *    → tự động hiển thị "Hết hàng".
-                                 *
-                                 * 3. Nếu đang kinh doanh và còn hàng
-                                 *    → hiển thị "Đang kinh doanh".
-                                 */
-
                                 $displayStatus = (
                                     $sach->trangThai === 'Đang kinh doanh'
                                     && $sach->tonKho
@@ -679,46 +660,36 @@
                                     </span>
 
                                 </td>
-
-
-                                {{-- THAO TÁC --}}
                                 <td class="actions-col">
-
                                     <div class="action-group">
 
                                         {{-- SỬA --}}
                                         <a
                                             href="{{ route('sach.edit', $sach->maSach) }}"
-                                            class="btn-icon btn-edit"
-                                            title="Sửa"
+                                            class="btn-action btn-edit"
                                         >
-                                            ✎
+                                            Sửa
                                         </a>
-
 
                                         {{-- XÓA --}}
                                         <form
                                             action="{{ route('sach.destroy', $sach->maSach) }}"
                                             method="POST"
                                             onsubmit="return confirm('Bạn có chắc muốn xóa sách này?');"
+                                            style="margin: 0;"
                                         >
-
                                             @csrf
-
                                             @method('DELETE')
 
                                             <button
                                                 type="submit"
-                                                class="btn-icon btn-delete"
-                                                title="Xóa"
+                                                class="btn-action btn-delete"
                                             >
                                                 Xóa
                                             </button>
-
                                         </form>
 
                                     </div>
-
                                 </td>
 
                             </tr>

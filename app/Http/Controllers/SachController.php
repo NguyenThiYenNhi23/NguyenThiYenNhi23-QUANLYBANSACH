@@ -10,19 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class SachController extends Controller
 {
-    /**
-     * Hiển thị danh sách sách
-     *
-     * Chức năng:
-     * - Tìm kiếm theo mã sách, tên sách
-     * - Lọc theo danh mục
-     * - Lọc theo trạng thái kinh doanh
-     * - Sắp xếp
-     *
-     * Lưu ý:
-     * - Trang quản lý sách không hiển thị số lượng tồn.
-     * - Số lượng tồn được quản lý ở phân hệ kho.
-     */
+
     public function index(Request $request)
     {
         $keyword = trim((string) $request->input('keyword', ''));
@@ -30,19 +18,7 @@ class SachController extends Controller
         $status = $request->input('trangThai');
         $sort = $request->input('sort', 'maSach_desc');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Chỉ cho phép 2 trạng thái kinh doanh
-        |--------------------------------------------------------------------------
-        |
-        | Nhân viên chỉ được chọn:
-        | - Đang kinh doanh
-        | - Ngừng kinh doanh
-        |
-        | Hết hàng không phải là trạng thái kinh doanh.
-        | Hết hàng được xác định dựa vào số lượng tồn trong kho.
-        |
-        */
+
 
         if (!in_array($status, [
             'Đang kinh doanh',
@@ -51,11 +27,6 @@ class SachController extends Controller
             $status = null;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Truy vấn danh sách sách
-        |--------------------------------------------------------------------------
-        */
 
         $query = Sach::with('danhMuc')
             ->when($keyword !== '', function ($query) use ($keyword) {
@@ -84,12 +55,6 @@ class SachController extends Controller
                     $status
                 );
             });
-
-        /*
-        |--------------------------------------------------------------------------
-        | Sắp xếp
-        |--------------------------------------------------------------------------
-        */
 
         switch ($sort) {
 
@@ -122,44 +87,16 @@ class SachController extends Controller
                 break;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Phân trang
-        |--------------------------------------------------------------------------
-        */
 
         $sachs = $query
             ->paginate(10)
             ->withQueryString();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Danh mục
-        |--------------------------------------------------------------------------
-        */
 
         $danhMucs = DanhMuc::orderBy(
             'tenDanhMuc'
         )->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Thống kê
-        |--------------------------------------------------------------------------
-        |
-        | Tổng số sách:
-        | - Tất cả sách trong hệ thống
-        |
-        | Đang kinh doanh:
-        | - Dựa vào trangThai
-        |
-        | Hết hàng:
-        | - Dựa vào ton_khos.soLuongTon <= 0
-        |
-        | Ngừng kinh doanh:
-        | - Dựa vào trangThai
-        |
-        */
 
         $stats = [
 
@@ -206,9 +143,6 @@ class SachController extends Controller
     }
 
 
-    /**
-     * Hiển thị form thêm sách
-     */
     public function create()
     {
         $danhMucs = DanhMuc::all();
@@ -220,18 +154,10 @@ class SachController extends Controller
     }
 
 
-    /**
-     * Lưu sách mới
-     */
     public function store(SaveSachRequest $request)
     {
         $data = $request->validated();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Xử lý hình ảnh riêng
-        |--------------------------------------------------------------------------
-        */
 
         unset($data['hinhAnh']);
 
@@ -245,27 +171,12 @@ class SachController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Trạng thái mặc định
-        |--------------------------------------------------------------------------
-        |
-        | Sách mới mặc định là:
-        | Đang kinh doanh
-        |
-        */
-
         if (!isset($data['trangThai'])) {
 
             $data['trangThai'] =
                 'Đang kinh doanh';
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Chỉ cho phép 2 trạng thái
-        |--------------------------------------------------------------------------
-        */
 
         if (!in_array(
             $data['trangThai'],
@@ -278,12 +189,6 @@ class SachController extends Controller
             $data['trangThai'] =
                 'Đang kinh doanh';
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tạo sách
-        |--------------------------------------------------------------------------
-        */
 
         Sach::create($data);
 
@@ -301,15 +206,7 @@ class SachController extends Controller
      */
     public function show($maSach)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Lấy thông tin sách
-        |--------------------------------------------------------------------------
-        |
-        | Trang chi tiết không cần hiển thị số lượng tồn.
-        | Vì vậy chỉ cần lấy danh mục.
-        |
-        */
+
 
         $sach = Sach::with('danhMuc')
             ->findOrFail($maSach);
@@ -320,10 +217,6 @@ class SachController extends Controller
         );
     }
 
-
-    /**
-     * Hiển thị form sửa sách
-     */
     public function edit($maSach)
     {
         $sach = Sach::findOrFail($maSach);
@@ -339,10 +232,6 @@ class SachController extends Controller
         );
     }
 
-
-    /**
-     * Cập nhật thông tin sách
-     */
     public function update(
         SaveSachRequest $request,
         $maSach
@@ -351,26 +240,10 @@ class SachController extends Controller
 
         $data = $request->validated();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Xử lý hình ảnh riêng
-        |--------------------------------------------------------------------------
-        */
+
 
         unset($data['hinhAnh']);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Chỉ cho phép 2 trạng thái
-        |--------------------------------------------------------------------------
-        |
-        | Không cho lưu:
-        | Hết hàng
-        |
-        | Hết hàng được xác định tự động
-        | dựa trên số lượng tồn kho.
-        |
-        */
 
         if (isset($data['trangThai'])) {
 
@@ -386,17 +259,7 @@ class SachController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Upload hình ảnh mới
-        |--------------------------------------------------------------------------
-        */
-
         if ($request->hasFile('hinhAnh')) {
-
-            /*
-            | Xóa hình cũ nếu tồn tại
-            */
 
             if (
                 $sach->hinhAnh &&
@@ -410,9 +273,6 @@ class SachController extends Controller
                 );
             }
 
-            /*
-            | Lưu hình mới
-            */
 
             $data['hinhAnh'] = $request
                 ->file('hinhAnh')
@@ -422,11 +282,6 @@ class SachController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Cập nhật sách
-        |--------------------------------------------------------------------------
-        */
 
         $sach->update($data);
 
@@ -439,28 +294,11 @@ class SachController extends Controller
     }
 
 
-    /**
-     * Cập nhật trạng thái kinh doanh của sách
-     *
-     * Nhân viên chỉ được chọn:
-     * - Đang kinh doanh
-     * - Ngừng kinh doanh
-     *
-     * Không có lựa chọn Hết hàng.
-     *
-     * Hết hàng được xác định tự động từ tồn kho.
-     */
     public function updateStatus(
         Request $request,
         $maSach
     ) {
         $sach = Sach::findOrFail($maSach);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Kiểm tra trạng thái
-        |--------------------------------------------------------------------------
-        */
 
         $request->validate([
             'trangThai' => [
@@ -468,12 +306,6 @@ class SachController extends Controller
                 'in:Đang kinh doanh,Ngừng kinh doanh'
             ],
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cập nhật trạng thái
-        |--------------------------------------------------------------------------
-        */
 
         $sach->update([
             'trangThai' => $request->trangThai
@@ -487,10 +319,6 @@ class SachController extends Controller
             );
     }
 
-
-    /**
-     * Xóa sách
-     */
     public function destroy($maSach)
     {
         $sach = Sach::with([
@@ -499,12 +327,6 @@ class SachController extends Controller
             'chiTietPhieuNhaps',
             'tonKho',
         ])->findOrFail($maSach);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Kiểm tra dữ liệu liên quan
-        |--------------------------------------------------------------------------
-        */
 
         $hasRelatedData =
             $sach->chiTietDonHangs()->exists()
@@ -524,11 +346,6 @@ class SachController extends Controller
 
         try {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Xóa hình ảnh
-            |--------------------------------------------------------------------------
-            */
 
             if (
                 $sach->hinhAnh &&
@@ -541,12 +358,6 @@ class SachController extends Controller
                     $sach->hinhAnh
                 );
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Xóa sách
-            |--------------------------------------------------------------------------
-            */
 
             $sach->delete();
 

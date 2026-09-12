@@ -17,9 +17,9 @@ class TonKho extends Model
         'soLuongTon',
         'ngayCapNhat',
     ];
-
     protected $casts = [
         'ngayCapNhat' => 'datetime',
+        'soLuongTon' => 'integer',
     ];
 
     public function sach()
