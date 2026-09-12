@@ -218,8 +218,8 @@ class DatabaseSeeder extends Seeder
     private function seedDonHangs(): void
     {
         $donHangs = [
-            ['maKH' => KhachHang::where('email', 'an@gmail.com')->value('maKH'), 'maDiaChi' => DiaChi::where('maKH', KhachHang::where('email', 'an@gmail.com')->value('maKH'))->first()->maDiaChi, 'maPTTT' => PhuongThucThanhToan::where('tenPhuongThuc', 'Thanh toán khi nhận hàng')->value('maPTTT'), 'ngayDat' => now(), 'tongTien' => 250000, 'trangThai' => 'ChoXacNhan'],
-            ['maKH' => KhachHang::where('email', 'bich@gmail.com')->value('maKH'), 'maDiaChi' => DiaChi::where('maKH', KhachHang::where('email', 'bich@gmail.com')->value('maKH'))->first()->maDiaChi, 'maPTTT' => PhuongThucThanhToan::where('tenPhuongThuc', 'Chuyển khoản ngân hàng')->value('maPTTT'), 'ngayDat' => now(), 'tongTien' => 155000, 'trangThai' => 'DangGiao'],
+            ['maKH' => KhachHang::where('email', 'an@gmail.com')->value('maKH'), 'maDiaChi' => DiaChi::where('maKH', KhachHang::where('email', 'an@gmail.com')->value('maKH'))->first()->maDiaChi, 'maPTTT' => PhuongThucThanhToan::where('tenPhuongThuc', 'Thanh toán khi nhận hàng (COD)')->value('maPTTT'), 'ngayDat' => now(), 'tongTien' => 250000, 'trangThai' => 'ChoXacNhan'],
+            ['maKH' => KhachHang::where('email', 'bich@gmail.com')->value('maKH'), 'maDiaChi' => DiaChi::where('maKH', KhachHang::where('email', 'bich@gmail.com')->value('maKH'))->first()->maDiaChi, 'maPTTT' => PhuongThucThanhToan::where('tenPhuongThuc', 'Ví điện tử VNpay')->value('maPTTT'), 'ngayDat' => now(), 'tongTien' => 155000, 'trangThai' => 'DangGiao'],
         ];
 
         $donHangList = [];
@@ -308,4 +308,3 @@ class DatabaseSeeder extends Seeder
         );
     }
 }
-

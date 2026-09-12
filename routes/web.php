@@ -4,15 +4,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\CustomerBookController;
 use App\Http\Controllers\CustomerDanhMucController;
+use App\Http\Controllers\CustomerDonMuaController;
 use App\Http\Controllers\CustomerGioiThieuController;
 use App\Http\Controllers\CustomerHomeController;
 use App\Http\Controllers\CustomerSearchController;
 use App\Http\Controllers\DanhMucController;
-use App\Http\Controllers\SachController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\QuanLyNhanVienController;
 use App\Http\Controllers\QuanLyKhachHangController;
+use App\Http\Controllers\QuanLyNhanVienController;
+use App\Http\Controllers\SachController;
 use App\Http\Controllers\TonKhoController;
+use Illuminate\Support\Facades\Route;
+
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -65,7 +67,7 @@ Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
 
 Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
     ->name('admin.danhmuc.destroy');
-// trang chủ 
+// trang chủ
 // Tồn kho
 Route::get('/tonkho', [TonKhoController::class, 'index'])
     ->name('tonkho.index');
@@ -83,7 +85,7 @@ Route::get('/customer/gioi-thieu', [CustomerGioiThieuController::class, 'index']
 Route::get('/quantri', function () {
     return view('quantri.trangchu');
 })->middleware(['auth', 'role:admin,employee'])
-  ->name('quantri.trangchu');
+    ->name('quantri.trangchu');
 // QUẢN LÝ NHÂN VIÊN
 Route::middleware(['auth', 'role:admin'])
     ->prefix('quantri/nhanvien')
@@ -107,7 +109,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::patch('/{nhanVien}/status', [QuanLyNhanVienController::class, 'toggleStatus'])
             ->name('quantri.nhanvien.status');
     });
-//quan lý khách hàng 
+// quan lý khách hàng
 Route::middleware(['auth', 'role:admin,employee'])
     ->prefix('quantri/khachhang')
     ->group(function () {
@@ -142,9 +144,18 @@ Route::get('/customer/checkout/vnpay', [CustomerBookController::class, 'vnpayPay
 // Xử lý kết quả thanh toán VNPay
 Route::post('/customer/checkout/vnpay/result', [CustomerBookController::class, 'vnpayPaymentResult'])
     ->name('customer.checkout.vnpay.result');
-//Đơn hàng thành công
+// Đơn hàng thành công
 Route::get('/customer/order/{donHang}', [CustomerBookController::class, 'orderSuccess'])
     ->name('customer.order.success');
+
+Route::middleware('auth')->prefix('customer/orders')->group(function () {
+    Route::get('/', [CustomerDonMuaController::class, 'index'])
+        ->name('customer.donmua.index');
+    Route::get('/{donHang}', [CustomerDonMuaController::class, 'show'])
+        ->name('customer.donmua.show');
+    Route::patch('/{donHang}/cancel', [CustomerDonMuaController::class, 'cancel'])
+        ->name('customer.donmua.cancel');
+});
 
 // Quản lý sách
 

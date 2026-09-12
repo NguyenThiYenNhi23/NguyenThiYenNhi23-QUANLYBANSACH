@@ -20,7 +20,12 @@ class DonHang extends Model
         'tongTien',
         'trangThai',
     ];
-        public function khachHang()
+
+    protected $casts = [
+        'ngayDat' => 'datetime',
+    ];
+
+    public function khachHang()
     {
         return $this->belongsTo(KhachHang::class, 'maKH', 'maKH');
     }
