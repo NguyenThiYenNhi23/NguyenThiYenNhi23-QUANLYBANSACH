@@ -27,7 +27,12 @@ class SachControllerTest extends TestCase
             'trangThai' => 'Đang kinh doanh',
         ]);
 
-        $response = $this->get(route('sach.index'));
+        $admin = \App\Models\User::factory()->create([
+            'role' => 'admin',
+            'email' => 'admin-index@example.com',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('sach.index'));
 
         $response->assertOk();
         $response->assertSee('Xóa');
@@ -55,10 +60,44 @@ class SachControllerTest extends TestCase
             'ngayCapNhat' => now(),
         ]);
 
-        $response = $this->delete(route('sach.destroy', $sach));
+        $admin = \App\Models\User::factory()->create([
+            'role' => 'admin',
+            'email' => 'admin-delete@example.com',
+        ]);
+
+        $response = $this->actingAs($admin)->delete(route('sach.destroy', $sach));
 
         $response->assertRedirect(route('sach.index'));
         $response->assertSessionHas('error', 'Không thể xóa sách vì sách đã phát sinh dữ liệu liên quan.');
         $this->assertDatabaseHas('sachs', ['maSach' => $sach->maSach]);
+    }
+
+    public function test_admin_can_create_book(): void
+    {
+        $danhMuc = DanhMuc::create([
+            'tenDanhMuc' => 'Sách lập trình',
+            'moTa' => 'Sách lập trình',
+        ]);
+
+        $admin = \App\Models\User::factory()->create([
+            'role' => 'admin',
+            'email' => 'admin@example.com',
+        ]);
+
+        $response = $this->actingAs($admin)->post(route('sach.store'), [
+            'maDanhMuc' => $danhMuc->maDanhMuc,
+            'tenSach' => 'PHP nâng cao',
+            'giaBan' => 250000,
+            'moTa' => 'Sách PHP',
+            'trangThai' => 'Đang kinh doanh',
+        ]);
+
+        $response->assertRedirect(route('sach.index'));
+        $this->assertDatabaseHas('sachs', ['tenSach' => 'PHP nâng cao']);
+    }
+
+    public function test_sach_model_ignores_created_at_and_updated_at_for_live_schema(): void
+    {
+        $this->assertFalse((new Sach())->timestamps);
     }
 }

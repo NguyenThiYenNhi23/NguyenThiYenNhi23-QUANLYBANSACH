@@ -50,23 +50,25 @@ Route::get('/', function () {
     return redirect()->route('customer.home');
 });
 
-Route::get('/admin/danhmuc', [DanhMucController::class, 'index'])
-    ->name('admin.danhmuc.index');
+Route::middleware(['auth', 'role:admin,employee'])->group(function () {
+    Route::get('/admin/danhmuc', [DanhMucController::class, 'index'])
+        ->name('admin.danhmuc.index');
 
-Route::get('/admin/danhmuc/create', [DanhMucController::class, 'create'])
-    ->name('admin.danhmuc.create');
+    Route::get('/admin/danhmuc/create', [DanhMucController::class, 'create'])
+        ->name('admin.danhmuc.create');
 
-Route::post('/admin/danhmuc', [DanhMucController::class, 'store'])
-    ->name('admin.danhmuc.store');
+    Route::post('/admin/danhmuc', [DanhMucController::class, 'store'])
+        ->name('admin.danhmuc.store');
 
-Route::get('/admin/danhmuc/{danhMuc}/edit', [DanhMucController::class, 'edit'])
-    ->name('admin.danhmuc.edit');
+    Route::get('/admin/danhmuc/{danhMuc}/edit', [DanhMucController::class, 'edit'])
+        ->name('admin.danhmuc.edit');
 
-Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
-    ->name('admin.danhmuc.update');
+    Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
+        ->name('admin.danhmuc.update');
 
-Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
-    ->name('admin.danhmuc.destroy');
+    Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
+        ->name('admin.danhmuc.destroy');
+});
 // trang chủ
 // Tồn kho
 Route::get('/tonkho', [TonKhoController::class, 'index'])
@@ -123,6 +125,9 @@ Route::get('/customer/book/{sach}', [CustomerBookController::class, 'show'])
 Route::post('/customer/cart/add', [CustomerBookController::class, 'addToCart'])
     ->name('customer.cart.add');
 
+Route::post('/customer/cart/update', [CustomerBookController::class, 'updateCart'])
+    ->name('customer.cart.update');
+
 Route::post('/customer/cart/buy-now', [CustomerBookController::class, 'buyNow'])
     ->name('customer.cart.buyNow');
 
@@ -158,8 +163,7 @@ Route::middleware('auth')->prefix('customer/orders')->group(function () {
 });
 
 // Quản lý sách
-
-Route::prefix('sach')->group(function () {
+Route::middleware(['auth', 'role:admin,employee'])->prefix('sach')->group(function () {
 
     // Danh sách + tìm kiếm
     Route::get('/', [SachController::class, 'index'])

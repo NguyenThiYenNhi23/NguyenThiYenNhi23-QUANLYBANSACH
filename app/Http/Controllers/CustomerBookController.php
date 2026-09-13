@@ -74,7 +74,7 @@ class CustomerBookController extends Controller
             ->findOrFail($request->maSach);
 
         $soLuongTon = (int) (
-            $sach->tonKho->soLuongTon ?? 0
+            $sach->tonKho->soLuongTon ?? 1
         );
 
         if ($soLuongTon <= 0) {
@@ -168,7 +168,7 @@ class CustomerBookController extends Controller
         $soLuongMua = (int) $request->soLuong;
 
         $soLuongTon = (int) (
-            $sach->tonKho->soLuongTon ?? 0
+            $sach->tonKho->soLuongTon ?? 1
         );
 
         if ($soLuongTon <= 0) {
@@ -246,13 +246,64 @@ class CustomerBookController extends Controller
         );
     }
 
+    public function updateCart(Request $request)
+    {
+        $request->validate([
+            'maSach' => ['required', 'integer', 'exists:sachs,maSach'],
+            'action' => ['required', 'in:plus,minus,remove'],
+        ]);
+
+        $maSach = (int) $request->maSach;
+        $cart = session()->get('cart', []);
+
+        if (! isset($cart[$maSach])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không có trong giỏ hàng.',
+            ], 404);
+        }
+
+        $sach = Sach::with('tonKho')->findOrFail($maSach);
+        $soLuongTon = (int) ($sach->tonKho->soLuongTon ?? 1);
+        $soLuongHienTai = (int) $cart[$maSach]['soLuong'];
+
+        if ($request->action === 'plus') {
+            if ($soLuongHienTai >= $soLuongTon) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đã đạt giới hạn tồn kho.',
+                ], 422);
+            }
+
+            $cart[$maSach]['soLuong'] = $soLuongHienTai + 1;
+        } elseif ($request->action === 'minus') {
+            if ($soLuongHienTai <= 1) {
+                unset($cart[$maSach]);
+            } else {
+                $cart[$maSach]['soLuong'] = $soLuongHienTai - 1;
+            }
+        } else {
+            unset($cart[$maSach]);
+        }
+
+        session()->put('cart', $cart);
+
+        $totalItems = collect($cart)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
+
+        return response()->json([
+            'success' => true,
+            'cartCount' => $totalItems,
+            'message' => 'Cập nhật giỏ hàng thành công.',
+        ]);
+    }
+
 
     /**
      * =========================================================
      * 5. HIỂN THỊ TRANG THANH TOÁN
      * =========================================================
      */
-    public function checkout(): View|RedirectResponse
+    public function checkout(Request $request): View|RedirectResponse
     {
         if (!Auth::check()) {
             return redirect()
@@ -277,6 +328,22 @@ class CustomerBookController extends Controller
                 'cart',
                 []
             );
+
+            $selected = $request->query('selected', []);
+            $selectedIds = array_map('intval', (array) $selected);
+
+            if (!empty($selectedIds)) {
+                $items = array_filter(
+                    $items,
+                    fn ($item) => in_array((int) ($item['maSach'] ?? 0), $selectedIds, true)
+                );
+
+                session()->put('checkout_selected', $selectedIds);
+            } else {
+                session()->forget('checkout_selected');
+            }
+        } else {
+            session()->forget('checkout_selected');
         }
 
         if (empty($items)) {
@@ -559,6 +626,7 @@ class CustomerBookController extends Controller
                 );
 
             $isBuyNow = true;
+            session()->forget('checkout_selected');
 
         } else {
 
@@ -578,6 +646,20 @@ class CustomerBookController extends Controller
                         'error',
                         'Không có sản phẩm nào để đặt hàng.'
                     );
+            }
+
+            $selected = session()->get('checkout_selected', []);
+            if (!empty($selected)) {
+                $cart = array_filter(
+                    $cart,
+                    fn ($item) => in_array((int) ($item['maSach'] ?? 0), array_map('intval', $selected), true)
+                );
+            }
+
+            if (empty($cart)) {
+                return redirect()
+                    ->route('customer.home')
+                    ->with('error', 'Không có sản phẩm nào được chọn để đặt hàng.');
             }
 
             $items =
@@ -631,9 +713,17 @@ class CustomerBookController extends Controller
 
                     } else {
 
-                        session()->forget(
-                            'cart'
-                        );
+                        $selected = session()->get('checkout_selected', []);
+                        $cart = session()->get('cart', []);
+
+                        if (!empty($selected)) {
+                            foreach ($selected as $maSach) {
+                                unset($cart[(int) $maSach]);
+                            }
+                            session()->put('cart', $cart);
+                        } else {
+                            session()->forget('cart');
+                        }
                     }
 
 
@@ -647,6 +737,8 @@ class CustomerBookController extends Controller
                     session()->forget(
                         'open_vnpay_popup'
                     );
+
+                    session()->forget('checkout_selected');
 
 
                     /*

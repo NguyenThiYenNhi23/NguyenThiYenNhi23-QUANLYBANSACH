@@ -51,14 +51,39 @@ class CustomerBookDetailTest extends TestCase
             'trangThai' => 'Đang kinh doanh',
         ]);
 
-        $response = $this->post(route('customer.cart.add'), [
+        $this->actingAs(
+            \App\Models\User::factory()->create()
+        )->post(route('customer.cart.add'), [
             'maSach' => $sach->maSach,
             'soLuong' => 1,
-        ]);
+        ])->assertRedirect(route('customer.book.show', $sach->maSach));
 
-        $response->assertRedirect(route('customer.book.show', $sach->maSach));
         $this->assertNotEmpty(session('cart'));
         $this->assertArrayHasKey($sach->maSach, session('cart'));
         $this->assertEquals(1, session('cart.' . $sach->maSach . '.soLuong'));
+    }
+
+    public function test_missing_stock_row_does_not_hide_add_to_cart_button(): void
+    {
+        $danhMuc = DanhMuc::create([
+            'tenDanhMuc' => 'Sách thiếu nhi',
+            'moTa' => 'Danh mục thiếu nhi',
+            'isActive' => true,
+        ]);
+
+        $sach = Sach::create([
+            'maDanhMuc' => $danhMuc->maDanhMuc,
+            'tenSach' => 'Doremon',
+            'giaBan' => 10000,
+            'moTa' => 'Truyện thiếu nhi',
+            'hinhAnh' => null,
+            'trangThai' => 'Đang kinh doanh',
+        ]);
+
+        $response = $this->get(route('customer.book.show', $sach->maSach));
+
+        $response->assertOk();
+        $response->assertSee('Thêm vào giỏ hàng');
+        $response->assertDontSee('Hết hàng');
     }
 }

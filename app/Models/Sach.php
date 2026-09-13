@@ -11,6 +11,8 @@ class Sach extends Model
 
     protected $primaryKey = 'maSach';
 
+    public $timestamps = false;
+
     public $incrementing = true;
 
     protected $keyType = 'int';

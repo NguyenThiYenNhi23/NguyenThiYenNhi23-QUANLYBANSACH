@@ -8,7 +8,7 @@
     <title>{{ $sach->tenSach }} - Nhà xuất bản Kim Đồng</title>
 
     @php
-        $soLuongTon = $sach->tonKho->soLuongTon ?? 0;
+        $soLuongTon = max(1, (int) ($sach->tonKho->soLuongTon ?? 1));
     @endphp
 
     <style>
@@ -562,6 +562,10 @@
 
 <body>
 
+@php
+    $cartItems = session('cart', []);
+    $cartCount = collect($cartItems)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
+@endphp
 
 {{-- =========================
      HEADER - GIỐNG TRANG CHỦ
@@ -653,6 +657,9 @@
                 >
                     <span class="cart-icon">🛒</span>
                     <span>Giỏ hàng</span>
+                    @if ($cartCount > 0)
+                        <span class="cart-badge">{{ $cartCount }}</span>
+                    @endif
                 </a>
 
             </div>
