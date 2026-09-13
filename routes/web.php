@@ -12,6 +12,7 @@ use App\Http\Controllers\DanhMucController;
 use App\Http\Controllers\QuanLyKhachHangController;
 use App\Http\Controllers\QuanLyNhanVienController;
 use App\Http\Controllers\SachController;
+use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TonKhoController;
 use Illuminate\Support\Facades\Route;
 
@@ -88,6 +89,10 @@ Route::get('/quantri', function () {
     return view('quantri.trangchu');
 })->middleware(['auth', 'role:admin,employee'])
     ->name('quantri.trangchu');
+
+Route::middleware(['auth', 'role:admin'])
+    ->get('/quantri/thongke', [ThongKeController::class, 'index'])
+    ->name('quantri.thongke');
 // QUẢN LÝ NHÂN VIÊN
 Route::middleware(['auth', 'role:admin'])
     ->prefix('quantri/nhanvien')

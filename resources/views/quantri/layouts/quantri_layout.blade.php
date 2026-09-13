@@ -378,7 +378,8 @@
             @endif
 
             @if(auth()->user()->role === 'admin')
-                <a href="#">
+                <a href="{{ route('quantri.thongke') }}"
+                   class="{{ request()->routeIs('quantri.thongke') ? 'active' : '' }}">
                     <span class="menu-icon">📊</span>
                     <span>Thống kê</span>
                 </a>

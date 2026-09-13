@@ -193,6 +193,22 @@ class AuthLoginRedirectTest extends TestCase
         $response->assertDontSee('Sách B');
     }
 
+    public function test_admin_statistics_page_loads_for_admin(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin thống kê',
+            'email' => 'admin-stat@example.com',
+            'phone' => '0912345680',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('quantri.thongke'));
+
+        $response->assertOk();
+        $response->assertSee('Thống kê');
+    }
+
     public function test_admin_cannot_delete_category_with_books(): void
     {
         $admin = User::create([
