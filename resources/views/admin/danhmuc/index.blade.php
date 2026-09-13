@@ -168,13 +168,16 @@
 
 <div class="danhmuc-content">
 
-    <div class="title">
-        QUẢN LÝ DANH MỤC
-    </div>
 
     @if (session('success'))
         <div class="alert-success">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert-success" style="background:#fdecea;color:#b42318;border:1px solid #f5c2c7;">
+            {{ session('error') }}
         </div>
     @endif
 

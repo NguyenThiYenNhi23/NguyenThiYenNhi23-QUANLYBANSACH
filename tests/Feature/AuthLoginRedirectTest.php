@@ -192,4 +192,36 @@ class AuthLoginRedirectTest extends TestCase
         $response->assertSee('Sách A');
         $response->assertDontSee('Sách B');
     }
+
+    public function test_admin_cannot_delete_category_with_books(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'phone' => '0912345679',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+        ]);
+
+        $danhMuc = \App\Models\DanhMuc::create([
+            'tenDanhMuc' => 'Sách giáo khoa',
+            'moTa' => 'Sách giáo khoa',
+            'isActive' => true,
+        ]);
+
+        \App\Models\Sach::create([
+            'maDanhMuc' => $danhMuc->maDanhMuc,
+            'tenSach' => 'Toán 10',
+            'giaBan' => 50000,
+            'moTa' => 'Sách học',
+            'trangThai' => 'Đang kinh doanh',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->delete(route('admin.danhmuc.destroy', $danhMuc));
+
+        $response->assertRedirect(route('admin.danhmuc.index'));
+        $response->assertSessionHas('error', 'Không thể xóa danh mục vì danh mục này đang có sách đang kinh doanh.');
+        $this->assertDatabaseHas('danh_mucs', ['maDanhMuc' => $danhMuc->maDanhMuc]);
+    }
 }

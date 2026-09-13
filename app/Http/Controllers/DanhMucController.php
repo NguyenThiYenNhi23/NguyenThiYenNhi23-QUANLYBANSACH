@@ -57,6 +57,12 @@ class DanhMucController extends Controller
 
     public function destroy(DanhMuc $danhMuc): RedirectResponse
     {
+        if ($danhMuc->sachs()->exists()) {
+            return redirect()
+                ->route('admin.danhmuc.index')
+                ->with('error', 'Không thể xóa danh mục vì danh mục này đang có sách đang kinh doanh.');
+        }
+
         $danhMuc->delete();
 
         return redirect()
