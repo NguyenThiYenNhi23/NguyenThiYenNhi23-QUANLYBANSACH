@@ -1,38 +1,12 @@
-@extends('layout.admin')
+@extends('quantri.layouts.quantri_layout')
 
 @section('title', 'Quản lý phiếu nhập')
 
-@push('styles')
+@section('header-title', 'Quản lý phiếu nhập')
+
+@section('content')
 
 <style>
-    /* 1. Chỉ ẩn thanh menu dọc bên trái (sidebar) */
-    .sidebar, 
-    #sidebar, 
-    nav.sidebar, 
-    .sidebar-offcanvas {
-        display: none !important;
-    }
-
-    /* 2. Mở rộng khung chứa nội dung ra hết chiều ngang màn hình */
-    .main-panel, 
-    .content-wrapper, 
-    .page-body-wrapper {
-        width: 100% !important;
-        margin-left: 0 !important;
-        padding-left: 0 !important;
-    }
-
-    /* 3. Đảm bảo thanh menu chính (Navbar trên cùng) luôn hiển thị đầy đủ */
-    .navbar, 
-    #navbar, 
-    header.navbar, 
-    .navbar-menu-wrapper {
-        display: flex !important;
-        width: 100% !important;
-        left: 0 !important;
-    }
-
-
     /* =========================
        TRANG PHIẾU NHẬP
     ========================= */
@@ -373,10 +347,6 @@
         }
     }
 </style>
-@endpush
-
-
-@section('content')
 
 <div class="phieu-page">
 
