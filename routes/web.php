@@ -14,12 +14,8 @@ use App\Http\Controllers\QuanLyNhanVienController;
 use App\Http\Controllers\SachController;
 use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TonKhoController;
-<<<<<<< HEAD
 use App\Http\Controllers\PhieuNhapController;
-=======
 use Illuminate\Support\Facades\Route;
-
->>>>>>> ca16dcef4d0a1e945ea6b735101e20c9af9d12fb
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
