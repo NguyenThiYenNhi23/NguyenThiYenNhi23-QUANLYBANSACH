@@ -1113,7 +1113,7 @@ class CustomerBookController extends Controller
                             $tongCong,
 
                         'trangThai' =>
-                            'Chờ xác nhận',
+                            'ChoXacNhan',
                     ]);
 
 

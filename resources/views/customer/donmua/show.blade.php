@@ -137,9 +137,10 @@
                 @endforeach
                 <div class="summary">
                     <div class="summary-row"><span>Tạm tính</span><span>{{ number_format($donHang->chiTietDonHangs->sum('thanhTien'), 0, ',', '.') }}đ</span></div>
+                    <div class="summary-row"><span>Phí vận chuyển</span><span>30.000đ</span></div>
                     <div class="summary-total"><span>Tổng tiền</span><strong>{{ number_format($donHang->tongTien, 0, ',', '.') }}đ</strong></div>
                 </div>
-                @if ($donHang->trangThai === 'ChoXacNhan')
+                @if (in_array($donHang->trangThai, ['ChoXacNhan', 'Chờ xác nhận'], true))
                     <form class="cancel-form" method="POST" action="{{ route('customer.donmua.cancel', $donHang) }}" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
                         @csrf @method('PATCH')
                         <button class="cancel-button" type="submit">Hủy đơn hàng</button>

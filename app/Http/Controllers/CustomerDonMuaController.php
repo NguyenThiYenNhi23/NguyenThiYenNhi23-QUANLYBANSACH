@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DonHang;
+use App\Models\TonKho;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,11 +45,21 @@ class CustomerDonMuaController extends Controller
     {
         abort_unless((int) $donHang->maKH === $this->customerId($request), 404);
 
-        if ($donHang->trangThai !== 'ChoXacNhan') {
+        if (! in_array($donHang->trangThai, ['ChoXacNhan', 'Chờ xác nhận'], true)) {
             return back()->with('error', 'Chỉ có thể hủy đơn hàng đang chờ xác nhận.');
         }
 
-        $donHang->update(['trangThai' => 'DaHuy']);
+        DB::transaction(function () use ($donHang): void {
+            $donHang->load('chiTietDonHangs');
+
+            foreach ($donHang->chiTietDonHangs as $chiTiet) {
+                TonKho::query()
+                    ->where('maSach', $chiTiet->maSach)
+                    ->increment('soLuongTon', $chiTiet->soLuong);
+            }
+
+            $donHang->update(['trangThai' => 'DaHuy']);
+        });
 
         return redirect()->route('customer.donmua.show', $donHang)
             ->with('success', 'Hủy đơn hàng thành công.');
