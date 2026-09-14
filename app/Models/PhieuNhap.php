@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\NhanVien;
+use App\Models\CTPhieuNhap;
 
 class PhieuNhap extends Model
 {
-     protected $table = 'phieu_nhaps';
+    protected $table = 'phieu_nhaps';
 
     protected $primaryKey = 'maPN';
 
@@ -18,13 +20,27 @@ class PhieuNhap extends Model
         'tongTien',
         'trangThai',
     ];
-        public function nhanVien()
+
+    protected $casts = [
+        'ngayNhap' => 'datetime',
+        'tongTien' => 'decimal:2',
+    ];
+
+    public function nhanVien()
     {
-        return $this->belongsTo(NhanVien::class, 'maNV', 'maNV');
+        return $this->belongsTo(
+            NhanVien::class,
+            'maNV',
+            'maNV'
+        );
     }
 
-    public function chiTietPhieuNhaps()
+    public function chiTiet()
     {
-        return $this->hasMany(CTPhieuNhap::class, 'maPN', 'maPN');
+        return $this->hasMany(
+            CTPhieuNhap::class,
+            'maPN',
+            'maPN'
+        );
     }
 }

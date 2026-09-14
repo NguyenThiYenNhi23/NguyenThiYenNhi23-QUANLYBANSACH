@@ -19,6 +19,11 @@ class CTPhieuNhap extends Model
         'donGia',
         'thanhTien',
     ];
+    protected $casts = [
+        'soLuong' => 'integer',
+        'donGia' => 'decimal:2',
+        'thanhTien' => 'decimal:2',
+    ];
 
     public function phieuNhap()
     {
