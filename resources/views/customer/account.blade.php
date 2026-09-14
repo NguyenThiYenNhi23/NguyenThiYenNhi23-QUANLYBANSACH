@@ -63,6 +63,13 @@
         .address-actions button { padding: 0; border: 0; color: #e21c2a; background: transparent; cursor: pointer; }
         .address-actions .set-default { color: #198754; font-size: 13px; }
         .address-empty { margin-top: 25px; color: #666; }
+        .orders-table-wrap { overflow-x: auto; margin-top: 25px; }
+        .orders-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 15px; }
+        .orders-table th, .orders-table td { padding: 16px 10px; border: 1px solid #ddd; text-align: left; vertical-align: top; }
+        .orders-table th { color: #111; font-weight: 700; background: #fafafa; }
+        .order-code-link { color: #1671d9; font-weight: 500; }
+        .order-status { color: #e21c2a; font-weight: 700; }
+        .orders-empty { padding: 28px 0; color: #666; }
         .address-modal { position: fixed; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(0, 0, 0, .62); }
         .address-modal.is-open { display: flex; }
         .address-modal__box { width: min(890px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: #fff; box-shadow: 0 8px 30px rgba(0, 0, 0, .25); }
@@ -111,7 +118,7 @@
 
             <nav class="account-menu">
                 <a class="{{ $section === 'info' ? 'active' : '' }}" href="{{ route('customer.account') }}">Thông tin tài khoản</a>
-                <a href="#">Đơn hàng của bạn</a>
+                <a class="{{ $section === 'orders' ? 'active' : '' }}" href="{{ route('customer.account', ['section' => 'orders']) }}">Đơn hàng của bạn</a>
                 <a class="{{ $section === 'password' ? 'active' : '' }}" href="{{ route('customer.account', ['section' => 'password']) }}">Đổi mật khẩu</a>
                 <a class="{{ $section === 'addresses' ? 'active' : '' }}" href="{{ route('customer.account', ['section' => 'addresses']) }}">Sổ địa chỉ ({{ $addresses->count() }})</a>
                 <form action="{{ route('customer.account.logout') }}" method="POST">
@@ -122,7 +129,50 @@
         </aside>
 
         <section class="account-content">
-            @if ($section === 'password')
+            @if ($section === 'orders')
+                <h2>ĐƠN HÀNG CỦA BẠN</h2>
+
+                @if ($donHangs->isEmpty())
+                    <p class="orders-empty">Bạn chưa có đơn hàng nào.</p>
+                @else
+                    <div class="orders-table-wrap">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Đơn hàng</th>
+                                    <th>Ngày</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Giá trị đơn hàng</th>
+                                    <th>TT thanh toán</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($donHangs as $donHang)
+                                    <tr>
+                                        <td>
+                                            <a class="order-code-link" href="{{ route('customer.donmua.show', $donHang) }}">
+                                                #{{ $donHang->maDH }}
+                                            </a>
+                                        </td>
+                                        <td>{{ $donHang->ngayDat?->format('d/m/Y') }}</td>
+                                        <td>{{ $donHang->diaChi?->diaChiChiTiet ?? 'Chưa cập nhật' }}</td>
+                                        <td>{{ number_format($donHang->tongTien, 0, ',', '.') }}đ</td>
+                                        <td>
+                                            <span class="order-status">{{ match ($donHang->trangThai) {
+                                                'ChoXacNhan' => 'Chờ xác nhận',
+                                                'DangGiao' => 'Đang giao',
+                                                'DaGiao' => 'Đã giao',
+                                                'DaHuy' => 'Đã hủy',
+                                                default => $donHang->trangThai,
+                                            } }}</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            @elseif ($section === 'password')
                 <h2>ĐỔI MẬT KHẨU</h2>
                 <form method="POST" action="{{ route('customer.account.password.update') }}" class="password-form">
                     @csrf

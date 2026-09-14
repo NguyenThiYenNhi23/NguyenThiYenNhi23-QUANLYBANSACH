@@ -220,8 +220,12 @@
                     </button>
                 </form>
 
-                <a href="#">
+                <a href="{{ route('customer.cart') }}">
                     🛒 Giỏ hàng
+                    @php $cartItems = session('cart', []); $cartCount = collect($cartItems)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0)); @endphp
+                    @if ($cartCount > 0)
+                        <span class="cart-badge">{{ $cartCount }}</span>
+                    @endif
                 </a>
             </div>
 

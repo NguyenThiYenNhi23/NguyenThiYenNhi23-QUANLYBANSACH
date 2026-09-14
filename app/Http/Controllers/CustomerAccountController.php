@@ -5,6 +5,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiaChi;
+use App\Models\DonHang;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,11 @@ class CustomerAccountController extends Controller
                 : collect(),
             'defaultAddress' => $addresses->firstWhere('isDefault', true),
             'editingAddress' => $editingAddress,
+            'donHangs' => DonHang::query()
+                ->with('diaChi')
+                ->where('maKH', $customerId)
+                ->orderByDesc('ngayDat')
+                ->get(),
         ]);
     }
 

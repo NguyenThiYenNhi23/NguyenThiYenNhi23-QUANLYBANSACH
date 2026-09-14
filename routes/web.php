@@ -4,14 +4,22 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\CustomerBookController;
 use App\Http\Controllers\CustomerDanhMucController;
+use App\Http\Controllers\CustomerDonMuaController;
 use App\Http\Controllers\CustomerGioiThieuController;
 use App\Http\Controllers\CustomerHomeController;
 use App\Http\Controllers\CustomerSearchController;
 use App\Http\Controllers\DanhMucController;
+use App\Http\Controllers\QuanLyKhachHangController;
+use App\Http\Controllers\QuanLyNhanVienController;
 use App\Http\Controllers\SachController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TonKhoController;
+<<<<<<< HEAD
 use App\Http\Controllers\PhieuNhapController;
+=======
+use Illuminate\Support\Facades\Route;
+
+>>>>>>> ca16dcef4d0a1e945ea6b735101e20c9af9d12fb
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -47,23 +55,26 @@ Route::get('/', function () {
     return redirect()->route('customer.home');
 });
 
-Route::get('/admin/danhmuc', [DanhMucController::class, 'index'])
-    ->name('admin.danhmuc.index');
+Route::middleware(['auth', 'role:admin,employee'])->group(function () {
+    Route::get('/admin/danhmuc', [DanhMucController::class, 'index'])
+        ->name('admin.danhmuc.index');
 
-Route::get('/admin/danhmuc/create', [DanhMucController::class, 'create'])
-    ->name('admin.danhmuc.create');
+    Route::get('/admin/danhmuc/create', [DanhMucController::class, 'create'])
+        ->name('admin.danhmuc.create');
 
-Route::post('/admin/danhmuc', [DanhMucController::class, 'store'])
-    ->name('admin.danhmuc.store');
+    Route::post('/admin/danhmuc', [DanhMucController::class, 'store'])
+        ->name('admin.danhmuc.store');
 
-Route::get('/admin/danhmuc/{danhMuc}/edit', [DanhMucController::class, 'edit'])
-    ->name('admin.danhmuc.edit');
+    Route::get('/admin/danhmuc/{danhMuc}/edit', [DanhMucController::class, 'edit'])
+        ->name('admin.danhmuc.edit');
 
-Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
-    ->name('admin.danhmuc.update');
+    Route::put('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'update'])
+        ->name('admin.danhmuc.update');
 
-Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
-    ->name('admin.danhmuc.destroy');
+    Route::delete('/admin/danhmuc/{danhMuc}', [DanhMucController::class, 'destroy'])
+        ->name('admin.danhmuc.destroy');
+});
+// trang chủ
 // Tồn kho
 Route::get('/tonkho', [TonKhoController::class, 'index'])
     ->name('tonkho.index');
@@ -76,12 +87,55 @@ Route::get('/customer/danhmuc', [CustomerDanhMucController::class, 'index'])
     ->name('customer.danhmuc');
 Route::get('/customer/gioi-thieu', [CustomerGioiThieuController::class, 'index'])
     ->name('customer.gioithieu');
+
+// TRANG CHỦ QUẢN TRỊ
+Route::get('/quantri', function () {
+    return view('quantri.trangchu');
+})->middleware(['auth', 'role:admin,employee'])
+    ->name('quantri.trangchu');
+
+Route::middleware(['auth', 'role:admin'])
+    ->get('/quantri/thongke', [ThongKeController::class, 'index'])
+    ->name('quantri.thongke');
+// QUẢN LÝ NHÂN VIÊN
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('quantri/nhanvien')
+    ->group(function () {
+
+        Route::get('/', [QuanLyNhanVienController::class, 'index'])
+            ->name('quantri.nhanvien.index');
+
+        Route::get('/create', [QuanLyNhanVienController::class, 'create'])
+            ->name('quantri.nhanvien.create');
+
+        Route::post('/', [QuanLyNhanVienController::class, 'store'])
+            ->name('quantri.nhanvien.store');
+
+        Route::get('/{nhanVien}/edit', [QuanLyNhanVienController::class, 'edit'])
+            ->name('quantri.nhanvien.edit');
+
+        Route::put('/{nhanVien}', [QuanLyNhanVienController::class, 'update'])
+            ->name('quantri.nhanvien.update');
+
+        Route::patch('/{nhanVien}/status', [QuanLyNhanVienController::class, 'toggleStatus'])
+            ->name('quantri.nhanvien.status');
+    });
+// quan lý khách hàng
+Route::middleware(['auth', 'role:admin,employee'])
+    ->prefix('quantri/khachhang')
+    ->group(function () {
+        Route::get('/', [QuanLyKhachHangController::class, 'index'])
+            ->name('quantri.khachhang.index');
+    });
 // SÁCH KHÁCH HÀNG
 Route::get('/customer/book/{sach}', [CustomerBookController::class, 'show'])
     ->name('customer.book.show');
 // GIỎ HÀNG
 Route::post('/customer/cart/add', [CustomerBookController::class, 'addToCart'])
     ->name('customer.cart.add');
+
+Route::post('/customer/cart/update', [CustomerBookController::class, 'updateCart'])
+    ->name('customer.cart.update');
 
 Route::post('/customer/cart/buy-now', [CustomerBookController::class, 'buyNow'])
     ->name('customer.cart.buyNow');
@@ -104,13 +158,21 @@ Route::get('/customer/checkout/vnpay', [CustomerBookController::class, 'vnpayPay
 // Xử lý kết quả thanh toán VNPay
 Route::post('/customer/checkout/vnpay/result', [CustomerBookController::class, 'vnpayPaymentResult'])
     ->name('customer.checkout.vnpay.result');
-//Đơn hàng thành công
+// Đơn hàng thành công
 Route::get('/customer/order/{donHang}', [CustomerBookController::class, 'orderSuccess'])
     ->name('customer.order.success');
 
-// Quản lý sách
+Route::middleware('auth')->prefix('customer/orders')->group(function () {
+    Route::get('/', [CustomerDonMuaController::class, 'index'])
+        ->name('customer.donmua.index');
+    Route::get('/{donHang}', [CustomerDonMuaController::class, 'show'])
+        ->name('customer.donmua.show');
+    Route::patch('/{donHang}/cancel', [CustomerDonMuaController::class, 'cancel'])
+        ->name('customer.donmua.cancel');
+});
 
-Route::prefix('sach')->group(function () {
+// Quản lý sách
+Route::middleware(['auth', 'role:admin,employee'])->prefix('sach')->group(function () {
 
     // Danh sách + tìm kiếm
     Route::get('/', [SachController::class, 'index'])

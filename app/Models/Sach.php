@@ -3,14 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Sach extends Model
 {
-     protected $table = 'sachs';
+    protected $table = 'sachs';
 
     protected $primaryKey = 'maSach';
 
     public $timestamps = false;
+
+    public $incrementing = true;
+
+    protected $keyType = 'int';
 
     protected $fillable = [
         'maDanhMuc',
@@ -18,7 +23,12 @@ class Sach extends Model
         'giaBan',
         'moTa',
         'hinhAnh',
+        'trangThai',
     ];
+
+    /**
+     * Một sách thuộc một danh mục
+     */
         public function danhMuc()
     {
         return $this->belongsTo(DanhMuc::class, 'maDanhMuc', 'maDanhMuc');
@@ -44,3 +54,4 @@ class Sach extends Model
         return $this->hasMany(CTPhieuNhap::class, 'maSach', 'maSach');
     }
 }
+

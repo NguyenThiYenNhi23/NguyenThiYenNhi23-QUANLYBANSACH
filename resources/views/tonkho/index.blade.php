@@ -1,8 +1,8 @@
-@extends('layout.admin')
+@extends('quantri.layouts.quantri_layout')
 
 @section('title', 'Quản lý tồn kho')
-
-@push('styles')
+@section('header-title', 'Quản lý tồn kho')
+@section('content')
 
 <style>
     .inventory-page {
@@ -241,9 +241,6 @@
         }
     }
 </style>
-
-@endpush
-
 
 @section('content')
 

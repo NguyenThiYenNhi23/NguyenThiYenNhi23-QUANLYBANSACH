@@ -2,60 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DonHang;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\DonMua;
-use App\Models\CTDonMua;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class CustomerDonMuaController extends Controller
 {
-    // Hiển thị danh sách đơn hàng
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        // LƯU Ý: Đổi 'maKhachHang' thành tên cột lưu ID người mua trong DB của bạn (ví dụ: user_id, maDocGia,...)
-        $query = DonMua::where('maKhachHang', Auth::id());
+        $customerId = $this->customerId($request);
+        $query = DonHang::query()
+            ->with(['chiTietDonHangs.sach', 'diaChi', 'phuongThucThanhToan'])
+            ->where('maKH', $customerId);
 
-        // Lọc theo trạng thái nếu có chọn
         if ($request->filled('trangThai')) {
             $query->where('trangThai', $request->trangThai);
         }
 
-        $donMuas = $query->orderBy('created_at', 'desc')->paginate(10);
+        $donHangs = $query->orderByDesc('ngayDat')->paginate(10)->withQueryString();
 
-        return view('customer.donmua.index', compact('donMuas'));
+        return view('customer.donmua.index', compact('donHangs'));
     }
 
-    // Hiển thị chi tiết đơn hàng
-    public function show($id)
+    public function show(Request $request, DonHang $donHang): View
     {
-        $donMua = DonMua::with(['chiTiets.sach'])
-            ->where('maKhachHang', Auth::id())
-            ->where('maDonMua', $id)
-            ->firstOrFail();
+        abort_unless((int) $donHang->maKH === $this->customerId($request), 404);
 
-        return view('customer.donmua.show', compact('donMua'));
+        $donHang->load(['chiTietDonHangs.sach', 'diaChi', 'phuongThucThanhToan']);
+
+        return view('customer.donmua.show', [
+            'donHang' => $donHang,
+            'addressCount' => DB::table('dia_chis')
+                ->where('maKH', $donHang->maKH)
+                ->count(),
+        ]);
     }
 
-    // Hủy đơn hàng khi trạng thái là "Chờ duyệt"
-    public function cancel($id)
+    public function cancel(Request $request, DonHang $donHang): RedirectResponse
     {
-        $donMua = DonMua::where('maKhachHang', Auth::id())
-            ->where('maDonMua', $id)
-            ->firstOrFail();
+        abort_unless((int) $donHang->maKH === $this->customerId($request), 404);
 
-        if ($donMua->trangThai !== 'Chờ duyệt') {
-            return redirect()->back()->with('error', 'Khách hàng không được phép hủy đơn hàng đã được xác nhận, đang giao hoặc đã giao.');
+        if ($donHang->trangThai !== 'ChoXacNhan') {
+            return back()->with('error', 'Chỉ có thể hủy đơn hàng đang chờ xác nhận.');
         }
 
-        try {
-            $donMua->trangThai = 'Đã hủy';
-            $donMua->save();
+        $donHang->update(['trangThai' => 'DaHuy']);
 
-            return redirect()->route('customer.donmua.show', $id)
-                ->with('success', 'Hủy đơn hàng thành công!');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Xảy ra lỗi khi cập nhật trạng thái. Vui lòng thử lại!');
-        }
+        return redirect()->route('customer.donmua.show', $donHang)
+            ->with('success', 'Hủy đơn hàng thành công.');
+    }
+
+    private function customerId(Request $request): int
+    {
+        $user = $request->user();
+        $customerId = DB::table('khach_hangs')
+            ->where(function ($query) use ($user): void {
+                $query->where('email', $user->email)
+                    ->orWhere('sdt', $user->phone);
+            })
+            ->value('maKH');
+
+        abort_unless($customerId, 404, 'Không tìm thấy thông tin khách hàng.');
+
+        return (int) $customerId;
     }
 }

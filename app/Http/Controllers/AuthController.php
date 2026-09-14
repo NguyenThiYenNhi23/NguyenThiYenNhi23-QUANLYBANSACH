@@ -81,13 +81,13 @@ class AuthController extends Controller
                 return redirect()->route('customer.home');
             }
 
-            if ($user->role === 'employee') {
-                return redirect()->route('admin.danhmuc.index');
-            }
+        if ($user->role === 'employee') {
+            return redirect()->route('quantri.trangchu');
+        }
 
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.danhmuc.index');
-            }
+        if ($user->role === 'admin') {
+            return redirect()->route('quantri.trangchu');
+        }
 
             Auth::logout();
 
@@ -165,12 +165,12 @@ class AuthController extends Controller
 
     // Đăng xuất
     public function logout(Request $request)
-    {
-        Auth::logout();
+{
+    Auth::logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
 
-        return redirect()->route('customer.home');
-    }
+    return redirect()->route('login');
+}
 }

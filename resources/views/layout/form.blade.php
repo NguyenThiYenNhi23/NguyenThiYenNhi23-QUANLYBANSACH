@@ -13,7 +13,7 @@
         body {
             min-height: 100vh;
             margin: 0;
-            padding: 48px 20px;
+            padding: 24px 20px;
             font-family: Arial, Helvetica, sans-serif;
             background: #f5f6fb;
             color: #333;
@@ -21,7 +21,7 @@
 
         .form-page {
             width: 100%;
-            max-width: 720px;
+            max-width: 760px;
             margin: 0 auto;
         }
 
