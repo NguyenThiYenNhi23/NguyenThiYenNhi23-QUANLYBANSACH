@@ -17,6 +17,10 @@ class TonKho extends Model
         'soLuongTon',
         'ngayCapNhat',
     ];
+    protected $casts = [
+    'soLuongTon' => 'integer',
+    'ngayCapNhat' => 'datetime',
+];
         public function sach()
     {
         return $this->belongsTo(Sach::class, 'maSach', 'maSach');

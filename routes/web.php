@@ -11,6 +11,7 @@ use App\Http\Controllers\DanhMucController;
 use App\Http\Controllers\SachController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TonKhoController;
+use App\Http\Controllers\PhieuNhapController;
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register');
@@ -171,3 +172,29 @@ Route::middleware('auth')->prefix('customer/account')->group(function () {
     Route::post('/logout', [CustomerAccountController::class, 'logout'])
         ->name('customer.account.logout');
 });
+
+// Phiếu nhập
+
+Route::get('/phieunhap', [PhieuNhapController::class, 'index'])
+    ->name('phieunhap.index');
+
+Route::get('/phieunhap/lap-phieu', [PhieuNhapController::class, 'create'])
+    ->name('phieunhap.create');
+
+Route::post('/phieunhap', [PhieuNhapController::class, 'store'])
+    ->name('phieunhap.store');
+
+Route::get('/phieunhap/{maPN}', [PhieuNhapController::class, 'show'])
+    ->name('phieunhap.show');
+
+Route::get('/phieunhap/{maPN}/sua', [PhieuNhapController::class, 'edit'])
+    ->name('phieunhap.edit');
+
+Route::put('/phieunhap/{maPN}', [PhieuNhapController::class, 'update'])
+    ->name('phieunhap.update');
+
+Route::delete('/phieunhap/{maPN}', [PhieuNhapController::class, 'destroy'])
+    ->name('phieunhap.destroy');
+
+Route::put('/phieunhap/{maPN}/huy', [PhieuNhapController::class, 'cancel'])
+    ->name('phieunhap.cancel');
