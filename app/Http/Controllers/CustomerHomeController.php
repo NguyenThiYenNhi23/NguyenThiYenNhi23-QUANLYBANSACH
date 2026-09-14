@@ -27,6 +27,8 @@ class CustomerHomeController extends Controller
             'sachs.moTa',
             'sachs.hinhAnh',
             'sachs.trangThai',
+            'sachs.created_at',
+            'sachs.updated_at',
         ];
 
         $sachNoiBat = (clone $baseQuery)
