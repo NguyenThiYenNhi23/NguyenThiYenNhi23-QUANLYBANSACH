@@ -3,7 +3,39 @@
 @section('title', 'Quản lý phiếu nhập')
 
 @push('styles')
+
 <style>
+    /* 1. Chỉ ẩn thanh menu dọc bên trái (sidebar) */
+    .sidebar, 
+    #sidebar, 
+    nav.sidebar, 
+    .sidebar-offcanvas {
+        display: none !important;
+    }
+
+    /* 2. Mở rộng khung chứa nội dung ra hết chiều ngang màn hình */
+    .main-panel, 
+    .content-wrapper, 
+    .page-body-wrapper {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* 3. Đảm bảo thanh menu chính (Navbar trên cùng) luôn hiển thị đầy đủ */
+    .navbar, 
+    #navbar, 
+    header.navbar, 
+    .navbar-menu-wrapper {
+        display: flex !important;
+        width: 100% !important;
+        left: 0 !important;
+    }
+
+
+    /* =========================
+       TRANG PHIẾU NHẬP
+    ========================= */
     .phieu-page {
         padding: 30px 35px;
         font-family: Arial, sans-serif;
@@ -302,7 +334,6 @@
        RESPONSIVE
     ========================= */
     @media (max-width: 768px) {
-
         .phieu-page {
             padding: 20px;
         }
@@ -370,29 +401,26 @@
 
 
     {{-- TÌM KIẾM + LẬP PHIẾU --}} 
-<div class="toolbar"> 
- 
-    <div class="search-box">
-        <span class="search-icon">🔍</span>
+    <div class="toolbar"> 
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
 
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Tìm kiếm theo mã phiếu, nhân viên..."
-            autocomplete="off"
-        >
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Tìm kiếm theo mã phiếu, nhân viên..."
+                autocomplete="off"
+            >
+        </div>
+     
+        <a 
+            href="{{ route('phieunhap.create') }}" 
+            class="btn btn-add" 
+        > 
+            <span class="plus">＋</span> 
+            <span>Lập phiếu</span> 
+        </a> 
     </div>
- 
- 
-    <a 
-        href="{{ route('phieunhap.create') }}" 
-        class="btn btn-add" 
-    > 
-        <span class="plus">＋</span> 
-        <span>Lập phiếu</span> 
-    </a> 
- 
-</div>
 
 
     {{-- BẢNG DANH SÁCH --}}
@@ -553,23 +581,12 @@ function selectPhieu(row) {
     const editButton = document.getElementById('btnEdit');
     const actionButton = document.getElementById('btnAction');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Xem chi tiết
-    |--------------------------------------------------------------------------
-    */
     detailButton.href =
         "{{ url('/phieunhap') }}/" + selectedId;
 
     detailButton.classList.remove('btn-disabled');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Nếu phiếu đã hủy
-    |--------------------------------------------------------------------------
-    */
+    
     if (selectedStatus === 'DaHuy') {
 
         editButton.classList.add('btn-disabled');
@@ -578,23 +595,11 @@ function selectPhieu(row) {
         return;
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Sửa
-    |--------------------------------------------------------------------------
-    */
     editButton.href =
         "{{ url('/phieunhap') }}/" + selectedId + "/sua";
 
     editButton.classList.remove('btn-disabled');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Xóa / Hủy
-    |--------------------------------------------------------------------------
-    */
     actionButton.classList.remove('btn-disabled');
 
 
@@ -614,24 +619,12 @@ function selectPhieu(row) {
     }
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Xử lý Xóa / Hủy
-|--------------------------------------------------------------------------
-*/
 function handleAction() {
 
     if (!selectedId) {
         return;
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Có chi tiết → Hủy
-    |--------------------------------------------------------------------------
-    */
     if (selectedHasDetail) {
 
         if (!confirm('Bạn có chắc muốn hủy phiếu nhập này không?')) {
@@ -660,12 +653,6 @@ function handleAction() {
         return;
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Không có chi tiết → Xóa
-    |--------------------------------------------------------------------------
-    */
     if (!confirm('Bạn có chắc muốn xóa phiếu nhập này không?')) {
         return;
     }

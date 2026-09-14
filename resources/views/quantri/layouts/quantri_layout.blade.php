@@ -347,10 +347,11 @@
                 <span>Quản lý sách</span>
             </a>
 
-            <a href="#">
-                <span class="menu-icon">📥</span>
-                <span>Quản lý phiếu nhập</span>
-            </a>
+            <a href="{{ route('phieunhap.index') }}" 
+       class="menu-link {{ request()->routeIs('phieunhap.*') ? 'active' : '' }}">
+    <span class="menu-icon">📥</span>
+    <span>Quản lý phiếu nhập</span>
+</a>
 
             <a href="#">
                 <span class="menu-icon">🛒</span>
