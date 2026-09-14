@@ -353,7 +353,8 @@
     <span>Quản lý phiếu nhập</span>
 </a>
 
-            <a href="#">
+            <a href="{{ route('quantri.donhang.index') }}"
+               class="{{ request()->routeIs('quantri.donhang.*') ? 'active' : '' }}">
                 <span class="menu-icon">🛒</span>
                 <span>Quản lý đơn hàng</span>
             </a>

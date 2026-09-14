@@ -15,6 +15,7 @@ use App\Http\Controllers\SachController;
 use App\Http\Controllers\ThongKeController;
 use App\Http\Controllers\TonKhoController;
 use App\Http\Controllers\PhieuNhapController;
+use App\Http\Controllers\QuanLyDonHangController;
 use Illuminate\Support\Facades\Route;
 // Đăng ký
 Route::get('/register', [AuthController::class, 'showRegister'])
@@ -122,6 +123,19 @@ Route::middleware(['auth', 'role:admin,employee'])
     ->group(function () {
         Route::get('/', [QuanLyKhachHangController::class, 'index'])
             ->name('quantri.khachhang.index');
+    });
+// QUẢN LÝ ĐƠN HÀNG
+Route::middleware(['auth', 'role:admin,employee'])
+    ->prefix('quantri/donhang')
+    ->group(function () {
+        Route::get('/', [QuanLyDonHangController::class, 'index'])
+            ->name('quantri.donhang.index');
+
+        Route::get('/{donHang}', [QuanLyDonHangController::class, 'show'])
+            ->name('quantri.donhang.show');
+
+        Route::patch('/{donHang}/status', [QuanLyDonHangController::class, 'updateStatus'])
+            ->name('quantri.donhang.status');
     });
 // SÁCH KHÁCH HÀNG
 Route::get('/customer/book/{sach}', [CustomerBookController::class, 'show'])
