@@ -64,14 +64,14 @@
                         <div class="order-code">Đơn hàng #{{ $donHang->maDH }}</div>
                         <div class="order-date">Đặt ngày {{ $donHang->ngayDat?->format('d/m/Y H:i') }}</div>
                     </div>
-                    <span class="status">{{ match ($donHang->trangThai) {
-                        'ChoXacNhan' => 'Chờ xác nhận',
-                        'DangGiao' => 'Đang giao',
-                        'DaGiao' => 'Đã giao',
-                        'DaHuy' => 'Đã hủy',
-                        default => $donHang->trangThai,
-                    } }}</span>
+                    <span class="status">{{ \App\Models\DonHang::statusLabel($donHang->trangThai) }}</span>
                 </div>
+
+                @if ($donHang->trangThai === 'DaHuy' && $donHang->ngayHuy)
+                    <div class="order-date">Ngày hủy: {{ $donHang->ngayHuy->format('d/m/Y H:i') }}</div>
+                @elseif ($donHang->trangThai === 'HoanThanh' && $donHang->ngayHoanThanh)
+                    <div class="order-date">Ngày hoàn thành: {{ $donHang->ngayHoanThanh->format('d/m/Y H:i') }}</div>
+                @endif
 
                 <div class="items">
                     @foreach ($donHang->chiTietDonHangs as $item)

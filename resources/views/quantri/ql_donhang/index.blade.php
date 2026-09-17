@@ -5,7 +5,7 @@
 
 @section('content')
 <style>
-    .page-header, .filters, .order-table, .pagination { margin-bottom: 20px; }
+    .page-header, .filters, .order-table { margin-bottom: 20px; }
     .page-header { display: flex; justify-content: space-between; align-items: center; }
     .filters { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
     .filter-form { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -46,7 +46,7 @@
             <td>{{ $donHang->khachHang?->hoTen ?? 'Không xác định' }}</td>
             <td>{{ $donHang->ngayDat?->format('d/m/Y H:i') }}</td>
             <td>{{ number_format($donHang->tongTien, 0, ',', '.') }} đ</td>
-            <td><span class="status">{{ $statuses[$donHang->trangThai] ?? $donHang->trangThai }}</span></td>
+            <td><span class="status">{{ \App\Models\DonHang::statusLabel($donHang->trangThai) }}</span></td>
             <td><a class="detail-link" href="{{ route('quantri.donhang.show', $donHang) }}">Xem chi tiết</a></td>
         </tr>
     @empty
@@ -55,5 +55,11 @@
     </tbody>
 </table>
 
-<div class="pagination">{{ $donHangs->links() }}</div>
+<script>
+    setInterval(() => {
+        if (! document.hidden) {
+            window.location.reload();
+        }
+    }, 10000);
+</script>
 @endsection

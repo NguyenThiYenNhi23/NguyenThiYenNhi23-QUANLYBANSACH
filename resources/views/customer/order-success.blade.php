@@ -110,7 +110,7 @@
                     <div class="info-box">
                         <p><strong>Mã đơn hàng:</strong> #{{ $donHang->maDH }}</p>
                         <p><strong>Ngày đặt:</strong> {{ $donHang->ngayDat }}</p>
-                        <p><strong>Trạng thái:</strong> {{ $donHang->trangThai }}</p>
+                        <p><strong>Trạng thái:</strong> {{ \App\Models\DonHang::statusLabel($donHang->trangThai) }}</p>
                         <p><strong>Phương thức thanh toán:</strong> {{ $donHang->phuongThucThanhToan->tenPhuongThuc ?? 'Chưa xác định' }}</p>
                     </div>
                 </div>

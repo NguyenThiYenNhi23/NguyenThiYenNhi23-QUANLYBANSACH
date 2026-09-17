@@ -29,8 +29,16 @@
 @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
 
 <div class="order-head">
-    <div><h2>Đơn hàng #{{ $donHang->maDH }}</h2><p>Đặt lúc {{ $donHang->ngayDat?->format('d/m/Y H:i') }}</p></div>
-    <span class="status">{{ $statuses[$donHang->trangThai] ?? $donHang->trangThai }}</span>
+    <div>
+        <h2>Đơn hàng #{{ $donHang->maDH }}</h2>
+        <p>Đặt lúc {{ $donHang->ngayDat?->format('d/m/Y H:i') }}</p>
+        @if ($donHang->trangThai === 'DaHuy' && $donHang->ngayHuy)
+            <p><strong>Ngày hủy:</strong> {{ $donHang->ngayHuy->format('d/m/Y H:i') }}</p>
+        @elseif ($donHang->trangThai === 'HoanThanh' && $donHang->ngayHoanThanh)
+            <p><strong>Ngày hoàn thành:</strong> {{ $donHang->ngayHoanThanh->format('d/m/Y H:i') }}</p>
+        @endif
+    </div>
+    <span class="status">{{ \App\Models\DonHang::statusLabel($donHang->trangThai) }}</span>
 </div>
 
 <div class="order-section">
@@ -57,8 +65,18 @@
     <h3>Sản phẩm trong đơn</h3>
     <table class="order-table"><thead><tr><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>
     @foreach ($donHang->chiTietDonHangs as $chiTiet)<tr><td>{{ $chiTiet->sach?->tenSach ?? 'Sản phẩm không còn tồn tại' }}</td><td>{{ $chiTiet->soLuong }}</td><td>{{ number_format($chiTiet->donGia, 0, ',', '.') }} đ</td><td>{{ number_format($chiTiet->thanhTien, 0, ',', '.') }} đ</td></tr>@endforeach
+    <tr><td colspan="3"><strong>Tạm tính</strong></td><td><strong>{{ number_format($donHang->chiTietDonHangs->sum('thanhTien'), 0, ',', '.') }} đ</strong></td></tr>
+    <tr><td colspan="3"><strong>Phí vận chuyển</strong></td><td><strong>30.000 đ</strong></td></tr>
     <tr><td colspan="3"><strong>Tổng tiền</strong></td><td><strong>{{ number_format($donHang->tongTien, 0, ',', '.') }} đ</strong></td></tr>
     </tbody></table>
     <p style="margin-top:14px;"><strong>Thanh toán:</strong> {{ $donHang->phuongThucThanhToan?->tenPhuongThuc ?? 'Chưa cập nhật' }}</p>
 </div>
+
+<script>
+    setInterval(() => {
+        if (! document.hidden) {
+            window.location.reload();
+        }
+    }, 10000);
+</script>
 @endsection

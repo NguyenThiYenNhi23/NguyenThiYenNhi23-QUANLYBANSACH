@@ -41,6 +41,17 @@ class QuanLyDonHangController extends Controller
     public function index(Request $request): View
     {
         $keyword = trim((string) $request->input('keyword', ''));
+        $keyword = preg_replace('/\s+/', ' ', $keyword) ?? $keyword;
+        $normalizedOrderId = null;
+
+        if ($keyword !== '') {
+            $digitsOnly = preg_replace('/\D+/', '', $keyword);
+
+            if ($digitsOnly !== '') {
+                $normalizedOrderId = (int) $digitsOnly;
+            }
+        }
+
         $status = $request->input('trangThai');
 
         if (! in_array($status, self::STATUSES, true)) {
@@ -49,20 +60,22 @@ class QuanLyDonHangController extends Controller
 
         $donHangs = DonHang::query()
             ->with('khachHang')
-            ->when($keyword !== '', function ($query) use ($keyword): void {
-                $query->where(function ($query) use ($keyword): void {
-                    $query->where('maDH', $keyword)
-                        ->orWhereHas('khachHang', function ($query) use ($keyword): void {
-                            $query->where('hoTen', 'like', "%{$keyword}%")
-                                ->orWhere('email', 'like', "%{$keyword}%")
-                                ->orWhere('sdt', 'like', "%{$keyword}%");
-                        });
+            ->when($keyword !== '', function ($query) use ($keyword, $normalizedOrderId): void {
+                $query->where(function ($query) use ($keyword, $normalizedOrderId): void {
+                    if ($normalizedOrderId !== null) {
+                        $query->where('maDH', $normalizedOrderId);
+                    }
+
+                    $query->orWhereHas('khachHang', function ($query) use ($keyword): void {
+                        $query->where('hoTen', 'like', "%{$keyword}%")
+                            ->orWhere('email', 'like', "%{$keyword}%")
+                            ->orWhere('sdt', 'like', "%{$keyword}%");
+                    });
                 });
             })
             ->when($status !== null, fn ($query) => $query->where('trangThai', $status))
             ->orderByDesc('ngayDat')
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
 
         return view('quantri.ql_donhang.index', [
             'donHangs' => $donHangs,
@@ -105,7 +118,17 @@ class QuanLyDonHangController extends Controller
         }
 
         DB::transaction(function () use ($donHang, $newStatus): void {
-            $donHang->update(['trangThai' => $newStatus]);
+            $payload = ['trangThai' => $newStatus];
+
+            if ($newStatus === 'HoanThanh' && empty($donHang->ngayHoanThanh)) {
+                $payload['ngayHoanThanh'] = now();
+            }
+
+            if ($newStatus !== 'HoanThanh' && ! empty($donHang->ngayHoanThanh)) {
+                $payload['ngayHoanThanh'] = $donHang->ngayHoanThanh;
+            }
+
+            $donHang->update($payload);
         });
 
         return redirect()

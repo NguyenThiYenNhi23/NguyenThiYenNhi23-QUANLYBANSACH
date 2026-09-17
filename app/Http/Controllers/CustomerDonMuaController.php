@@ -58,7 +58,10 @@ class CustomerDonMuaController extends Controller
                     ->increment('soLuongTon', $chiTiet->soLuong);
             }
 
-            $donHang->update(['trangThai' => 'DaHuy']);
+            $donHang->update([
+                'trangThai' => 'DaHuy',
+                'ngayHuy' => now(),
+            ]);
         });
 
         return redirect()->route('customer.donmua.show', $donHang)

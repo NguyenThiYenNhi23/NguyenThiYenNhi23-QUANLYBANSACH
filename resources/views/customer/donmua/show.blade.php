@@ -105,7 +105,12 @@
             <div class="detail-heading">
                 <div>
                     <h2>Chi tiết đơn hàng #{{ $donHang->maDH }}</h2>
-                    <div class="status-line">Trạng thái đơn hàng: <strong>{{ match ($donHang->trangThai) { 'ChoXacNhan' => 'Chờ xác nhận', 'DangGiao' => 'Đang giao', 'DaGiao' => 'Đã giao', 'DaHuy' => 'Đã hủy', default => $donHang->trangThai } }}</strong></div>
+                    <div class="status-line">Trạng thái đơn hàng: <strong>{{ \App\Models\DonHang::statusLabel($donHang->trangThai) }}</strong></div>
+                    @if ($donHang->trangThai === 'DaHuy' && $donHang->ngayHuy)
+                        <div class="status-line">Ngày hủy: <strong>{{ $donHang->ngayHuy->format('d/m/Y H:i') }}</strong></div>
+                    @elseif ($donHang->trangThai === 'HoanThanh' && $donHang->ngayHoanThanh)
+                        <div class="status-line">Ngày hoàn thành: <strong>{{ $donHang->ngayHoanThanh->format('d/m/Y H:i') }}</strong></div>
+                    @endif
                     <div class="status-line">Phương thức thanh toán: <strong>{{ $donHang->phuongThucThanhToan?->tenPhuongThuc ?? 'Chưa xác định' }}</strong></div>
                 </div>
                 <div class="detail-date">Ngày đặt: {{ $donHang->ngayDat?->format('d/m/Y') }}</div>

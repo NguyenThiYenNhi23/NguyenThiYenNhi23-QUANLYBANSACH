@@ -12,6 +12,15 @@ class DonHang extends Model
 
     public $timestamps = false;
 
+    public const STATUS_LABELS = [
+        'ChoXacNhan' => 'Chờ xác nhận',
+        'DangXuLy' => 'Đang xử lý',
+        'DangGiao' => 'Đang giao',
+        'DaGiao' => 'Đã giao',
+        'HoanThanh' => 'Hoàn thành',
+        'DaHuy' => 'Đã hủy',
+    ];
+
     protected $fillable = [
         'maKH',
         'maDiaChi',
@@ -19,10 +28,14 @@ class DonHang extends Model
         'ngayDat',
         'tongTien',
         'trangThai',
+        'ngayHuy',
+        'ngayHoanThanh',
     ];
 
     protected $casts = [
         'ngayDat' => 'datetime',
+        'ngayHuy' => 'datetime',
+        'ngayHoanThanh' => 'datetime',
     ];
 
     public function khachHang()
@@ -47,5 +60,10 @@ class DonHang extends Model
     public function chiTietDonHangs()
     {
         return $this->hasMany(CTDonHang::class, 'maDH', 'maDH');
+    }
+
+    public static function statusLabel(?string $status): string
+    {
+        return self::STATUS_LABELS[$status] ?? (string) $status;
     }
 }

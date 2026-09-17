@@ -141,7 +141,6 @@
                                 <tr>
                                     <th>Đơn hàng</th>
                                     <th>Ngày</th>
-                                    <th>Địa chỉ</th>
                                     <th>Giá trị đơn hàng</th>
                                     <th>TT thanh toán</th>
                                 </tr>
@@ -155,16 +154,9 @@
                                             </a>
                                         </td>
                                         <td>{{ $donHang->ngayDat?->format('d/m/Y') }}</td>
-                                        <td>{{ $donHang->diaChi?->diaChiChiTiet ?? 'Chưa cập nhật' }}</td>
                                         <td>{{ number_format($donHang->tongTien, 0, ',', '.') }}đ</td>
                                         <td>
-                                            <span class="order-status">{{ match ($donHang->trangThai) {
-                                                'ChoXacNhan' => 'Chờ xác nhận',
-                                                'DangGiao' => 'Đang giao',
-                                                'DaGiao' => 'Đã giao',
-                                                'DaHuy' => 'Đã hủy',
-                                                default => $donHang->trangThai,
-                                            } }}</span>
+                                            <span class="order-status">{{ \App\Models\DonHang::statusLabel($donHang->trangThai) }}</span>
                                         </td>
                                     </tr>
                                 @endforeach
