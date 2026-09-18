@@ -61,6 +61,14 @@ class DonHang extends Model
     {
         return $this->hasMany(CTDonHang::class, 'maDH', 'maDH');
     }
+    public function thanhToan()
+{
+    return $this->hasOne(
+        ThanhToan::class,
+        'maDH',
+        'maDH'
+    );
+}
 
     public static function statusLabel(?string $status): string
     {

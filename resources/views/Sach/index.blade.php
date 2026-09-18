@@ -14,12 +14,12 @@
         max-width: 1000px;
         margin: 0 auto;
     }
+
     .add-book-wrapper {
         display: flex;
         justify-content: flex-end;
         margin-bottom: 1px;
     }
-
 
     .btn {
         display: inline-flex;
@@ -64,11 +64,13 @@
     .btn-ghost:hover {
         background: #e5e7eb;
     }
+
     .btn-edit {
         background: #fef3c7;
         color: #b45309;
-        border-color: #fde68a;
+        border: 1px solid #fde68a;
     }
+
     .btn-edit:hover {
         background: #fde68a;
         color: #92400e;
@@ -78,8 +80,9 @@
     .btn-delete {
         background: #fee2e2;
         color: #b91c1c;
-        border-color: #fecaca;
+        border: 1px solid #fecaca;
     }
+
     .btn-delete:hover {
         background: #fecaca;
         color: #991b1b;
@@ -354,6 +357,7 @@
         align-items: center;
         gap: 10px;
     }
+
     .btn-action {
         display: inline-flex;
         align-items: center;
@@ -378,38 +382,85 @@
         font-size: 15px;
     }
 
+    /* =========================
+       PHÂN TRANG
+       ========================= */
+
     .pagination-wrapper {
         display: flex;
-        justify-content: flex-end;
-        padding: 18px 20px 20px;
-    }
-
-    .pagination-wrapper nav {
-        display: flex;
-        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 20px;
+        border-top: 1px solid #edf2f7;
+        background: #fff;
         flex-wrap: wrap;
     }
 
-    .pagination-wrapper a,
-    .pagination-wrapper span {
+    .pagination-info {
+        font-size: 13px;
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+    .pagination-info strong {
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .custom-pagination {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .page-link {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 11px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 38px;
-        height: 38px;
-        padding: 0 12px;
+        border: 1px solid #dbe3f0;
         border-radius: 8px;
-        border: 1px solid #e2e8f0;
+        background: #fff;
         color: #475569;
+        font-size: 13px;
+        font-weight: 600;
         text-decoration: none;
-        font-size: 14px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
     }
 
-    .pagination-wrapper .current {
+    .page-link:hover {
+        background: #f1f3ff;
+        border-color: #5b5fc7;
+        color: #4f46e5;
+    }
+
+    .page-link.active {
         background: #5b5fc7;
         border-color: #5b5fc7;
         color: #fff;
-        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(91, 95, 199, 0.2);
+    }
+
+    .page-link.disabled {
+        background: #f8fafc;
+        color: #cbd5e1;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .page-dots {
+        min-width: 30px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 14px;
     }
 
     @media (max-width: 1100px) {
@@ -423,7 +474,6 @@
     }
 
     @media (max-width: 720px) {
-
         .stats-grid,
         .filters-form {
             grid-template-columns: 1fr;
@@ -433,11 +483,33 @@
             flex-direction: column;
             align-items: flex-start;
         }
+
+        .pagination-wrapper {
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pagination-info {
+            text-align: center;
+        }
+
+        .custom-pagination {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+        }
     }
 </style>
 
 <div class="book-management">
 
+    {{-- THÊM SÁCH --}}
     <div class="add-book-wrapper">
         <a href="{{ route('sach.create') }}" class="btn btn-primary">
             <span>＋</span>
@@ -457,11 +529,8 @@
                 class="input-field"
                 placeholder="Nhập tên sách hoặc mã sách"
             >
-
-            {{-- Danh mục --}}
             <select name="maDanhMuc" class="select-field">
                 <option value="">Tất cả danh mục</option>
-
                 @foreach($danhMucs as $danhMuc)
                     <option
                         value="{{ $danhMuc->maDanhMuc }}"
@@ -471,18 +540,14 @@
                     </option>
                 @endforeach
             </select>
-
-            {{-- Trạng thái --}}
             <select name="trangThai" class="select-field">
                 <option value="">Tất cả trạng thái</option>
-
                 <option
                     value="Đang kinh doanh"
                     {{ $status == 'Đang kinh doanh' ? 'selected' : '' }}
                 >
                     Đang kinh doanh
                 </option>
-
                 <option
                     value="Ngừng kinh doanh"
                     {{ $status == 'Ngừng kinh doanh' ? 'selected' : '' }}
@@ -490,8 +555,6 @@
                     Ngừng kinh doanh
                 </option>
             </select>
-
-            {{-- Sắp xếp --}}
             <select name="sort" class="select-field">
                 <option
                     value="maSach_desc"
@@ -499,21 +562,18 @@
                 >
                     Mới nhất
                 </option>
-
                 <option
                     value="tenSach_asc"
                     {{ $sort == 'tenSach_asc' ? 'selected' : '' }}
                 >
                     Tên A → Z
                 </option>
-
                 <option
                     value="giaBan_asc"
                     {{ $sort == 'giaBan_asc' ? 'selected' : '' }}
                 >
                     Giá thấp → cao
                 </option>
-
                 <option
                     value="giaBan_desc"
                     {{ $sort == 'giaBan_desc' ? 'selected' : '' }}
@@ -521,41 +581,28 @@
                     Giá cao → thấp
                 </option>
             </select>
-
             <button type="submit" class="btn btn-secondary">
                 Lọc
             </button>
-
             @if($keyword || $maDanhMuc || $status || $sort != 'maSach_desc')
                 <a href="{{ route('sach.index') }}" class="btn btn-ghost">
                     Đặt lại
                 </a>
             @endif
-
         </form>
     </div>
-
-
-    {{-- DANH SÁCH SÁCH --}}
     <div class="table-card">
-
         <div class="table-header">
             <div class="table-header-title">
                 Danh sách sách
             </div>
-
             <span class="result-badge">
                 {{ $sachs->total() }} kết quả
             </span>
         </div>
-
-
         @if($sachs->count())
-
             <div class="table-responsive">
-
                 <table class="data-table">
-
                     <thead>
                         <tr>
                             <th>Sách</th>
@@ -565,13 +612,9 @@
                             <th>Thao tác</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
                         @foreach($sachs as $sach)
-
                             @php
-
                                 $displayStatus = (
                                     $sach->trangThai === 'Đang kinh doanh'
                                     && $sach->tonKho
@@ -579,99 +622,57 @@
                                 )
                                     ? 'Hết hàng'
                                     : $sach->trangThai;
-
-
                                 $statusClass = match ($displayStatus) {
-
                                     'Đang kinh doanh' => 'status-active',
-
                                     'Hết hàng' => 'status-out',
-
                                     'Ngừng kinh doanh' => 'status-inactive',
-
                                     default => 'status-inactive',
-
                                 };
-
                             @endphp
-
-
                             <tr>
-
-                                {{-- SÁCH --}}
                                 <td class="book-cell">
-
                                     <div class="book-meta">
-
                                         <div class="book-cover">
-
                                             @if($sach->hinhAnh)
-
                                                 <img
                                                     src="{{ asset('storage/' . $sach->hinhAnh) }}"
                                                     alt="{{ $sach->tenSach }}"
                                                 >
-
                                             @else
-
                                                 <div class="cover-placeholder">
                                                     NO IMG
                                                 </div>
-
                                             @endif
-
                                         </div>
-
-
                                         <div>
-
                                             <div class="book-name">
                                                 {{ $sach->tenSach }}
                                             </div>
-
                                             <div class="book-sub">
                                                 Mã: {{ $sach->maSach }}
                                             </div>
-
                                         </div>
-
                                     </div>
-
                                 </td>
-
-
-                                {{-- DANH MỤC --}}
                                 <td>
                                     {{ $sach->danhMuc->tenDanhMuc ?? 'Không có' }}
                                 </td>
-
-
-                                {{-- GIÁ --}}
                                 <td class="price">
                                     {{ number_format($sach->giaBan, 0, ',', '.') }} đ
                                 </td>
-
-
-                                {{-- TRẠNG THÁI --}}
                                 <td>
-
                                     <span class="status-badge {{ $statusClass }}">
                                         {{ $displayStatus }}
                                     </span>
-
                                 </td>
                                 <td class="actions-col">
                                     <div class="action-group">
-
-                                        {{-- SỬA --}}
                                         <a
                                             href="{{ route('sach.edit', $sach->maSach) }}"
                                             class="btn-action btn-edit"
                                         >
                                             Sửa
                                         </a>
-
-                                        {{-- XÓA --}}
                                         <form
                                             action="{{ route('sach.destroy', $sach->maSach) }}"
                                             method="POST"
@@ -680,7 +681,6 @@
                                         >
                                             @csrf
                                             @method('DELETE')
-
                                             <button
                                                 type="submit"
                                                 class="btn-action btn-delete"
@@ -688,36 +688,85 @@
                                                 Xóa
                                             </button>
                                         </form>
-
                                     </div>
                                 </td>
-
                             </tr>
-
                         @endforeach
-
                     </tbody>
-
                 </table>
-
             </div>
-
-
-            {{-- PHÂN TRANG --}}
             <div class="pagination-wrapper">
-                {{ $sachs->links() }}
+                <div class="pagination-info">
+                    Hiển thị
+                    <strong>{{ $sachs->firstItem() }}</strong>
+                    -
+                    <strong>{{ $sachs->lastItem() }}</strong>
+                    trong tổng số
+                    <strong>{{ $sachs->total() }}</strong>
+                    sách
+                </div>
+                <div class="custom-pagination">
+                    @if ($sachs->onFirstPage())
+                        <span class="page-link disabled">
+                            ‹
+                        </span>
+                    @else
+                        <a
+                            href="{{ $sachs->appends(request()->query())->previousPageUrl() }}"
+                            class="page-link"
+                            aria-label="Trang trước"
+                        >
+                            ‹
+                        </a>
+                    @endif
+                    @php
+                        $currentPage = $sachs->currentPage();
+                        $lastPage = $sachs->lastPage();
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($lastPage, $currentPage + 2);
+                    @endphp
+                    @if ($startPage > 1)
+                        <a
+                            href="{{ $sachs->appends(request()->query())->url(1) }}"
+                            class="page-link {{ $currentPage == 1 ? 'active' : '' }}"
+                        >
+                            1
+                        </a>
+                        @if ($startPage > 2)
+                            <span class="page-dots">...</span>
+                        @endif
+                    @endif
+                    @for ($page = $startPage; $page <= $endPage; $page++)
+                        <a
+                            href="{{ $sachs->appends(request()->query())->url($page) }}"
+                            class="page-link {{ $currentPage == $page ? 'active' : '' }}"
+                        >
+                            {{ $page }}
+                        </a>
+                    @endfor
+                    @if ($endPage < $lastPage)
+                        @if ($endPage < $lastPage - 1)
+                            <span class="page-dots">...</span>
+                        @endif
+                        <a
+                            href="{{ $sachs->appends(request()->query())->url($lastPage) }}"
+                            class="page-link {{ $currentPage == $lastPage ? 'active' : '' }}"
+                        >
+                            {{ $lastPage }}
+                        </a>
+                    @endif
+                    @if ($sachs->hasMorePages())
+                        <a href="{{ $sachs->appends(request()->query())->nextPageUrl() }}"class="page-link" aria-label="Trang sau" > ›</a>
+                    @else
+                        <span class="page-link disabled"> ›</span>
+                    @endif
+                </div>
             </div>
-
         @else
-
             <div class="empty-box">
                 Không tìm thấy sách phù hợp với bộ lọc hiện tại.
             </div>
-
         @endif
-
     </div>
-
 </div>
-
 @endsection

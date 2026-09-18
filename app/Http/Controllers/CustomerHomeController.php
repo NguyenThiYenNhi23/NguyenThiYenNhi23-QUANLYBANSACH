@@ -12,10 +12,11 @@ class CustomerHomeController extends Controller
 {
     public function index()
     {
-        $baseQuery = Sach::with('tonKho')
-            ->whereExists(function ($query) {
-                $query->from('ton_khos')
-                    ->whereColumn('sachs.maSach', 'ton_khos.maSach')
+            $baseQuery = Sach::with('tonKho') 
+                ->where('sachs.trangThai', 1) 
+                ->whereExists(function ($query) { 
+                    $query->from('ton_khos') 
+                    ->whereColumn('sachs.maSach', 'ton_khos.maSach') 
                     ->where('soLuongTon', '>', 0);
             });
 

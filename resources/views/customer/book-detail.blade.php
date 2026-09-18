@@ -8,7 +8,7 @@
     <title>{{ $sach->tenSach }} - Nhà xuất bản Kim Đồng</title>
 
     @php
-        $soLuongTon = max(1, (int) ($sach->tonKho->soLuongTon ?? 1));
+        $soLuongTon = max(0, (int) ($sach->tonKho->soLuongTon ?? 0));
     @endphp
 
     <style>
@@ -19,8 +19,8 @@
         body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
-            background: #f3f4f6;
-            color: #1f2937;
+            background: #f7f7f7;
+            color: #222;
         }
 
         a {
@@ -28,9 +28,9 @@
             color: inherit;
         }
 
-        /* =========================
-        HEADER - ĐỒNG BỘ TRANG CHỦ
-        ========================= */
+        /* =====================================================
+           HEADER
+        ===================================================== */
 
         .site-header {
             background: #ffffff;
@@ -131,19 +131,25 @@
             color: #d71920;
         }
 
-
-        /* =========================
-        MENU - GIỐNG TRANG CHỦ
-        ========================= */
+        .cart-badge {
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 50%;
+            background: #d71920;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
 
         .header-nav {
             border-top: 1px solid #eee;
-
             height: 50px;
-
             display: flex;
             align-items: center;
-
             gap: 40px;
         }
 
@@ -158,244 +164,265 @@
         }
 
 
-        /* =========================
-           TRANG CHI TIẾT
-        ========================= */
+        /* =====================================================
+           TRANG CHI TIẾT SÁCH
+        ===================================================== */
 
         .page {
-            padding: 30px 0 60px;
+            padding: 25px 0 45px;
         }
 
         .container {
             width: 1200px;
-            max-width: 88%;
+            max-width: 92%;
             margin: 0 auto;
         }
+
+
+        /* =========================
+           BREADCRUMB
+        ========================= */
 
         .breadcrumb {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 22px;
+            gap: 8px;
+            margin-bottom: 20px;
             font-size: 14px;
+            color: #777;
         }
 
         .breadcrumb a {
-            color: #111827;
-            text-decoration: none;
+            color: #d71920;
+            font-weight: 600;
         }
 
         .breadcrumb a:hover {
-            color: #d71920;
+            text-decoration: underline;
         }
 
         .breadcrumb .current {
-            color: #6b7280;
+            color: #777;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
+
+        /* =========================
+           THÔNG BÁO
+        ========================= */
+
         .alert {
-            background: #ecfdf5;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 18px;
+            background: #fff4f4;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #d71920;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
             font-size: 14px;
         }
 
+
+        /* =====================================================
+           KHỐI SẢN PHẨM
+        ===================================================== */
+
         .product-layout {
             display: grid;
-            grid-template-columns: 0.95fr 1.2fr;
-            gap: 36px;
-            align-items: start;
-            background: #ffffff;
-            padding: 28px;
-            border-radius: 24px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            grid-template-columns: 44% 56%;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
         }
+
+
+        /* =====================================================
+           BÊN TRÁI - HÌNH SÁCH
+        ===================================================== */
 
         .gallery-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .main-image {
-            background: linear-gradient(135deg, #eef2ff, #f8fafc);
-            border: 1px solid #dfe7f5;
-            border-radius: 20px;
-            min-height: 420px;
+            padding: 20px;
+            background: #fafafa;
+            border-right: 1px solid #eeeeee;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+        }
+
+        .main-image {
+            width: 100%;
+            max-width: 410px;
+            height: 540px;
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 8px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .main-image::before {
+            content: "KIM ĐỒNG";
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #d71920;
+            color: white;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            z-index: 2;
         }
 
         .main-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 16px;
+            object-fit: contain;
         }
 
         .no-image {
-            font-size: 18px;
-            color: #6b7280;
+            font-size: 15px;
+            color: #999;
+        }
+
+
+        /* =====================================================
+           BÊN PHẢI - THÔNG TIN SÁCH
+        ===================================================== */
+
+        .product-content {
+            padding: 50px 42px;
         }
 
         .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 7px 12px;
-            border-radius: 999px;
-            background: #eef2ff;
-            color: #4f46e5;
-            font-size: 12px;
-            font-weight: 700;
+            display: inline-block;
+            background: #d71920;
+            color: white;
+            padding: 7px 13px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 10px;
-        }
-
-        .product-title {
-            margin: 0 0 10px;
-            font-size: 34px;
-            line-height: 1.25;
-            font-weight: 800;
-            color: #111827;
-        }
-
-        .price {
-            font-size: 24px;
-            font-weight: 800;
-            color: #d71920;
             margin-bottom: 18px;
         }
 
-        .summary-line {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 8px 0;
-            border-top: 1px solid #edf2f7;
-            border-bottom: 1px solid #edf2f7;
-            margin-bottom: 10px;
-            color: #374151;
-            font-size: 12px;
+        .product-title {
+            margin: 0 0 18px;
+            font-size: 30px;
+            line-height: 1.3;
+            font-weight: 700;
+            color: #222;
         }
 
-        .summary-line strong {
-            color: #111827;
-        }
-
-        .description {
-            margin: 0;
-            font-size: 15px;
-            line-height: 1.8;
-            color: #4b5563;
-            white-space: pre-line;
-        }
-
-        .description-box {
-            margin-top: 18px;
-            padding: 22px 24px;
-            border: 1px solid #edf2f7;
-            border-radius: 16px;
-            background: #ffffff;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-            font-size: 15px;
-            line-height: 1.7;
-            color: #374151;
-            white-space: pre-line;
-        }
-
-        .section-title {
-            margin: 0 0 12px;
-            font-size: 20px;
-            font-weight: 800;
-            color: #111827;
+        .price {
+            color: #d71920;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 28px;
         }
 
 
-        /* =========================
+        /* =====================================================
            MUA HÀNG
-        ========================= */
+        ===================================================== */
 
         .purchase-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-top: 26px;
-            flex-wrap: wrap;
+            margin-top: 10px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+
+        .quantity-label {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
         }
 
         .quantity-box {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            height: 42px;
             border: 1px solid #d1d5db;
-            border-radius: 10px;
-            padding: 8px 12px;
+            border-radius: 5px;
             background: #fff;
-        }
-
-        .quantity-label {
-            font-weight: 700;
-            font-size: 13px;
-            color: #374151;
+            margin-bottom: 18px;
+            overflow: hidden;
         }
 
         .qty-btn {
-            width: 26px;
-            height: 26px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background: #f9fafb;
-            font-size: 16px;
-            line-height: 1;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f5f5f5;
+            color: #333;
+            font-size: 18px;
             cursor: pointer;
-            color: #374151;
         }
 
         .qty-btn:hover:not(:disabled) {
-            background: #f3f4f6;
+            background: #eeeeee;
+            color: #d71920;
         }
 
         .qty-btn:disabled {
-            opacity: 0.5;
+            color: #bbb;
             cursor: not-allowed;
         }
 
         .qty-input {
-            width: 42px;
+            width: 65px;
+            height: 40px;
             border: none;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
             text-align: center;
             font-size: 14px;
             font-weight: 700;
-            color: #111827;
-            background: transparent;
+            color: #333;
+            background: white;
+            outline: none;
         }
 
         .qty-input:focus {
             outline: none;
         }
 
+        /* Bỏ mũi tên mặc định */
+
+        .qty-input::-webkit-outer-spin-button,
+        .qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .qty-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         .action-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .btn {
+            min-height: 45px;
             border: none;
-            border-radius: 10px;
-            padding: 10px 16px;
+            border-radius: 5px;
+            padding: 0 22px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: all 0.2s ease;
         }
 
         .btn:hover:not(:disabled) {
@@ -403,23 +430,29 @@
         }
 
         .btn-cart {
-            background: #f59e0b;
-            color: #fff;
-            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.22);
+            background: #fff;
+            color: #d71920;
+            border: 1px solid #d71920;
+        }
+
+        .btn-cart:hover {
+            background: #fff4f4;
         }
 
         .btn-buy {
-            background: linear-gradient(135deg, #1e88e5, #0d6ad7);
+            background: #d71920;
             color: #fff;
-            box-shadow: 0 10px 20px rgba(30, 136, 229, 0.22);
+            box-shadow: 0 4px 10px rgba(215, 25, 32, 0.2);
+        }
+
+        .btn-buy:hover {
+            background: #b9151b;
         }
 
         .btn-disabled {
-            background: #9ca3af;
-            color: #fff;
+            background: #999;
+            color: white;
             cursor: not-allowed;
-            opacity: 0.75;
-            box-shadow: none;
             min-width: 120px;
         }
 
@@ -429,16 +462,54 @@
 
         .stock-message {
             margin-top: 10px;
-            color: #dc2626;
-            font-size: 14px;
+            color: #d71920;
+            font-size: 13px;
             font-weight: 600;
             display: none;
         }
 
+        .stock-note {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #777;
+        }
 
-        /* =========================
-           LIÊN HỆ + FOOTER
-        ========================= */
+
+        /* =====================================================
+           THÔNG TIN MÔ TẢ PHÍA DƯỚI
+        ===================================================== */
+
+        .description-box {
+            margin-top: 25px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 25px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .section-title {
+            margin: 0 0 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d71920;
+            font-size: 19px;
+            font-weight: 700;
+            color: #222;
+            display: inline-block;
+        }
+
+        .description {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            white-space: pre-line;
+        }
+
+
+        /* =====================================================
+           LIÊN HỆ
+        ===================================================== */
 
         .site-contact {
             background: #f8f8f8;
@@ -470,6 +541,11 @@
             margin: 6px 0;
         }
 
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
         .site-footer {
             background: #222;
             color: white;
@@ -485,9 +561,9 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            RESPONSIVE
-        ========================= */
+        ===================================================== */
 
         @media (max-width: 1000px) {
 
@@ -509,10 +585,17 @@
                 grid-template-columns: 1fr;
             }
 
+            .gallery-panel {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+
             .main-image {
-                min-height: 360px;
+                max-width: 400px;
+                height: 500px;
             }
         }
+
 
         @media (max-width: 700px) {
 
@@ -538,23 +621,46 @@
                 overflow-x: auto;
             }
 
-            .product-layout {
-                padding: 20px;
-                border-radius: 16px;
+            .product-content {
+                padding: 25px 20px;
+            }
+
+            .gallery-panel {
+                padding: 15px;
+            }
+
+            .main-image {
+                height: 420px;
             }
 
             .product-title {
-                font-size: 28px;
+                font-size: 25px;
+            }
+
+            .price {
+                font-size: 24px;
+            }
+
+            .action-group {
+                flex-direction: column;
+            }
+
+            .action-group form,
+            .action-group .btn {
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .description-box {
+                padding: 20px;
             }
 
             .site-contact-grid {
                 grid-template-columns: 1fr;
                 gap: 25px;
-            }
-
-            .purchase-row {
-                align-items: flex-start;
-                flex-direction: column;
             }
         }
     </style>
@@ -567,18 +673,17 @@
     $cartCount = collect($cartItems)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
 @endphp
 
-{{-- =========================
-     HEADER - GIỐNG TRANG CHỦ
-========================= --}}
+
+{{-- =========================================================
+     HEADER
+========================================================= --}}
 
 <header class="site-header">
 
     <div class="header-container">
 
-        {{-- HÀNG TRÊN --}}
         <div class="header-top">
 
-            {{-- LOGO --}}
             <a
                 href="{{ route('customer.home') }}"
                 class="logo"
@@ -586,8 +691,6 @@
                 KIM ĐỒNG
             </a>
 
-
-            {{-- TÌM KIẾM --}}
             <form
                 action="{{ route('customer.search') }}"
                 method="GET"
@@ -610,8 +713,6 @@
 
             </form>
 
-
-            {{-- TÀI KHOẢN / ĐĂNG NHẬP / ĐĂNG XUẤT / GIỎ HÀNG --}}
             <div class="header-actions">
 
                 @auth
@@ -628,6 +729,7 @@
                         method="POST"
                         class="logout-form"
                     >
+
                         @csrf
 
                         <button
@@ -636,6 +738,7 @@
                         >
                             Đăng xuất
                         </button>
+
                     </form>
 
                 @else
@@ -649,17 +752,23 @@
 
                 @endauth
 
-
-                {{-- GIỎ HÀNG --}}
                 <a
                     href="{{ route('customer.cart') }}"
                     class="header-link cart-link"
                 >
+
                     <span class="cart-icon">🛒</span>
+
                     <span>Giỏ hàng</span>
+
                     @if ($cartCount > 0)
-                        <span class="cart-badge">{{ $cartCount }}</span>
+
+                        <span class="cart-badge">
+                            {{ $cartCount }}
+                        </span>
+
                     @endif
+
                 </a>
 
             </div>
@@ -667,7 +776,6 @@
         </div>
 
 
-        {{-- MENU --}}
         <nav class="header-nav">
 
             <a
@@ -699,219 +807,233 @@
 
 
 
-    {{-- =========================
-         NỘI DUNG CHI TIẾT SÁCH
-    ========================= --}}
+{{-- =========================================================
+     TRANG CHI TIẾT SÁCH
+========================================================= --}}
 
-    <div class="page">
+<div class="page">
 
-        <div class="container">
+    <div class="container">
+
+        {{-- BREADCRUMB --}}
 
         <div class="breadcrumb">
-            <a href="{{ route('customer.home') }}">Trang chủ</a>
+
+            <a href="{{ route('customer.home') }}">
+                Trang chủ
+            </a>
+
             <span>/</span>
-            <span class="current">{{ $sach->tenSach }}</span>
+
+            <span class="current">
+                {{ $sach->tenSach }}
+            </span>
+
         </div>
 
 
-            {{-- THÔNG BÁO --}}
-            @if (session('success'))
+        {{-- THÔNG BÁO --}}
 
-                <div class="alert">
-                    {{ session('success') }}
+        @if (session('success'))
+
+            <div class="alert">
+                {{ session('success') }}
+            </div>
+
+        @endif
+
+
+        {{-- =================================================
+             THÔNG TIN SẢN PHẨM
+        ================================================= --}}
+
+        <div class="product-layout">
+
+
+            {{-- =========================
+                 HÌNH ẢNH
+            ========================= --}}
+
+            <div class="gallery-panel">
+
+                <div class="main-image">
+
+                    @if ($sach->hinhAnh)
+
+                        <img
+                            src="{{ asset('storage/' . $sach->hinhAnh) }}"
+                            alt="{{ $sach->tenSach }}"
+                        >
+
+                    @else
+
+                        <span class="no-image">
+                            Chưa có hình ảnh
+                        </span>
+
+                    @endif
+
                 </div>
 
-            @endif
+            </div>
 
 
-            <div class="product-layout">
+
+            {{-- =========================
+                 THÔNG TIN
+            ========================= --}}
+
+            <div class="product-content">
+
+                <div class="badge">
+                    Sách mới
+                </div>
+
+                <h1 class="product-title">
+                    {{ $sach->tenSach }}
+                </h1>
+
+                <div class="price">
+                    {{ number_format($sach->giaBan, 0, ',', '.') }} đ
+                </div>
 
 
                 {{-- =========================
-                     HÌNH ẢNH
+                     MUA HÀNG
                 ========================= --}}
 
-                <div class="gallery-panel">
+                <div class="purchase-row">
 
-                    <div class="main-image">
+                    @if ($soLuongTon > 0)
 
-                        @if ($sach->hinhAnh)
+                        <span class="quantity-label">
+                            Số lượng
+                        </span>
 
-                            <img
-                                src="{{ asset('storage/' . $sach->hinhAnh) }}"
-                                alt="{{ $sach->tenSach }}"
+
+                        <div class="quantity-box">
+
+                            <button
+                                type="button"
+                                class="qty-btn"
+                                id="btn-minus"
+                            >
+                                −
+                            </button>
+
+                            <input
+                                class="qty-input"
+                                id="quantity"
+                                type="number"
+                                value="1"
+                                min="1"
+                                max="{{ $soLuongTon }}"
+                                inputmode="numeric"
                             >
 
-                        @else
+                            <button
+                                type="button"
+                                class="qty-btn"
+                                id="btn-plus"
+                            >
+                                ＋
+                            </button>
 
-                            <span class="no-image">
-                                Chưa có hình ảnh
-                            </span>
-
-                        @endif
-
-                    </div>
-
-                </div>
+                        </div>
 
 
+                        <div class="action-group">
 
-                {{-- =========================
-                     THÔNG TIN SÁCH
-                ========================= --}}
+                            {{-- THÊM VÀO GIỎ --}}
 
-                <div class="product-content">
+                            <form
+                                action="{{ route('customer.cart.add') }}"
+                                method="POST"
+                                style="display:inline;"
+                            >
 
-                    <div class="badge">
-                        Sách mới
-                    </div>
-
-                    <h1 class="product-title">
-                        {{ $sach->tenSach }}
-                    </h1>
-
-                    <div class="price">
-                        {{ number_format($sach->giaBan, 0, ',', '.') }} đ
-                    </div>
-
-                    <p class="description">
-                        {{ $sach->moTa ?: 'Không có mô tả cho sách này.' }}
-                    </p>
-
-
-                    {{-- =========================
-                         KHU VỰC MUA HÀNG
-                    ========================= --}}
-
-                    <div class="purchase-row">
-
-                        @if ($soLuongTon > 0)
-
-                            {{-- CHỌN SỐ LƯỢNG --}}
-                            <div class="quantity-box">
-
-                                <span class="quantity-label">
-                                    Số lượng
-                                </span>
-
-                                <button
-                                    type="button"
-                                    class="qty-btn"
-                                    id="btn-minus"
-                                >
-                                    −
-                                </button>
+                                @csrf
 
                                 <input
-                                    class="qty-input"
-                                    id="quantity"
-                                    type="number"
+                                    type="hidden"
+                                    name="maSach"
+                                    value="{{ $sach->maSach }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    class="qty-hidden"
+                                    name="soLuong"
                                     value="1"
-                                    min="1"
-                                    max="{{ $soLuongTon }}"
-                                    readonly
                                 >
 
                                 <button
-                                    type="button"
-                                    class="qty-btn"
-                                    id="btn-plus"
+                                    type="submit"
+                                    class="btn btn-cart"
                                 >
-                                    ＋
+                                    🛒 Thêm vào giỏ hàng
                                 </button>
 
-                            </div>
+                            </form>
 
 
-                            {{-- NÚT --}}
-                            <div class="action-group">
+                            {{-- MUA NGAY --}}
 
-                                {{-- THÊM VÀO GIỎ --}}
-                                <form
-                                    action="{{ route('customer.cart.add') }}"
-                                    method="POST"
-                                    style="display:inline;"
+                            <form
+                                action="{{ route('customer.cart.buyNow') }}"
+                                method="POST"
+                                style="display:inline;"
+                            >
+
+                                @csrf
+
+                                <input
+                                    type="hidden"
+                                    name="maSach"
+                                    value="{{ $sach->maSach }}"
                                 >
 
-                                    @csrf
-
-                                    <input
-                                        type="hidden"
-                                        name="maSach"
-                                        value="{{ $sach->maSach }}"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        class="qty-hidden"
-                                        name="soLuong"
-                                        value="1"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-cart"
-                                    >
-                                        Thêm vào giỏ hàng
-                                    </button>
-
-                                </form>
-
-
-                                {{-- MUA NGAY --}}
-                                <form
-                                    action="{{ route('customer.cart.buyNow') }}"
-                                    method="POST"
-                                    style="display:inline;"
+                                <input
+                                    type="hidden"
+                                    class="qty-hidden"
+                                    name="soLuong"
+                                    value="1"
                                 >
-
-                                    @csrf
-
-                                    <input
-                                        type="hidden"
-                                        name="maSach"
-                                        value="{{ $sach->maSach }}"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        class="qty-hidden"
-                                        name="soLuong"
-                                        value="1"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-buy"
-                                    >
-                                        Mua ngay
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        @else
-
-                            {{-- HẾT HÀNG --}}
-                            <div class="action-group">
 
                                 <button
-                                    type="button"
-                                    class="btn btn-disabled"
-                                    disabled
+                                    type="submit"
+                                    class="btn btn-buy"
                                 >
-                                    Hết hàng
+                                    Mua ngay
                                 </button>
 
-                            </div>
+                            </form>
 
-                        @endif
-
-                    </div>
+                        </div>
 
 
-                    {{-- THÔNG BÁO TỒN KHO --}}
+                        <div class="stock-note">
+                            Còn {{ $soLuongTon }} sản phẩm trong kho
+                        </div>
+
+
+                    @else
+
+                        <div class="action-group">
+
+                            <button
+                                type="button"
+                                class="btn btn-disabled"
+                                disabled
+                            >
+                                Hết hàng
+                            </button>
+
+                        </div>
+
+                    @endif
+
+
                     @if ($soLuongTon > 0)
 
                         <div
@@ -926,19 +1048,68 @@
 
             </div>
 
+        </div>
 
 
-            {{-- =========================
-                 MÔ TẢ CHI TIẾT
-            ========================= --}}
+        {{-- =================================================
+             THÔNG TIN MÔ TẢ PHÍA DƯỚI
+        ================================================= --}}
 
-            <div class="description-box">
+        <div class="description-box">
 
-                <div class="section-title">
-                    Thông tin mô tả
-                </div>
+            <div class="section-title">
+                Thông tin mô tả
+            </div>
 
+            <p class="description">
                 {{ $sach->moTa ?: 'Chưa có thông tin mô tả chi tiết cho sách này.' }}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+{{-- =========================================================
+     LIÊN HỆ
+========================================================= --}}
+
+<section class="site-contact">
+
+    <div class="container">
+
+        <div class="site-contact-grid">
+
+            <div>
+
+                <h2>
+                    Nhà xuất bản Kim Đồng
+                </h2>
+
+                <p>
+                    Nhà xuất bản chuyên cung cấp các đầu sách dành cho
+                    thiếu nhi, thanh thiếu niên và độc giả yêu sách.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Thông tin liên hệ
+                </h2>
+
+                <p>
+                    Email: lienhe@kimdong.vn
+                </p>
+
+                <p>
+                    Điện thoại: 024 3943 4730
+                </p>
 
             </div>
 
@@ -946,216 +1117,145 @@
 
     </div>
 
-
-
-    {{-- =========================
-         LIÊN HỆ
-    ========================= --}}
-
-    <section class="site-contact">
-
-        <div class="container">
-
-            <div class="site-contact-grid">
-
-                <div>
-
-                    <h2>
-                        Nhà xuất bản Kim Đồng
-                    </h2>
-
-                    <p>
-                        Nhà xuất bản chuyên cung cấp các đầu sách dành cho
-                        thiếu nhi, thanh thiếu niên và độc giả yêu sách.
-                    </p>
-
-                </div>
-
-
-                <div>
-
-                    <h2>
-                        Thông tin liên hệ
-                    </h2>
-
-                    <p>
-                        Email: lienhe@kimdong.vn
-                    </p>
-
-                    <p>
-                        Điện thoại: 024 3943 4730
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
+</section>
 
 
 
-    {{-- =========================
-         FOOTER
-    ========================= --}}
+{{-- =========================================================
+     FOOTER
+========================================================= --}}
 
-    <footer class="site-footer">
+<footer class="site-footer">
 
-        <div class="container">
+    <div class="container">
 
-            <strong>
-                NHÀ XUẤT BẢN KIM ĐỒNG
-            </strong>
+        <strong>
+            NHÀ XUẤT BẢN KIM ĐỒNG
+        </strong>
 
-            <p>
-                © 2026. All rights reserved.
-            </p>
+        <p>
+            © 2026. All rights reserved.
+        </p>
 
-        </div>
+    </div>
 
-    </footer>
-
-
-
-    {{-- =========================
-         JAVASCRIPT
-    ========================= --}}
-
-    <script>
-
-        const quantity = document.getElementById('quantity');
-        const minusBtn = document.getElementById('btn-minus');
-        const plusBtn = document.getElementById('btn-plus');
-
-        const maxStock = quantity
-            ? Number(quantity.max)
-            : 0;
-
-        const hiddenInputs =
-            document.querySelectorAll('.qty-hidden');
-
-        const stockMessage =
-            document.getElementById('stock-message');
+</footer>
 
 
-        // Cập nhật số lượng
-        function updateQuantity() {
 
-            if (!quantity) {
-                return;
-            }
+{{-- =========================================================
+     JAVASCRIPT
+========================================================= --}}
 
-            let value = Number(quantity.value);
+<script>
 
+    const quantity = document.getElementById('quantity');
 
-            // Không nhỏ hơn 1
-            if (value < 1) {
-                value = 1;
-                quantity.value = 1;
-            }
+    const minusBtn = document.getElementById('btn-minus');
 
+    const plusBtn = document.getElementById('btn-plus');
 
-            // Không vượt tồn kho
-            if (value > maxStock) {
-                value = maxStock;
-                quantity.value = maxStock;
-            }
+    const maxStock = quantity
+        ? Number(quantity.max)
+        : 0;
 
+    const hiddenInputs =
+        document.querySelectorAll('.qty-hidden');
 
-            // Đồng bộ số lượng cho các form
-            hiddenInputs.forEach(function(input) {
+    const stockMessage =
+        document.getElementById('stock-message');
+    function updateQuantity() {
 
-                input.value = value;
-
-            });
-
-
-            // Nút giảm
-            if (value <= 1) {
-
-                minusBtn.disabled = true;
-
-            } else {
-
-                minusBtn.disabled = false;
-
-            }
-
-
-            // Nút tăng
-            if (value >= maxStock) {
-
-                plusBtn.disabled = true;
-
-            } else {
-
-                plusBtn.disabled = false;
-
-            }
-
+        if (!quantity) {
+            return;
         }
-
-
-        // GIẢM SỐ LƯỢNG
-        minusBtn?.addEventListener(
-            'click',
-            function() {
-
-                let value =
-                    Number(quantity.value);
-
-                if (value > 1) {
-
-                    quantity.value =
-                        value - 1;
-
-                    updateQuantity();
-
-                }
-
+        let value = Number(quantity.value);
+        if (!Number.isFinite(value) || value < 1) {
+            value = 1;
+        }
+        if (value > maxStock) {
+            value = maxStock;
+        }
+        quantity.value = value;
+        hiddenInputs.forEach(function(input) {
+            input.value = value;
+        });
+        if (value <= 1) {
+            minusBtn.disabled = true;
+        } else {
+            minusBtn.disabled = false;
+        }
+        if (value >= maxStock) {
+            plusBtn.disabled = true;
+        } else {
+            plusBtn.disabled = false;
+        }
+        if (stockMessage) {
+            if (value >= maxStock) {
+                stockMessage.textContent =
+                    'Đã đạt số lượng tồn kho.';
+                stockMessage.style.display =
+                    'block';
+            } else {
+                stockMessage.textContent = '';
+                stockMessage.style.display =
+                    'none';
             }
-        );
-
-
-        // TĂNG SỐ LƯỢNG
-        plusBtn?.addEventListener(
-            'click',
-            function() {
-
-                let value =
-                    Number(quantity.value);
-
-                if (value < maxStock) {
-
-                    quantity.value =
-                        value + 1;
-
-                    updateQuantity();
-
-                } else {
-
-                    if (stockMessage) {
-
-                        stockMessage.textContent =
-                            'Không đủ số lượng sản phẩm trong kho.';
-
-                        stockMessage.style.display =
-                            'block';
-
-                    }
-
-                }
-
+        }
+    }
+    minusBtn?.addEventListener(
+        'click',
+        function() {
+            let value =
+                Number(quantity.value);
+            if (value > 1) {
+                quantity.value =
+                    value - 1;
+                updateQuantity();
             }
-        );
-
-
-        // Khởi tạo
-        updateQuantity();
-
-    </script>
-
+        }
+    );
+    plusBtn?.addEventListener(
+        'click',
+        function() {
+            let value =
+                Number(quantity.value);
+            if (value < maxStock) {
+                quantity.value =
+                    value + 1;
+                updateQuantity();
+            }
+        }
+    );
+    quantity?.addEventListener(
+        'input',
+        function() {
+            let value = Number(this.value);
+            if (value > maxStock) {
+                this.value = maxStock;
+            }
+            else if (
+                value < 1 &&
+                this.value !== ''
+            ) {
+                this.value = 1;
+            }
+            updateQuantity();
+        }
+    );
+    quantity?.addEventListener(
+        'blur',
+        function() {
+            if (
+                this.value === '' ||
+                Number(this.value) < 1
+            ) {
+                this.value = 1;
+            }
+            updateQuantity();
+        }
+    );
+    updateQuantity();
+</script>
 </body>
-
 </html>

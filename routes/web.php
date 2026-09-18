@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\CustomerBookController;
+use App\Http\Controllers\VnpayMockController;
 use App\Http\Controllers\CustomerDanhMucController;
 use App\Http\Controllers\CustomerDonMuaController;
 use App\Http\Controllers\CustomerGioiThieuController;
@@ -161,13 +162,19 @@ Route::post('/customer/checkout/address', [CustomerBookController::class, 'store
 // Xác nhận đặt hàng
 Route::post('/customer/checkout/order', [CustomerBookController::class, 'placeOrder'])
     ->name('customer.checkout.order');
-// Hiển thị trang thanh toán VNPay
-Route::get('/customer/checkout/vnpay', [CustomerBookController::class, 'vnpayPayment'])
-    ->name('customer.checkout.vnpay');
+Route::middleware('auth')->group(function () {
+    Route::get('/payment/vnpay/{maGiaoDich}', [VnpayMockController::class, 'show'])
+        ->name('customer.vnpay.show');
 
-// Xử lý kết quả thanh toán VNPay
-Route::post('/customer/checkout/vnpay/result', [CustomerBookController::class, 'vnpayPaymentResult'])
-    ->name('customer.checkout.vnpay.result');
+    Route::post('/payment/vnpay/send-otp', [VnpayMockController::class, 'sendOtp'])
+        ->name('customer.vnpay.sendOtp');
+
+    Route::post('/payment/vnpay/confirm', [VnpayMockController::class, 'confirm'])
+        ->name('customer.vnpay.confirm');
+
+    Route::get('/payment/vnpay/return/{maGiaoDich}', [VnpayMockController::class, 'returnPayment'])
+        ->name('customer.vnpay.return');
+});
 // Đơn hàng thành công
 Route::get('/customer/order/{donHang}', [CustomerBookController::class, 'orderSuccess'])
     ->name('customer.order.success');
