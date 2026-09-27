@@ -177,6 +177,17 @@
             border: 1px solid #eee;
             border-radius: 8px;
         }
+        .book-link{
+            text-decoration:none;
+            color:inherit;
+            display:block;
+        }
+        .book-link .book-card{
+            height:100%;
+        }
+        .book-link:hover .book-name{
+            color:#d71920;
+        }
     </style>
 </head>
 
@@ -281,52 +292,32 @@
                 <div class="book-grid">
 
                     @foreach ($sachs as $sach)
-
+                    <a href="{{ route('customer.book.show', $sach->maSach) }}" class="book-link">
                         <div class="book-card">
-
                             <div class="book-image">
-
                                 @if ($sach->hinhAnh)
-
-                                    <img
-                                        src="{{ asset('storage/' . $sach->hinhAnh) }}"
-                                        alt="{{ $sach->tenSach }}"
-                                    >
-
+                                    <img src="{{ asset('storage/' . $sach->hinhAnh) }}" alt="{{ $sach->tenSach }}">
                                 @else
-
-                                    <span class="no-image">
-                                        Chưa có hình ảnh
-                                    </span>
-
+                                    <span class="no-image">Chưa có hình ảnh</span>
                                 @endif
-
                             </div>
-
                             <div class="book-info">
-
-                                <div class="book-name">
-                                    {{ $sach->tenSach }}
-                                </div>
-
-                                <div class="book-price">
-                                    {{ number_format($sach->giaBan, 0, ',', '.') }} đ
-                                </div>
-
+                                <div class="book-name">{{ $sach->tenSach }}</div>
+                                <div class="book-price">{{ number_format($sach->giaBan,0,',','.') }} đ</div>
                                 <div class="book-stock">
-
                                     @if ($sach->tonKho)
-                                        Còn {{ $sach->tonKho->soLuongTon }} sản phẩm
+                                        @if ($sach->tonKho->soLuongTon > 0)
+                                            Còn {{ $sach->tonKho->soLuongTon }} sản phẩm
+                                        @else
+                                            Hết hàng
+                                        @endif
                                     @else
                                         Chưa có thông tin tồn kho
                                     @endif
-
                                 </div>
-
                             </div>
-
                         </div>
-
+                    </a>
                     @endforeach
 
                 </div>

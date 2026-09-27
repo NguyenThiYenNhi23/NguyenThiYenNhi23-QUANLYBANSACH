@@ -22,91 +22,68 @@ class CustomerBookController extends Controller
     public function addToCart(Request $request)
     {
         if (!Auth::check()) {
-            return redirect()
-                ->route('login')
+            return redirect()->route('login')
                 ->with('error','Vui lòng đăng nhập để thêm sách vào giỏ hàng.');
         }
-        $request->validate([
-            'maSach' => [
-                'required',
-                'integer',
-                'exists:sachs,maSach'
-            ],
-            'soLuong' => [
-                'required',
-                'integer',
-                'min:1'
-            ],
-        ]);
-        $sach = Sach::with('tonKho')->findOrFail($request->maSach);
-        $soLuongTon = (int) ($sach->tonKho->soLuongTon ?? 1);
+
+        $request->validate($this->bookQuantityRules());
+        $sach = $this->getBookWithStock($request->maSach);
+        $soLuongTon = $this->stockOf($sach);
+
         if ($soLuongTon <= 0) {
-            return back()
-                ->with('error','Sách đã hết hàng.');
+            return back()->with('error','Sách đã hết hàng.');
         }
+
         $soLuongThem = (int) $request->soLuong;
-        $cart = session()->get('cart',[]);
-        $soLuongHienTai = isset($cart[$sach->maSach]) ? (int) $cart[$sach->maSach]['soLuong'] : 0;
+        $cart = session()->get('cart', []);
+        $soLuongHienTai = (int) ($cart[$sach->maSach]['soLuong'] ?? 0);
         $soLuongSauKhiThem = $soLuongHienTai + $soLuongThem;
+
         if ($soLuongSauKhiThem > $soLuongTon) {
-            return back()
-                ->with('error',"Số lượng sách trong giỏ không được vượt quá tồn kho hiện tại ({$soLuongTon} quyển).");
+            return back()->with(
+                'error',
+                "Số lượng sách trong giỏ không được vượt quá tồn kho hiện tại ({$soLuongTon} quyển)."
+            );
         }
-        $cart[$sach->maSach] = [
-            'maSach' => $sach->maSach,
-            'tenSach' => $sach->tenSach,
-            'giaBan' => $sach->giaBan,
-            'hinhAnh' => $sach->hinhAnh,
-            'soLuong' => $soLuongSauKhiThem,
-        ];
-        session()->put('cart',$cart);
-        return redirect()
-            ->route('customer.book.show',$sach->maSach )
+
+        $cart[$sach->maSach] = $this->makeCartItem($sach, $soLuongSauKhiThem);
+        session()->put('cart', $cart);
+
+        return redirect()->route('customer.book.show', $sach->maSach)
             ->with('success','Đã thêm sách vào giỏ hàng.');
     }
+
     public function buyNow(Request $request)
     {
         if (!Auth::check()) {
-            return redirect()
-                ->route('login')
+            return redirect()->route('login')
                 ->with('error','Vui lòng đăng nhập để tiếp tục mua hàng.');
         }
-        $request->validate([
-            'maSach' => [
-                'required',
-                'integer',
-                'exists:sachs,maSach'
-            ],
-            'soLuong' => [
-                'required',
-                'integer',
-                'min:1'
-            ],
-        ]);
-        $sach = Sach::with('tonKho')->findOrFail($request->maSach);
+
+        $request->validate($this->bookQuantityRules());
+        $sach = $this->getBookWithStock($request->maSach);
         $soLuongMua = (int) $request->soLuong;
-        $soLuongTon = (int) ($sach->tonKho->soLuongTon ?? 1);
+        $soLuongTon = $this->stockOf($sach);
+
         if ($soLuongTon <= 0) {
-            return back()
-                ->with('error','Sách đã hết hàng.');
+            return back()->with('error','Sách đã hết hàng.');
         }
+
         if ($soLuongMua > $soLuongTon) {
-            return back()
-                ->with('error',"Số lượng mua không được vượt quá tồn kho ({$soLuongTon} quyển).");
+            return back()->with(
+                'error',
+                "Số lượng mua không được vượt quá tồn kho ({$soLuongTon} quyển)."
+            );
         }
-        $buyNowItem = [
-            $sach->maSach => [
-                'maSach' => $sach->maSach,
-                'tenSach' => $sach->tenSach,
-                'giaBan' => $sach->giaBan,
-                'hinhAnh' => $sach->hinhAnh,
-                'soLuong' => $soLuongMua,
-            ],
-        ];
-        session()->put('buy_now',$buyNowItem);
-        session()->put('last_viewed_book_id',$sach->maSach);
-        return redirect()->route( 'customer.checkout');
+
+        session()->put('buy_now', [
+            $sach->maSach => $this->makeCartItem($sach, $soLuongMua),
+        ]);
+        session()->put('last_viewed_book_id', $sach->maSach);
+
+        return redirect()->route('customer.checkout');
     }
+
     public function cart(): View
     {
         $cart = session()->get('cart',[]);
@@ -195,20 +172,9 @@ class CustomerBookController extends Controller
             ->where('maKH',$khachHang->maKH)
             ->orderByDesc('isDefault')
             ->get();
-        $paymentMethods = PhuongThucThanhToan::query()
-            ->where('trangThai',true)
-            ->get()
-            ->filter(function ($paymentMethod) {
-                $name = mb_strtolower(trim($paymentMethod->tenPhuongThuc));
-                return
-                    str_contains($name,'cod')||str_contains($name,'nhận hàng')||str_contains($name,'vnpay')||str_contains($name,'ví điện tử');})
-            ->values();
+        $paymentMethods = $this->getSupportedPaymentMethods();
         $items = array_values($items);
-        $total = collect($items)->sum(function ($item) {
-            return (float) $item['giaBan'] *(int) $item['soLuong'];
-        });
-        $shippingFee = 30000;
-        $grandTotal = $total + $shippingFee;
+        [$total, $shippingFee, $grandTotal] = $this->calculateTotals($items);
         return view(
             'customer.checkout',
             compact(
@@ -244,6 +210,10 @@ class CustomerBookController extends Controller
             return back()
                 ->with( 'error','Địa chỉ giao hàng không hợp lệ.'
                 );
+        }
+        if (!preg_match('/^0[0-9]{9}$/', $diaChi->sdt)) {
+            return back()
+                ->with('error', 'Số điện thoại người nhận phải gồm 10 chữ số và bắt đầu bằng số 0.');
         }
         $paymentMethod =
             PhuongThucThanhToan::query()
@@ -306,11 +276,7 @@ if ($isVnpay) {
                 ->with('error',"Sách '{$sach->tenSach}' chỉ còn {$soLuongTon} quyển.");
         }
     }
-    $total = collect($items)->sum(
-        function ($item) { return(float) $item['giaBan']*(int) $item['soLuong'];}
-    );
-    $shippingFee = 30000;
-    $grandTotal =$total+ $shippingFee;
+    [$total, $shippingFee, $grandTotal] = $this->calculateTotals($items);
     do {
         $maGiaoDich =
             'VNP'
@@ -592,9 +558,9 @@ public function completeVnpayOrder(ThanhToan $thanhToan)
             ],
             'sdt' => [
                 'required',
-                'string',
-                'max:15'
+                'regex:/^0[0-9]{9}$/',
             ],
+
             'diaChiChiTiet' => [
                 'required',
                 'string',
@@ -604,6 +570,15 @@ public function completeVnpayOrder(ThanhToan $thanhToan)
                 'nullable',
                 'boolean'
             ],
+        ], [
+            'hoTenNguoiNhan.required' => 'Vui lòng nhập họ tên người nhận.',
+            'hoTenNguoiNhan.max' => 'Họ tên không được vượt quá 100 ký tự.',
+
+            'sdt.required' => 'Vui lòng nhập số điện thoại.',
+            'sdt.regex' => 'Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0.',
+
+            'diaChiChiTiet.required' => 'Vui lòng nhập địa chỉ.',
+            'diaChiChiTiet.max' => 'Địa chỉ không được vượt quá 255 ký tự.',
         ]);
         $khachHang =
             $this->getCurrentKhachHang();
@@ -649,6 +624,61 @@ public function completeVnpayOrder(ThanhToan $thanhToan)
                 'Đã thêm địa chỉ mới thành công.'
             );
     }
+    private function bookQuantityRules(): array
+    {
+        return [
+            'maSach' => ['required', 'integer', 'exists:sachs,maSach'],
+            'soLuong' => ['required', 'integer', 'min:1'],
+        ];
+    }
+
+    private function getBookWithStock(int $maSach): Sach
+    {
+        return Sach::with('tonKho')->findOrFail($maSach);
+    }
+
+    private function stockOf(Sach $sach): int
+    {
+        return (int) ($sach->tonKho->soLuongTon ?? 1);
+    }
+
+    private function makeCartItem(Sach $sach, int $soLuong): array
+    {
+        return [
+            'maSach' => $sach->maSach,
+            'tenSach' => $sach->tenSach,
+            'giaBan' => $sach->giaBan,
+            'hinhAnh' => $sach->hinhAnh,
+            'soLuong' => $soLuong,
+        ];
+    }
+
+    private function getSupportedPaymentMethods()
+    {
+        return PhuongThucThanhToan::query()
+            ->where('trangThai', true)
+            ->get()
+            ->filter(function ($paymentMethod) {
+                $name = mb_strtolower(trim($paymentMethod->tenPhuongThuc));
+
+                return str_contains($name, 'cod')
+                    || str_contains($name, 'nhận hàng')
+                    || str_contains($name, 'vnpay')
+                    || str_contains($name, 'ví điện tử');
+            })
+            ->values();
+    }
+
+    private function calculateTotals(array $items): array
+    {
+        $total = collect($items)->sum(
+            fn ($item) => (float) $item['giaBan'] * (int) $item['soLuong']
+        );
+        $shippingFee = 30000;
+
+        return [$total, $shippingFee, $total + $shippingFee];
+    }
+
     private function getCurrentKhachHang(): KhachHang
     {
         $user = Auth::user();
