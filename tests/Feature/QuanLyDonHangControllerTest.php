@@ -154,6 +154,28 @@ class QuanLyDonHangControllerTest extends TestCase
         $this->assertNotNull(DonHang::find($donHang->maDH)->ngayHuy);
     }
 
+    public function test_customer_account_filters_orders_by_status(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $khachHang = KhachHang::create([
+            'user_id' => $customer->id,
+            'hoTen' => 'Nguyễn Văn A',
+            'sdt' => '0900000000',
+            'email' => $customer->email,
+        ]);
+        $pendingOrder = $this->createOrderForCustomer($khachHang->maKH, ['trangThai' => 'ChoXacNhan']);
+        $shippedOrder = $this->createOrderForCustomer($khachHang->maKH, ['trangThai' => 'DaGiao']);
+
+        $response = $this->actingAs($customer)->get(route('customer.account', [
+            'section' => 'orders',
+            'trangThai' => 'DaGiao',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee(route('customer.donmua.show', $shippedOrder));
+        $response->assertDontSee(route('customer.donmua.show', $pendingOrder));
+    }
+
     private function createOrder(array $attributes = []): DonHang
     {
         $user = User::factory()->create(['role' => 'customer']);
@@ -176,6 +198,29 @@ class QuanLyDonHangControllerTest extends TestCase
 
         return DonHang::create(array_merge([
             'maKH' => $khachHang->maKH,
+            'maDiaChi' => $diaChi->maDiaChi,
+            'maPTTT' => $phuongThuc->maPTTT,
+            'ngayDat' => now(),
+            'tongTien' => 150000,
+            'trangThai' => 'ChoXacNhan',
+        ], $attributes));
+    }
+
+    private function createOrderForCustomer(int $customerId, array $attributes = []): DonHang
+    {
+        $diaChi = DiaChi::create([
+            'maKH' => $customerId,
+            'hoTenNguoiNhan' => 'Nguyễn Văn A',
+            'sdt' => '0900000000',
+            'diaChiChiTiet' => '123 Đường Sách',
+        ]);
+        $phuongThuc = PhuongThucThanhToan::create([
+            'tenPhuongThuc' => 'COD',
+            'trangThai' => true,
+        ]);
+
+        return DonHang::create(array_merge([
+            'maKH' => $customerId,
             'maDiaChi' => $diaChi->maDiaChi,
             'maPTTT' => $phuongThuc->maPTTT,
             'ngayDat' => now(),

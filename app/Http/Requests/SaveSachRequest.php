@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SaveSachRequest extends FormRequest
 {
@@ -24,6 +25,8 @@ class SaveSachRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+                Rule::unique('sachs', 'tenSach')
+                    ->ignore($this->route('maSach'), 'maSach'),
             ],
 
             'giaBan' => [
@@ -61,6 +64,8 @@ class SaveSachRequest extends FormRequest
             'tenSach.required' => 'Vui lòng nhập tên sách.',
 
             'tenSach.max' => 'Tên sách không được vượt quá 255 ký tự.',
+
+            'tenSach.unique' => 'Sách đã tồn tại.',
 
             'giaBan.required' => 'Vui lòng nhập giá bán.',
 
