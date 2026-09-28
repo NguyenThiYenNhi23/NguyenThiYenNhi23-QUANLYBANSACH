@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giỏ hàng</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Giỏ hàng - Nhà xuất bản Kim Đồng</title>
     <style>
+
         * { box-sizing: border-box; }
         body {
             margin: 0;
@@ -288,16 +289,110 @@
                 padding-left: 0;
             }
         }
+    
+
+        .header { background: #fff; border-bottom: 1px solid #ddd; }
+        .container { width: 1200px; max-width: 95%; margin: 0 auto; }
+        .header-top { height: 80px; display: flex; align-items: center; gap: 30px; }
+        .logo { font-size: 24px; font-weight: 700; color: #d71920; white-space: nowrap; }
+        .search-box { flex: 1; display: flex; height: 42px; }
+        .search-box input { flex: 1; border: 1px solid #ddd; border-right: none; padding: 0 15px; font-size: 14px; border-radius: 5px 0 0 5px; }
+        .search-box button { width: 50px; border: none; background: #d71920; color: #fff; cursor: pointer; border-radius: 0 5px 5px 0; }
+        .header-actions { display: flex; align-items: center; gap: 25px; white-space: nowrap; }
+        .header-actions a { color: #222; }
+        .header-actions a:hover { color: #d71920; }
+        .header-actions form { margin: 0; }
+        .menu { border-top: 1px solid #eee; }
+        .menu ul { height: 50px; display: flex; align-items: center; list-style: none; gap: 40px; padding: 0; margin: 0; }
+        .menu a { font-size: 15px; font-weight: 500; color: #222; }
+        .menu a:hover { color: #d71920; }
+        .cart-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 3px; border-radius: 10px; background: #d71920; color: #fff; font-size: 11px; line-height: 1; }
+
+        .cart-hero {
+            min-height: 185px;
+            display: flex;
+            align-items: center;
+            background:
+                linear-gradient(rgba(25,25,25,.48), rgba(25,25,25,.48)),
+                url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+        }
+        .cart-hero h1 { color: #fff; font-size: 28px; margin: 0 0 12px; font-weight: 700; }
+        .cart-breadcrumb { color: #fff; font-size: 14px; }
+        .cart-breadcrumb a { color: #fff; }
+        .cart-breadcrumb span { margin: 0 6px; }
+
+        .cart-intro { padding: 38px 0 8px; background: #fff; }
+        .cart-intro h2 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+        .cart-intro p { margin: 0; color: #555; line-height: 1.7; font-size: 14px; }
+
+        .footer { background: #f7f7f7; border-top: 1px solid #e5e5e5; padding: 32px 0 24px; color: #333; }
+        .footer-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr; gap: 28px; }
+        .footer h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; text-transform: uppercase; }
+        .footer p, .footer li { font-size: 13px; line-height: 1.7; color: #555; }
+        .footer ul { list-style: none; margin: 0; padding: 0; }
+        .footer-bottom { border-top: 1px solid #ddd; margin-top: 25px; padding-top: 16px; text-align: center; font-size: 12px; color: #777; }
+
+        @media (max-width: 900px) {
+            .header-top { height: auto; padding: 15px 0; flex-wrap: wrap; }
+            .search-box { order: 3; flex-basis: 100%; }
+            .header-actions { gap: 12px; }
+            .menu ul { gap: 20px; overflow-x: auto; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
     </style>
 </head>
-
 <body>
     @php
         $cartItems = session('cart', []);
         $cartCount = collect($cartItems)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
     @endphp
 
-    <main class="page">
+
+<header class="header">
+    <div class="container">
+        <div class="header-top">
+            <a class="logo" href="{{ route('customer.home') }}">KIM ĐỒNG</a>
+            <form action="{{ route('customer.search') }}" method="GET" class="search-box">
+                <input type="text" name="q" placeholder="Tìm kiếm sách..." value="{{ request('q') }}">
+                <button type="submit">🔍</button>
+            </form>
+            <div class="header-actions">
+                @auth
+                    <a href="{{ route('customer.account') }}">{{ auth()->user()->name }}</a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" style="background:none;border:none;color:#222;padding:0;font:inherit;cursor:pointer;">Đăng xuất</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}">Đăng nhập</a>
+                @endauth
+                <a href="{{ route('customer.cart') }}">🛒 Giỏ hàng @if($cartCount > 0)<span class="cart-badge">{{ $cartCount }}</span>@endif</a>
+            </div>
+        </div>
+        <nav class="menu">
+            <ul>
+                <li><a href="{{ route('customer.home') }}">Trang chủ</a></li>
+                <li><a href="{{ route('customer.danhmuc') }}">Danh mục</a></li>
+                <li><a href="{{ route('customer.gioithieu') }}">Giới thiệu</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+<section class="cart-hero">
+    <div class="container">
+        <h1>GIỎ HÀNG</h1>
+        <div class="cart-breadcrumb">
+            <a href="{{ route('customer.home') }}">Trang chủ</a>
+            <span>/</span>
+            <span>Giỏ hàng</span>
+        </div>
+    </div>
+</section>
+
+<main class="page">
         <h1 class="cart-header">Giỏ hàng của bạn (đang có {{ $cartCount }} sản phẩm)</h1>
 
         @if (empty($items))
@@ -373,7 +468,28 @@
         @endif
     </main>
 
-    <script>
+<section class="cart-intro">
+    <div class="container">
+        <h2>Nhà xuất bản Kim Đồng</h2>
+        <p>Nhà xuất bản Kim Đồng cung cấp các đầu sách dành cho thiếu nhi, thanh thiếu niên và bạn đọc yêu sách.</p>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div><h3>Dịch vụ</h3><p>Điều khoản sử dụng</p><p>Chính sách bảo mật</p></div>
+            <div><h3>Hỗ trợ</h3><p>Hướng dẫn đặt hàng</p><p>Chính sách đổi trả - hoàn tiền</p></div>
+            <div><h3>Nhà xuất bản Kim Đồng</h3><p>Địa chỉ: Số 55 Quang Trung, Phường Hai Bà Trưng, Thành phố Hà Nội</p><p>Điện thoại: 024 3943 4730</p></div>
+            <div><h3>Kết nối mạng xã hội</h3><p>Facebook &nbsp; Instagram &nbsp; YouTube</p><p>Email: cskh_online@nxbkimdong.com.vn</p></div>
+        </div>
+        <div class="footer-bottom">© 2026 Nhà xuất bản Kim Đồng. All rights reserved.</div>
+    </div>
+</footer>
+
+
+    <script id="cart-data" type="application/json">@json(array_values($items))</script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             const formatVND = value => new Intl.NumberFormat('vi-VN').format(value) + '₫';
 

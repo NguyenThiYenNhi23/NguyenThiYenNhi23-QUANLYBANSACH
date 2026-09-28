@@ -19,51 +19,118 @@ class CustomerBookController extends Controller
         session()->put('last_viewed_book_id',$sach->maSach);
         return view('customer.book-detail',compact('sach'));
     }
-    public function addToCart(Request $request)
-    {
-        if (!Auth::check()) {
-            return redirect()
-                ->route('login')
-                ->with('error','Vui lòng đăng nhập để thêm sách vào giỏ hàng.');
+public function addToCart(Request $request)
+{
+    if (!Auth::check()) {
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng đăng nhập để thêm sách vào giỏ hàng.',
+                'redirect' => route('login'),
+            ], 401);
         }
-        $request->validate([
-            'maSach' => [
-                'required',
-                'integer',
-                'exists:sachs,maSach'
-            ],
-            'soLuong' => [
-                'required',
-                'integer',
-                'min:1'
-            ],
-        ]);
-        $sach = Sach::with('tonKho')->findOrFail($request->maSach);
-        $soLuongTon = (int) ($sach->tonKho->soLuongTon ?? 1);
-        if ($soLuongTon <= 0) {
-            return back()
-                ->with('error','Sách đã hết hàng.');
-        }
-        $soLuongThem = (int) $request->soLuong;
-        $cart = session()->get('cart',[]);
-        $soLuongHienTai = isset($cart[$sach->maSach]) ? (int) $cart[$sach->maSach]['soLuong'] : 0;
-        $soLuongSauKhiThem = $soLuongHienTai + $soLuongThem;
-        if ($soLuongSauKhiThem > $soLuongTon) {
-            return back()
-                ->with('error',"Số lượng sách trong giỏ không được vượt quá tồn kho hiện tại ({$soLuongTon} quyển).");
-        }
-        $cart[$sach->maSach] = [
-            'maSach' => $sach->maSach,
-            'tenSach' => $sach->tenSach,
-            'giaBan' => $sach->giaBan,
-            'hinhAnh' => $sach->hinhAnh,
-            'soLuong' => $soLuongSauKhiThem,
-        ];
-        session()->put('cart',$cart);
+
         return redirect()
-            ->route('customer.book.show',$sach->maSach )
-            ->with('success','Đã thêm sách vào giỏ hàng.');
+            ->route('login')
+            ->with('error', 'Vui lòng đăng nhập để thêm sách vào giỏ hàng.');
     }
+
+    $request->validate([
+        'maSach' => [
+            'required',
+            'integer',
+            'exists:sachs,maSach'
+        ],
+
+        'soLuong' => [
+            'required',
+            'integer',
+            'min:1'
+        ],
+    ]);
+
+    $sach = Sach::with('tonKho')->findOrFail($request->maSach);
+
+    $soLuongTon = (int) ($sach->tonKho->soLuongTon ?? 0);
+
+    if ($soLuongTon <= 0) {
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sách đã hết hàng.'
+            ], 422);
+        }
+
+        return back()->with('error', 'Sách đã hết hàng.');
+    }
+
+    $soLuongThem = (int) $request->soLuong;
+
+    $cart = session()->get('cart', []);
+
+    $soLuongHienTai = isset($cart[$sach->maSach])
+        ? (int) $cart[$sach->maSach]['soLuong']
+        : 0;
+
+    $soLuongSauKhiThem = $soLuongHienTai + $soLuongThem;
+
+    if ($soLuongSauKhiThem > $soLuongTon) {
+
+        $message = "Số lượng sách trong giỏ không được vượt quá tồn kho hiện tại ({$soLuongTon} quyển).";
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $message
+            ], 422);
+        }
+
+        return back()->with('error', $message);
+    }
+
+    $cart[$sach->maSach] = [
+        'maSach' => $sach->maSach,
+        'tenSach' => $sach->tenSach,
+        'giaBan' => $sach->giaBan,
+        'hinhAnh' => $sach->hinhAnh,
+        'soLuong' => $soLuongSauKhiThem,
+    ];
+
+    session()->put('cart', $cart);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nếu gọi bằng AJAX → trả JSON
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->expectsJson()) {
+
+        return response()->json([
+            'success' => true,
+
+            'message' => 'Đã thêm sản phẩm vào giỏ hàng.',
+
+            'cartCount' => collect($cart)->sum(
+                fn ($item) => (int) ($item['soLuong'] ?? 0)
+            ),
+
+            'cartItems' => array_values($cart),
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nếu gọi bình thường → vẫn giữ cách cũ
+    |--------------------------------------------------------------------------
+    */
+
+    return redirect()
+        ->route('customer.book.show', $sach->maSach)
+        ->with('success', 'Đã thêm sách vào giỏ hàng.');
+}
     public function buyNow(Request $request)
     {
         if (!Auth::check()) {
@@ -104,8 +171,11 @@ class CustomerBookController extends Controller
             ],
         ];
         session()->put('buy_now',$buyNowItem);
+        session()->forget('checkout_selected');
+        session()->put('checkout_source','buy_now');
         session()->put('last_viewed_book_id',$sach->maSach);
-        return redirect()->route( 'customer.checkout');
+
+        return redirect()->route('customer.checkout');
     }
     public function cart(): View
     {
@@ -154,10 +224,24 @@ class CustomerBookController extends Controller
             unset($cart[$maSach]);
         }
         session()->put('cart', $cart);
-        $totalItems = collect($cart)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
+
+        $cartItems = array_values($cart);
+
+        $totalItems = collect($cartItems)->sum(
+            fn ($item) => (int) ($item['soLuong'] ?? 0)
+        );
+
+        $cartTotal = collect($cartItems)->sum(
+            fn ($item) =>
+                (float) ($item['giaBan'] ?? 0) *
+                (int) ($item['soLuong'] ?? 0)
+        );
+
         return response()->json([
             'success' => true,
             'cartCount' => $totalItems,
+            'cartItems' => $cartItems,
+            'cartTotal' => $cartTotal,
             'message' => 'Cập nhật giỏ hàng thành công.',
         ]);
     }
@@ -168,47 +252,88 @@ class CustomerBookController extends Controller
                 ->route('login')
                 ->with('error','Vui lòng đăng nhập để tiếp tục thanh toán.');
         }
-        $items = session()->get( 'buy_now',[]);
-        if (empty($items)) {
-            $items = session()->get('cart',[]);
+
+        /*
+         * checkout_source là nguồn duy nhất quyết định checkout lấy dữ liệu nào.
+         * - buy_now: chỉ dùng session buy_now
+         * - cart: chỉ dùng session cart
+         *
+         * Không được tự động ưu tiên buy_now chỉ vì session buy_now còn dữ liệu cũ.
+         */
+        $source = $request->query(
+            'source',
+            session()->get('checkout_source', 'cart')
+        );
+
+        if ($source === 'buy_now') {
+            $items = session()->get('buy_now', []);
+
+            session()->put('checkout_source', 'buy_now');
+            session()->forget('checkout_selected');
+        } else {
+            $source = 'cart';
+            session()->put('checkout_source', 'cart');
+
+            $items = session()->get('cart', []);
+
             $selected = $request->query('selected', []);
             $selectedIds = array_map('intval', (array) $selected);
+
             if (!empty($selectedIds)) {
                 $items = array_filter(
                     $items,
-                    fn ($item) => in_array((int) ($item['maSach'] ?? 0), $selectedIds, true)
+                    fn ($item) =>
+                        in_array(
+                            (int) ($item['maSach'] ?? 0),
+                            $selectedIds,
+                            true
+                        )
                 );
+
                 session()->put('checkout_selected', $selectedIds);
             } else {
                 session()->forget('checkout_selected');
             }
-        } else {
-            session()->forget('checkout_selected');
         }
+
         if (empty($items)) {
             return redirect()
                 ->route('customer.home')
                 ->with('error','Chưa có sản phẩm nào để thanh toán.');
         }
+
         $khachHang = $this->getCurrentKhachHang();
+
         $addresses = DiaChi::query()
             ->where('maKH',$khachHang->maKH)
             ->orderByDesc('isDefault')
             ->get();
+
         $paymentMethods = PhuongThucThanhToan::query()
             ->where('trangThai',true)
             ->get()
             ->filter(function ($paymentMethod) {
                 $name = mb_strtolower(trim($paymentMethod->tenPhuongThuc));
+
                 return
-                    str_contains($name,'cod')||str_contains($name,'nhận hàng')||str_contains($name,'vnpay')||str_contains($name,'ví điện tử');})
+                    str_contains($name,'cod') ||
+                    str_contains($name,'nhận hàng') ||
+                    str_contains($name,'vnpay') ||
+                    str_contains($name,'ví điện tử');
+            })
             ->values();
+
         $items = array_values($items);
+
         $total = collect($items)->sum(function ($item) {
-            return (float) $item['giaBan'] *(int) $item['soLuong'];
+            return
+                (float) $item['giaBan'] *
+                (int) $item['soLuong'];
         });
+
         $shippingFee = 30000;
         $grandTotal = $total + $shippingFee;
+
         return view(
             'customer.checkout',
             compact(
@@ -222,6 +347,7 @@ class CustomerBookController extends Controller
             )
         );
     }
+
     public function placeOrder(Request $request)
     {
         if (!Auth::check()) {
@@ -261,30 +387,53 @@ class CustomerBookController extends Controller
             return back()
                 ->with('error','Phương thức thanh toán không được hỗ trợ.');
         }
-        $buyNow =session()->get('buy_now',[] );
-        if (!empty($buyNow)) {
-            $items =array_values($buyNow);
+        $checkoutSource = session()->get('checkout_source', 'cart');
+
+        if ($checkoutSource === 'buy_now') {
+            $buyNow = session()->get('buy_now', []);
+
+            if (empty($buyNow)) {
+                return redirect()
+                    ->route('customer.home')
+                    ->with('error','Không có sản phẩm mua ngay để đặt hàng.');
+            }
+
+            $items = array_values($buyNow);
             $isBuyNow = true;
+
             session()->forget('checkout_selected');
         } else {
-            $cart =session()->get('cart',[]);
+            $cart = session()->get('cart', []);
+
             if (empty($cart)) {
-                return redirect()->route('customer.home')
+                return redirect()
+                    ->route('customer.home')
                     ->with('error','Không có sản phẩm nào để đặt hàng.');
             }
+
             $selected = session()->get('checkout_selected', []);
+
             if (!empty($selected)) {
+                $selectedIds = array_map('intval', $selected);
+
                 $cart = array_filter(
                     $cart,
-                    fn ($item) => in_array((int) ($item['maSach'] ?? 0), array_map('intval', $selected), true)
+                    fn ($item) =>
+                        in_array(
+                            (int) ($item['maSach'] ?? 0),
+                            $selectedIds,
+                            true
+                        )
                 );
             }
+
             if (empty($cart)) {
                 return redirect()
                     ->route('customer.home')
                     ->with('error', 'Không có sản phẩm nào được chọn để đặt hàng.');
             }
-            $items =array_values($cart);
+
+            $items = array_values($cart);
             $isBuyNow = false;
         }
 if ($isVnpay) {
@@ -359,11 +508,25 @@ if ($isVnpay) {
                     $items
                 );
             if ($isBuyNow) {
-                session()->forget(
-                    'buy_now');
+                session()->forget('buy_now');
             } else {
-                session()->forget( 'cart');
+                $selected = session()->get('checkout_selected', []);
+
+                if (!empty($selected)) {
+                    $cart = session()->get('cart', []);
+
+                    foreach ($selected as $maSach) {
+                        unset($cart[(int) $maSach]);
+                    }
+
+                    session()->put('cart', $cart);
+                } else {
+                    session()->forget('cart');
+                }
             }
+
+            session()->forget('checkout_source');
+            session()->forget('checkout_selected');
             return redirect()
                 ->route( 'customer.order.success', $donHang->maDH)
                 ->with('success','Đặt hàng thành công.');
@@ -444,6 +607,7 @@ public function completeVnpayOrder(ThanhToan $thanhToan)
             }
         }
         session()->forget('pending_vnpay');
+        session()->forget('checkout_source');
         session()->forget('checkout_selected');
         return redirect()
             ->route('customer.order.success', $donHang->maDH)

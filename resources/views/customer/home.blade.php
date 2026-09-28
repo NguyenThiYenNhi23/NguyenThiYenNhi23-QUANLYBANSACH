@@ -377,8 +377,16 @@
 <body>
 
 @php
-    $cartItems = session('cart', []);
-    $cartCount = collect($cartItems)->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
+    $items = session('cart', []);
+
+    $cartCount = collect($items)
+        ->sum(fn ($item) => (int) ($item['soLuong'] ?? 0));
+
+    $total = collect($items)
+        ->sum(function ($item) {
+            return (int) ($item['soLuong'] ?? 0)
+                * (float) ($item['giaBan'] ?? 0);
+        });
 @endphp
 
 <!-- =========================
@@ -431,13 +439,12 @@
                         Đăng xuất
                     </button>
                 </form>
-                <a href="{{ route('customer.cart') }}">
-                    🛒 Giỏ hàng
-                    @if ($cartCount > 0)
-                        <span class="cart-badge">{{ $cartCount }}</span>
-                    @endif
-                </a>
-
+                <a href="javascript:void(0);" id="cartToggle">
+    🛒 Giỏ hàng
+    @if ($cartCount > 0)
+        <span class="cart-badge">{{ $cartCount }}</span>
+    @endif
+</a>
             </div>
 
         </div>
@@ -471,7 +478,7 @@
 
 </header>
 
-
+@include('customer.partials.cart-popup')
 
 <main>
 
@@ -501,7 +508,9 @@
 
 </section>
 
-
+<!-- =========================
+     GIỎ HÀNG HIỆN TRÊN TRANG CHỦ
+========================= -->
 
 <!-- =========================
      SÁCH NỔI BẬT
@@ -893,6 +902,492 @@
 </footer>
 
 
-</body>
 
+<script>
+/*
+ * ĐỒNG BỘ SỐ LƯỢNG GIỎ HÀNG TRÊN TRANG CHỦ
+ *
+ * Trang chủ đôi khi được Safari lấy lại từ cache nên $cartCount
+ * có thể là số cũ (ví dụ 0), trong khi session hiện tại đã là 2/4/5.
+ *
+ * Vì vậy khi mở trang chủ, lấy lại chính trang từ server với
+ * cache: no-store rồi đọc cart-badge mới nhất.
+ */
+(function () {
+
+    async function syncHomeCartBadge() {
+
+        try {
+
+            const url = new URL(window.location.href);
+
+            url.searchParams.set(
+                '_cart_sync',
+                Date.now().toString()
+            );
+
+            const response = await fetch(
+                url.toString(),
+                {
+                    method: 'GET',
+                    cache: 'no-store',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const html = await response.text();
+
+            const parser = new DOMParser();
+
+            const doc = parser.parseFromString(
+                html,
+                'text/html'
+            );
+
+            const serverBadge =
+                doc.querySelector('.cart-badge');
+
+            const badges =
+                document.querySelectorAll('.cart-badge');
+
+            let count = 0;
+
+            if (serverBadge) {
+                count = parseInt(
+                    serverBadge.textContent.trim(),
+                    10
+                ) || 0;
+            }
+
+            badges.forEach(function (badge) {
+
+                badge.textContent = count;
+
+                badge.style.display =
+                    count > 0 ? '' : 'none';
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Không thể đồng bộ số lượng giỏ hàng:',
+                error
+            );
+
+        }
+
+    }
+
+    /*
+     * Chạy ngay khi Trang chủ mở.
+     */
+    if (
+        document.readyState === 'loading'
+    ) {
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            syncHomeCartBadge
+        );
+
+    } else {
+
+        syncHomeCartBadge();
+
+    }
+
+    /*
+     * Nếu Safari khôi phục Trang chủ từ bộ nhớ (bfcache),
+     * đồng bộ lại lần nữa.
+     */
+    window.addEventListener(
+        'pageshow',
+        function (event) {
+
+            if (event.persisted) {
+                syncHomeCartBadge();
+            }
+
+        }
+    );
+
+})();
+</script>
+
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const cartToggle = document.getElementById('cartToggle');
+    const cartPanel = document.getElementById('cartPanel');
+    const closeCart = document.getElementById('closeCart');
+
+    /*
+     * BẤM ICON GIỎ HÀNG
+     */
+    if (cartToggle && cartPanel) {
+
+        cartToggle.addEventListener('click', function () {
+
+            cartPanel.classList.toggle('show');
+
+            if (cartPanel.classList.contains('show')) {
+
+                cartPanel.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * TIẾP TỤC MUA HÀNG
+     */
+    if (closeCart && cartPanel) {
+
+        closeCart.addEventListener('click', function () {
+
+            cartPanel.classList.remove('show');
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+
+        });
+
+    }
+
+
+    /*
+     * FORMAT TIỀN
+     */
+    const formatVND = value => {
+
+        return new Intl.NumberFormat('vi-VN').format(value) + '₫';
+
+    };
+
+
+    /*
+     * TÍNH LẠI TỔNG
+     */
+    function updateTotals() {
+
+        const rows =
+            document.querySelectorAll('.cart-panel-item');
+
+        let count = 0;
+        let selectedTotal = 0;
+
+
+        rows.forEach(row => {
+
+            const price =
+                Number(row.dataset.price || 0);
+
+            const qtyInput =
+                row.querySelector('.qty-value');
+
+            const qty =
+                Number(qtyInput?.value || 0);
+
+            const total =
+                price * qty;
+
+            const checkbox =
+                row.querySelector('.item-select');
+
+
+            const totalElement =
+                row.querySelector('.total-price');
+
+            if (totalElement) {
+
+                totalElement.textContent =
+                    formatVND(total);
+
+            }
+
+
+            count += qty;
+
+
+            if (checkbox && checkbox.checked) {
+
+                selectedTotal += total;
+
+            }
+
+        });
+
+
+        const totalDisplay =
+            document.getElementById(
+                'selected-total-display'
+            );
+
+        if (totalDisplay) {
+
+            totalDisplay.textContent =
+                formatVND(selectedTotal);
+
+        }
+
+
+        const badge =
+            document.querySelector('.cart-badge');
+
+        if (badge) {
+
+            badge.textContent = count;
+
+        }
+
+    }
+
+
+    /*
+     * CHỌN TẤT CẢ
+     */
+    const selectAll =
+        document.getElementById(
+            'select-all-items'
+        );
+
+
+    if (selectAll) {
+
+        selectAll.addEventListener(
+            'change',
+            function () {
+
+                document
+                    .querySelectorAll('.item-select')
+                    .forEach(checkbox => {
+
+                        checkbox.checked =
+                            selectAll.checked;
+
+                    });
+
+                updateTotals();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * CHỌN TỪNG SẢN PHẨM
+     */
+    document
+        .querySelectorAll('.item-select')
+        .forEach(checkbox => {
+
+            checkbox.addEventListener(
+                'change',
+                function () {
+
+                    updateTotals();
+
+                }
+            );
+
+        });
+
+
+    /*
+     * TĂNG / GIẢM / XÓA
+     */
+    document
+        .querySelectorAll(
+            '.cart-panel [data-action]'
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                'click',
+                async function () {
+
+                    const row =
+                        button.closest(
+                            '.cart-panel-item'
+                        );
+
+                    if (!row) return;
+
+
+                    const maSach =
+                        row.dataset.maSach;
+
+                    const action =
+                        button.dataset.action;
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                '{{ route('customer.cart.update') }}',
+                                {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type':
+                                            'application/json',
+
+                                        'Accept':
+                                            'application/json',
+
+                                        'X-CSRF-TOKEN':
+                                            '{{ csrf_token() }}'
+                                    },
+
+                                    body: JSON.stringify({
+                                        maSach: maSach,
+                                        action: action
+                                    })
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (!data.success) {
+
+                            alert(
+                                data.message ||
+                                'Không thể cập nhật giỏ hàng.'
+                            );
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * XÓA
+                         */
+                        if (action === 'remove') {
+
+                            row.remove();
+
+                        }
+
+                        /*
+                         * TĂNG / GIẢM
+                         */
+                        else {
+
+                            const input =
+                                row.querySelector(
+                                    '.qty-value'
+                                );
+
+                            const current =
+                                Number(
+                                    input.value || 0
+                                );
+
+                            const next =
+                                action === 'plus'
+                                    ? current + 1
+                                    : current - 1;
+
+
+                            if (next <= 0) {
+
+                                row.remove();
+
+                            } else {
+
+                                input.value = next;
+
+                            }
+
+                        }
+
+
+                        /*
+                         * NẾU HẾT SẢN PHẨM
+                         */
+                        const remaining =
+                            document.querySelectorAll(
+                                '.cart-panel-item'
+                            );
+
+
+                        if (remaining.length === 0) {
+
+                            location.reload();
+
+                            return;
+
+                        }
+
+
+                        updateTotals();
+
+
+                        /*
+                         * CẬP NHẬT BADGE
+                         */
+                        const badge =
+                            document.querySelector(
+                                '.cart-badge'
+                            );
+
+                        if (
+                            badge &&
+                            data.cartCount !== undefined
+                        ) {
+
+                            badge.textContent =
+                                data.cartCount;
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.error(error);
+
+                        alert(
+                            'Không thể cập nhật giỏ hàng.'
+                        );
+
+                    }
+
+                }
+            );
+
+        });
+
+
+    /*
+     * TÍNH TỔNG BAN ĐẦU
+     */
+    updateTotals();
+
+});
+</script>
 </html>
