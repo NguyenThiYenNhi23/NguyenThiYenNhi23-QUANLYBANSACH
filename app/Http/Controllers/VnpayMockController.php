@@ -87,21 +87,17 @@ class VnpayMockController extends Controller
                 ],
             ]);
 
-            $validBanks = [
+            // Danh sách 8 ngân hàng hiển thị trên giao diện.
+            // Chỉ BIDV và Vietcombank được phép thanh toán trong demo.
+            $payableBanks = [
                 'Vietcombank',
                 'BIDV',
-                'VietinBank',
-                'Agribank',
-                'Techcombank',
-                'MB Bank',
-                'ACB',
-                'VPBank',
             ];
 
-            if (!in_array($request->bankName, $validBanks)) {
+            if (!in_array($request->bankName, $payableBanks)) {
                 return back()
                     ->withInput()
-                    ->with('error', 'Ngân hàng không được hỗ trợ.');
+                    ->with('error', 'Ngân hàng này chưa được hỗ trợ thanh toán trong hệ thống demo.');
             }
 
             if ($request->bankPhone !== '0912345678') {

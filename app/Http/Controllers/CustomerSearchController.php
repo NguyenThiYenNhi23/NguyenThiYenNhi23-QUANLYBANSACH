@@ -12,6 +12,7 @@ class CustomerSearchController extends Controller
         $keyword = trim($request->input('q', ''));
 
         $sachs = Sach::with(['danhMuc', 'tonKho'])
+            ->where('trangThai', 'Đang kinh doanh')
             ->when($keyword !== '', function ($query) use ($keyword) {
                 $query->where('tenSach', 'like', '%' . $keyword . '%');
             })

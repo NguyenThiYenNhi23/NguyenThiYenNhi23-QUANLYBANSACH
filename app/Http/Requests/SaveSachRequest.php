@@ -32,7 +32,7 @@ class SaveSachRequest extends FormRequest
             'giaBan' => [
                 'required',
                 'numeric',
-                'min:0',
+                'gt:0',
             ],
 
             'moTa' => [
@@ -71,7 +71,7 @@ class SaveSachRequest extends FormRequest
 
             'giaBan.numeric' => 'Giá bán phải là số.',
 
-            'giaBan.min' => 'Giá bán không được nhỏ hơn 0.',
+            'giaBan.gt' => 'Giá bán phải lớn hơn 0.',
 
             'trangThai.required' => 'Vui lòng chọn trạng thái.',
 
