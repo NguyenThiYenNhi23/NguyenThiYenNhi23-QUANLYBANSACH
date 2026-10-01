@@ -5,8 +5,38 @@
 @section('header-title', 'Quản lý sách')
 
 @section('content')
+@if(session('success'))
+    <div class="alert-message alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert-message alert-error">
+        {{ session('error') }}
+    </div>
+@endif
 
 <style>
+        .alert-message {
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
     .book-management {
         display: flex;
         flex-direction: column;
@@ -770,3 +800,17 @@
     </div>
 </div>
 @endsection
+<script>
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert-message');
+
+        alerts.forEach(function (alert) {
+            alert.style.opacity = '0';
+            alert.style.transition = 'opacity 0.5s ease';
+
+            setTimeout(function () {
+                alert.remove();
+            }, 200);
+        });
+    }, 1000);
+</script>
