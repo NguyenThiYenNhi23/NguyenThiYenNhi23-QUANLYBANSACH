@@ -132,8 +132,7 @@
 <div class="container">
 
     <div class="page-header">
-        <h1>👨‍💼 Quản lý nhân viên</h1>
-
+        <h1>Danh sách nhân viên <h1>
         <a href="{{ route('quantri.nhanvien.create') }}"
            class="btn btn-add">
             + Thêm nhân viên
@@ -249,28 +248,42 @@
                             </a>
 
 
-                            {{-- KHÓA / MỞ KHÓA --}}
-                            <form
-                                action="{{ route('quantri.nhanvien.status', $nhanVien->maNV) }}"
-                                method="POST"
-                                style="display:inline;"
-                            >
+                          {{-- KHÓA / MỞ KHÓA --}}
+                            @if($nhanVien->user && $nhanVien->user->trang_thai)
 
-                                @csrf
-                                @method('PATCH')
+                                {{-- TÀI KHOẢN ĐANG HOẠT ĐỘNG → CHỈ HIỆN KHÓA --}}
+                                <form
+                                    action="{{ route('quantri.nhanvien.status', $nhanVien->maNV) }}"
+                                    method="POST"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn khóa tài khoản nhân viên này không?');"
+                                >
+                                    @csrf
+                                    @method('PATCH')
 
-                                <button type="submit"
-                                        class="btn btn-status">
+                                    <button type="submit" class="btn btn-status">
+                                         Khóa
+                                    </button>
+                                </form>
 
-                                    @if($nhanVien->user && $nhanVien->user->trang_thai)
-                                        Khóa
-                                    @else
-                                        Mở khóa
-                                    @endif
+                            @else
 
-                                </button>
+                                {{-- TÀI KHOẢN ĐÃ KHÓA → CHỈ HIỆN MỞ KHÓA --}}
+                                <form
+                                    action="{{ route('quantri.nhanvien.status', $nhanVien->maNV) }}"
+                                    method="POST"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn mở khóa tài khoản nhân viên này không?');"
+                                >
+                                    @csrf
+                                    @method('PATCH')
 
-                            </form>
+                                    <button type="submit" class="btn btn-status">
+                                         Mở khóa
+                                    </button>
+                                </form>
+
+                            @endif
 
                         </div>
 

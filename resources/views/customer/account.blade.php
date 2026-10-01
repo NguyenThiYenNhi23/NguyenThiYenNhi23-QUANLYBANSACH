@@ -70,6 +70,9 @@
         .order-code-link { color: #1671d9; font-weight: 500; }
         .order-status { color: #e21c2a; font-weight: 700; }
         .orders-empty { padding: 28px 0; color: #666; }
+        .order-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
+        .order-filters a { padding: 8px 12px; color: #333; border: 1px solid #ddd; background: #fff; }
+        .order-filters a.active { color: #fff; border-color: #e21c2a; background: #e21c2a; }
         .address-modal { position: fixed; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(0, 0, 0, .62); }
         .address-modal.is-open { display: flex; }
         .address-modal__box { width: min(890px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: #fff; box-shadow: 0 8px 30px rgba(0, 0, 0, .25); }
@@ -131,6 +134,13 @@
         <section class="account-content">
             @if ($section === 'orders')
                 <h2>ĐƠN HÀNG CỦA BẠN</h2>
+
+                <nav class="order-filters" aria-label="Lọc trạng thái đơn hàng">
+                    <a class="{{ $status === null ? 'active' : '' }}" href="{{ route('customer.account', ['section' => 'orders']) }}">Tất cả</a>
+                    @foreach ($statuses as $value => $label)
+                        <a class="{{ $status === $value ? 'active' : '' }}" href="{{ route('customer.account', ['section' => 'orders', 'trangThai' => $value]) }}">{{ $label }}</a>
+                    @endforeach
+                </nav>
 
                 @if ($donHangs->isEmpty())
                     <p class="orders-empty">Bạn chưa có đơn hàng nào.</p>

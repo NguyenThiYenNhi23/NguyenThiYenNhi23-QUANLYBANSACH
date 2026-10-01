@@ -19,6 +19,11 @@ class CustomerAccountController extends Controller
     {
         $customerId = $this->customerId($request);
         $editingAddress = null;
+        $status = $request->query('trangThai');
+
+        if (! array_key_exists($status, DonHang::STATUS_LABELS)) {
+            $status = null;
+        }
 
         if ($customerId && $request->query('edit')) {
             $editingAddress = DiaChi::where('maKH', $customerId)
@@ -36,8 +41,11 @@ class CustomerAccountController extends Controller
             'donHangs' => DonHang::query()
                 ->with('diaChi')
                 ->where('maKH', $customerId)
+                ->when($status !== null, fn ($query) => $query->where('trangThai', $status))
                 ->orderByDesc('ngayDat')
                 ->get(),
+            'status' => $status,
+            'statuses' => DonHang::STATUS_LABELS,
         ]);
     }
 
