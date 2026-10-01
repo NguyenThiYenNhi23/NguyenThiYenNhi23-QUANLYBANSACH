@@ -387,7 +387,10 @@
                 </a>
             @endif
 
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST"
+                action="{{ route('logout') }}"
+                onsubmit="return confirm('Bạn có chắc chắn muốn đăng xuất không?');">
+
                 @csrf
 
                 <button type="submit" class="logout-btn">

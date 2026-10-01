@@ -259,7 +259,7 @@
                 Trang chủ
             </a>
 
-            <a href="#">
+            <a href="{{ route('customer.danhmuc') }}">
                 Danh mục
             </a>
 

@@ -158,6 +158,257 @@
             color: #666;
         }
 
+        /* =========================
+           BANNER / SLIDER TRANG CHỦ
+        ========================= */
+
+        .hero-slider {
+            position: relative;
+            overflow: hidden;
+            margin: 30px 0 10px;
+            border-radius: 18px;
+            background: #fff5f5;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .hero-track {
+            display: flex;
+            transition: transform 0.55s ease;
+        }
+
+        .hero-slide {
+            min-width: 100%;
+            position: relative;
+            min-height: 330px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            padding: 45px 80px;
+        }
+
+        .hero-slide:nth-child(1) {
+            background: linear-gradient(120deg, #fff4f4 0%, #ffe1e1 100%);
+        }
+
+        .hero-slide:nth-child(2) {
+            background: linear-gradient(120deg, #fff9ed 0%, #ffe8c2 100%);
+        }
+
+        .hero-slide:nth-child(3) {
+            background: linear-gradient(120deg, #f3f8ff 0%, #dfeeff 100%);
+        }
+
+        .hero-content {
+            width: 58%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-label {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 7px 13px;
+            border-radius: 999px;
+            background: #d71920;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+
+        .hero-content h1 {
+            margin: 0 0 14px;
+            font-size: 34px;
+            line-height: 1.2;
+            color: #222;
+        }
+
+        .hero-content p {
+            margin: 0;
+            max-width: 590px;
+            color: #555;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .hero-button {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 11px 20px;
+            border-radius: 7px;
+            background: #d71920;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .hero-button:hover {
+            background: #b9141a;
+            transform: translateY(-2px);
+        }
+
+        /* Minh họa sách bằng CSS, không cần file ảnh riêng */
+        .hero-books {
+            position: absolute;
+            right: 70px;
+            bottom: 0;
+            width: 310px;
+            height: 270px;
+        }
+
+        .hero-book {
+            position: absolute;
+            width: 125px;
+            height: 175px;
+            border-radius: 7px 9px 9px 7px;
+            box-shadow: 0 12px 22px rgba(0,0,0,0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            border-left: 7px solid rgba(0,0,0,0.12);
+        }
+
+        .hero-book span {
+            font-size: 18px;
+            line-height: 1.25;
+        }
+
+        .hero-book.one {
+            right: 125px;
+            bottom: 20px;
+            background: #d71920;
+            transform: rotate(-10deg);
+        }
+
+        .hero-book.two {
+            right: 35px;
+            bottom: 28px;
+            background: #2f6fb0;
+            transform: rotate(8deg);
+        }
+
+        .hero-book.three {
+            right: 82px;
+            bottom: 72px;
+            background: #f0a323;
+            transform: rotate(1deg);
+            z-index: 2;
+        }
+
+        .hero-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 17px;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .hero-dot {
+            width: 9px;
+            height: 9px;
+            border: none;
+            border-radius: 50%;
+            padding: 0;
+            background: rgba(0,0,0,0.22);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 10px;
+            background: #d71920;
+        }
+
+        .hero-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.88);
+            color: #333;
+            font-size: 24px;
+            line-height: 38px;
+            cursor: pointer;
+            z-index: 5;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+            transition: 0.2s;
+        }
+
+        .hero-arrow:hover {
+            background: white;
+            color: #d71920;
+        }
+
+        .hero-prev {
+            left: 18px;
+        }
+
+        .hero-next {
+            right: 18px;
+        }
+
+        @media (max-width: 900px) {
+            .hero-slide {
+                min-height: 360px;
+                padding: 35px 55px;
+            }
+
+            .hero-content {
+                width: 70%;
+            }
+
+            .hero-content h1 {
+                font-size: 28px;
+            }
+
+            .hero-books {
+                right: 20px;
+                opacity: 0.32;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-slide {
+                min-height: 380px;
+                padding: 35px 35px 55px;
+            }
+
+            .hero-content {
+                width: 100%;
+            }
+
+            .hero-content h1 {
+                font-size: 25px;
+            }
+
+            .hero-content p {
+                font-size: 14px;
+            }
+
+            .hero-books {
+                right: -55px;
+                opacity: 0.18;
+            }
+
+            .hero-arrow {
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                font-size: 19px;
+            }
+        }
+
 
         /* =========================
            SECTION
@@ -433,12 +684,22 @@
                     </a>
                 @endauth
 
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit" style="background:none;border:none;color:#1f2937;padding:0;font:inherit;cursor:pointer;">
-                        Đăng xuất
-                    </button>
-                </form>
+                @if (Auth::check())
+                    {{-- Đã đăng nhập --}}
+                    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit"
+                                style="background:none;border:none;color:#1f2937;padding:0;font:inherit;cursor:pointer;">
+                            Đăng xuất
+                        </button>
+                    </form>
+                @else
+                    {{-- Chưa đăng nhập --}}
+                    <a href="{{ route('register') }}"
+                    style="color:#1f2937;text-decoration:none;padding:0;font:inherit;cursor:pointer;">
+                        Đăng ký
+                    </a>
+                @endif
                 <a href="javascript:void(0);" id="cartToggle">
     🛒 Giỏ hàng
     @if ($cartCount > 0)
@@ -487,25 +748,88 @@
      GIỚI THIỆU
 ========================= -->
 
-<section
-    class="intro"
-    id="gioi-thieu"
->
+<section class="container">
+    <div class="hero-slider" id="heroSlider">
 
-    <div class="container">
+        <div class="hero-track" id="heroTrack">
 
-        <h1>
-            Chào mừng đến với Nhà xuất bản Kim Đồng
-        </h1>
+            <div class="hero-slide">
+                <div class="hero-content">
+                    <span class="hero-label">KIM ĐỒNG</span>
+                    <h1>Khám phá thế giới sách</h1>
+                    <p>
+                        Những câu chuyện thú vị dành cho thiếu nhi,
+                        thanh thiếu niên và những người yêu sách.
+                    </p>
+                    <a href="{{ route('customer.danhmuc') }}" class="hero-button">
+                        Khám phá sách
+                    </a>
+                </div>
 
-        <p>
-            Khám phá những cuốn sách hay dành cho
-            thiếu nhi, thanh thiếu niên và độc giả
-            yêu thích sách.
-        </p>
+                <div class="hero-books" aria-hidden="true">
+                    <div class="hero-book one"><span>Thế giới<br>sách</span></div>
+                    <div class="hero-book two"><span>Truyện<br>hay</span></div>
+                    <div class="hero-book three"><span>Kim<br>Đồng</span></div>
+                </div>
+            </div>
+
+            <div class="hero-slide">
+                <div class="hero-content">
+                    <span class="hero-label">DÀNH CHO BẠN</span>
+                    <h1>Mỗi trang sách, một câu chuyện</h1>
+                    <p>
+                        Tìm kiếm những cuốn sách phù hợp với sở thích
+                        và khám phá thêm nhiều tác phẩm thú vị.
+                    </p>
+                    <a href="{{ route('customer.danhmuc') }}" class="hero-button">
+                        Xem danh mục
+                    </a>
+                </div>
+
+                <div class="hero-books" aria-hidden="true">
+                    <div class="hero-book one"><span>Đọc<br>sách</span></div>
+                    <div class="hero-book two"><span>Khám<br>phá</span></div>
+                    <div class="hero-book three"><span>Cùng<br>đọc</span></div>
+                </div>
+            </div>
+
+            <div class="hero-slide">
+                <div class="hero-content">
+                    <span class="hero-label">KIM ĐỒNG</span>
+                    <h1>Đọc sách và khám phá điều mới</h1>
+                    <p>
+                        Chọn một cuốn sách, bắt đầu một hành trình
+                        và tìm cho mình những câu chuyện đáng nhớ.
+                    </p>
+                    <a href="{{ route('customer.danhmuc') }}" class="hero-button">
+                        Xem sách ngay
+                    </a>
+                </div>
+
+                <div class="hero-books" aria-hidden="true">
+                    <div class="hero-book one"><span>Ước<br>mơ</span></div>
+                    <div class="hero-book two"><span>Hành<br>trình</span></div>
+                    <div class="hero-book three"><span>Câu<br>chuyện</span></div>
+                </div>
+            </div>
+
+        </div>
+
+        <button type="button" class="hero-arrow hero-prev" id="heroPrev" aria-label="Slide trước">
+            ‹
+        </button>
+
+        <button type="button" class="hero-arrow hero-next" id="heroNext" aria-label="Slide tiếp theo">
+            ›
+        </button>
+
+        <div class="hero-dots" id="heroDots">
+            <button type="button" class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+            <button type="button" class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+            <button type="button" class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+        </div>
 
     </div>
-
 </section>
 
 <!-- =========================
@@ -1024,6 +1348,60 @@
 </script>
 
 </body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const heroTrack = document.getElementById('heroTrack');
+    const heroDots = document.querySelectorAll('.hero-dot');
+    const heroPrev = document.getElementById('heroPrev');
+    const heroNext = document.getElementById('heroNext');
+
+    if (heroTrack && heroDots.length && heroPrev && heroNext) {
+
+        let currentSlide = 0;
+        let autoSlide;
+
+        function showSlide(index) {
+            currentSlide = (index + heroDots.length) % heroDots.length;
+
+            heroTrack.style.transform =
+                'translateX(-' + (currentSlide * 100) + '%)';
+
+            heroDots.forEach(function (dot, i) {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function startAutoSlide() {
+            clearInterval(autoSlide);
+
+            autoSlide = setInterval(function () {
+                showSlide(currentSlide + 1);
+            }, 5000);
+        }
+
+        heroNext.addEventListener('click', function () {
+            showSlide(currentSlide + 1);
+            startAutoSlide();
+        });
+
+        heroPrev.addEventListener('click', function () {
+            showSlide(currentSlide - 1);
+            startAutoSlide();
+        });
+
+        heroDots.forEach(function (dot) {
+            dot.addEventListener('click', function () {
+                showSlide(Number(dot.dataset.slide));
+                startAutoSlide();
+            });
+        });
+
+        startAutoSlide();
+    }
+});
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
