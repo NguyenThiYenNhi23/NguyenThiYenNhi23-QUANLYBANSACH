@@ -4,347 +4,1242 @@ namespace App\Http\Controllers;
 
 use App\Models\PhieuNhap;
 use App\Models\CTPhieuNhap;
-use App\Models\NhanVien;
 use App\Models\Sach;
 use App\Models\TonKho;
+use App\Models\NhanVien;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PhieuNhapController extends Controller
 {
-    /**
-     * Danh sách phiếu nhập + tìm kiếm nhanh
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | DANH SÁCH PHIẾU NHẬP
+    |--------------------------------------------------------------------------
+    */
     public function index(Request $request)
-{
-    $keyword = trim($request->keyword ?? '');
-
-    $phieuNhaps = PhieuNhap::with(['nhanVien', 'chiTiet'])
-        ->when($keyword, function ($query) use ($keyword) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('maPN', 'like', '%' . $keyword . '%')
-                    ->orWhereHas('nhanVien', function ($nv) use ($keyword) {
-                        $nv->where('hoTen', 'like', '%' . $keyword . '%');
-                    });
-            });
-        })
-        ->orderBy('maPN', 'asc')
-        ->get();
-
-    return view('phieunhap.index', compact(
-        'phieuNhaps',
-        'keyword'
-    ));
-}
-
-    /**
-     * Form lập phiếu
-     */
-    public function create()
     {
-        $nhanViens = NhanVien::orderBy('hoTen')->get();
-        $sachs = Sach::orderBy('maSach')->get();
+        $query = PhieuNhap::with([
+            'nhanVien',
+            'chiTiet'
+        ]);
 
-        return view('phieunhap.create', compact(
-            'nhanViens',
-            'sachs'
-        ));
+        if ($request->filled('search')) {
+
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+
+                if (is_numeric($search)) {
+
+                    $q->where('maPN', $search);
+                }
+
+                $q->orWhereHas('nhanVien', function ($nv) use ($search) {
+
+                    $nv->where(
+                        'hoTen',
+                        'like',
+                        '%' . $search . '%'
+                    );
+
+                });
+
+            });
+        }
+
+        $phieuNhaps = $query
+            ->orderBy('maPN', 'asc')
+            ->get();
+
+        return view(
+            'quantri.phieunhap.index',
+            compact('phieuNhaps')
+        );
     }
 
-    /**
-     * Lưu phiếu nhập
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM LẬP PHIẾU
+    |--------------------------------------------------------------------------
+    */
+    public function create()
+    {
+        $sachs = Sach::orderBy(
+            'maSach',
+            'asc'
+        )->get();
+
+        return view(
+            'quantri.phieunhap.create',
+            compact('sachs')
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LẤY NHÂN VIÊN ĐANG ĐĂNG NHẬP
+    |--------------------------------------------------------------------------
+    */
+    private function getNhanVienDangNhap()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return null;
+        }
+
+        /*
+         * Admin không bắt buộc phải có mã nhân viên.
+         */
+        if (
+            strtolower(trim($user->role ?? '')) === 'admin'
+        ) {
+            return null;
+        }
+
+        return NhanVien::where(
+            'user_id',
+            $user->id
+        )->first();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KIỂM TRA ADMIN
+    |--------------------------------------------------------------------------
+    */
+    private function laAdmin()
+    {
+        $user = Auth::user();
+
+        return $user
+            && strtolower(trim($user->role ?? '')) === 'admin';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LẬP PHIẾU
+    |--------------------------------------------------------------------------
+    |
+    | Phiếu mới chỉ được lưu.
+    | KHÔNG cộng tồn kho tại đây.
+    |
+    */
     public function store(Request $request)
     {
         $request->validate([
-            'maNV' => 'required|exists:nhan_viens,maNV',
-            'ngayNhap' => 'required|date',
-            'maSach' => 'required|array|min:1',
-            'maSach.*' => 'required|exists:sachs,maSach',
-            'soLuong' => 'required|array|min:1',
-            'soLuong.*' => 'required|integer|min:1',
-            'donGia' => 'required|array|min:1',
-            'donGia.*' => 'required|numeric|min:0',
+
+            'ngayNhap' => [
+                'required',
+                'date'
+            ],
+
+            'maSach' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'maSach.*' => [
+                'required',
+                'integer',
+                'exists:sachs,maSach'
+            ],
+
+            'soLuong' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'soLuong.*' => [
+                'required',
+                'integer',
+                'min:1'
+            ],
+
+            'donGia' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'donGia.*' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'giaBan' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'giaBan.*' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+        ], [
+
+            'ngayNhap.required' =>
+                'Vui lòng chọn ngày nhập.',
+
+            'ngayNhap.date' =>
+                'Ngày nhập không hợp lệ.',
+
+            'maSach.required' =>
+                'Vui lòng chọn ít nhất một sách.',
+
+            'maSach.*.required' =>
+                'Vui lòng chọn sách.',
+
+            'maSach.*.exists' =>
+                'Sách không tồn tại.',
+
+            'soLuong.required' =>
+                'Vui lòng nhập số lượng.',
+
+            'soLuong.*.required' =>
+                'Vui lòng nhập số lượng.',
+
+            'soLuong.*.integer' =>
+                'Số lượng phải là số nguyên.',
+
+            'soLuong.*.min' =>
+                'Số lượng phải lớn hơn 0.',
+
+            'donGia.required' =>
+                'Vui lòng nhập giá nhập.',
+
+            'donGia.*.required' =>
+                'Vui lòng nhập giá nhập.',
+
+            'donGia.*.numeric' =>
+                'Giá nhập phải là số.',
+
+            'donGia.*.min' =>
+                'Giá nhập không được nhỏ hơn 0.',
+
+            'giaBan.required' =>
+                'Vui lòng nhập giá bán.',
+
+            'giaBan.*.required' =>
+                'Vui lòng nhập giá bán.',
+
+            'giaBan.*.numeric' =>
+                'Giá bán phải là số.',
+
+            'giaBan.*.min' =>
+                'Giá bán không được nhỏ hơn 0.',
         ]);
 
-        DB::transaction(function () use ($request) {
 
+        $maSach = $request->maSach;
+        $soLuong = $request->soLuong;
+        $donGia = $request->donGia;
+        $giaBan = $request->giaBan;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA SỐ LƯỢNG DÒNG
+        |--------------------------------------------------------------------------
+        */
+        if (
+            count($maSach) !== count($soLuong) ||
+            count($maSach) !== count($donGia) ||
+            count($maSach) !== count($giaBan)
+        ) {
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Dữ liệu chi tiết phiếu nhập không hợp lệ.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA TRÙNG SÁCH
+        |--------------------------------------------------------------------------
+        */
+        $daCo = [];
+
+        foreach ($maSach as $i => $idSach) {
+
+            if (isset($daCo[$idSach])) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+
+                        'maSach.' . $i =>
+                            'Sách này đã được chọn trong phiếu.'
+
+                    ])
+                    ->with(
+                        'error',
+                        'Không được nhập trùng sách trong cùng một phiếu.'
+                    );
+            }
+
+            $daCo[$idSach] = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA GIÁ
+        |--------------------------------------------------------------------------
+        */
+        foreach ($maSach as $i => $idSach) {
+
+            if (
+                (float) $donGia[$i]
+                >=
+                (float) $giaBan[$i]
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+
+                        'donGia.' . $i =>
+                            'Giá nhập phải < giá bán.',
+
+                        'giaBan.' . $i =>
+                            'Giá nhập phải < giá bán.'
+
+                    ])
+                    ->with(
+                        'error',
+                        'Dữ liệu giá không hợp lệ.'
+                    );
+            }
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+
+            $nhanVien =
+                $this->getNhanVienDangNhap();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TẠO PHIẾU
+            |--------------------------------------------------------------------------
+            |
+            | Phiếu mới = Chưa xác nhận
+            |
+            */
             $phieuNhap = PhieuNhap::create([
-                'maNV' => $request->maNV,
-                'ngayNhap' => $request->ngayNhap,
-                'tongTien' => 0,
-                'trangThai' => 'HoanThanh',
+
+                'maNV' =>
+                    $nhanVien?->maNV,
+
+                'ngayNhap' =>
+                    $request->ngayNhap,
+
+                'tongTien' =>
+                    0,
+
+                'trangThai' =>
+                    'ChoXacNhan',
+
             ]);
 
+
             $tongTien = 0;
 
-            foreach ($request->maSach as $index => $maSach) {
 
-                $soLuong = (int) $request->soLuong[$index];
-                $donGia = (float) $request->donGia[$index];
+            /*
+            |--------------------------------------------------------------------------
+            | LƯU CHI TIẾT
+            |--------------------------------------------------------------------------
+            */
+            foreach (
+                $maSach as $i => $idSach
+            ) {
 
-                $thanhTien = $soLuong * $donGia;
+                $thanhTien =
+                    (float) $soLuong[$i]
+                    *
+                    (float) $donGia[$i];
+
 
                 CTPhieuNhap::create([
-                    'maPN' => $phieuNhap->maPN,
-                    'maSach' => $maSach,
-                    'soLuong' => $soLuong,
-                    'donGia' => $donGia,
-                    'thanhTien' => $thanhTien,
+
+                    'maPN' =>
+                        $phieuNhap->maPN,
+
+                    'maSach' =>
+                        $idSach,
+
+                    'soLuong' =>
+                        $soLuong[$i],
+
+                    'donGia' =>
+                        $donGia[$i],
+
+                    'giaBan' =>
+                        $giaBan[$i],
+
+                    'thanhTien' =>
+                        $thanhTien,
+
                 ]);
 
+
                 $tongTien += $thanhTien;
-
-                // Cập nhật tồn kho
-                $tonKho = TonKho::firstOrCreate(
-                    ['maSach' => $maSach],
-                    [
-                        'soLuongTon' => 0,
-                        'ngayCapNhat' => now(),
-                    ]
-                );
-
-                $tonKho->soLuongTon += $soLuong;
-                $tonKho->ngayCapNhat = now();
-                $tonKho->save();
             }
 
-            $phieuNhap->tongTien = $tongTien;
+
+            /*
+            |--------------------------------------------------------------------------
+            | CẬP NHẬT TỔNG TIỀN
+            |--------------------------------------------------------------------------
+            */
+            $phieuNhap->tongTien =
+                $tongTien;
+
             $phieuNhap->save();
-        });
 
-        return redirect()
-            ->route('phieunhap.index')
-            ->with('success', 'Lập phiếu nhập thành công.');
-    }
 
-    /**
-     * Xem chi tiết
-     */
-    public function show($maPN)
-    {
-        $phieuNhap = PhieuNhap::with([
-            'nhanVien',
-            'chiTiet.sach'
-        ])->findOrFail($maPN);
+            /*
+            |--------------------------------------------------------------------------
+            | QUAN TRỌNG
+            |--------------------------------------------------------------------------
+            |
+            | KHÔNG cập nhật tồn kho ở đây.
+            |
+            */
 
-        return view('phieunhap.show', compact('phieuNhap'));
-    }
 
-    /**
-     * Form sửa phiếu
-     */
-    public function edit($maPN)
-    {
-        $phieuNhap = PhieuNhap::with('chiTiet.sach')
-            ->findOrFail($maPN);
+            DB::commit();
 
-        // Phiếu đã hủy không được sửa
-        if ($phieuNhap->trangThai === 'DaHuy') {
+
             return redirect()
                 ->route('phieunhap.index')
-                ->with('error', 'Phiếu đã hủy không thể sửa.');
-        }
-
-        $nhanViens = NhanVien::orderBy('hoTen')->get();
-        $sachs = Sach::orderBy('maSach')->get();
-
-        return view('phieunhap.edit', compact(
-            'phieuNhap',
-            'nhanViens',
-            'sachs'
-        ));
-    }
-
-    /**
-     * Cập nhật phiếu nhập
-     */
-    public function update(Request $request, $maPN)
-    {
-        $phieuNhap = PhieuNhap::with('chiTiet')
-            ->findOrFail($maPN);
-
-        if ($phieuNhap->trangThai === 'DaHuy') {
-            return back()->with('error', 'Phiếu đã hủy không thể sửa.');
-        }
-
-        $request->validate([
-            'maNV' => 'required|exists:nhan_viens,maNV',
-            'ngayNhap' => 'required|date',
-            'maSach' => 'required|array|min:1',
-            'maSach.*' => 'required|exists:sachs,maSach',
-            'soLuong' => 'required|array|min:1',
-            'soLuong.*' => 'required|integer|min:1',
-            'donGia' => 'required|array|min:1',
-            'donGia.*' => 'required|numeric|min:0',
-        ]);
-
-        DB::transaction(function () use ($request, $phieuNhap) {
-
-            /*
-             * 1. Hoàn tác số lượng cũ khỏi tồn kho
-             */
-            foreach ($phieuNhap->chiTiet as $chiTiet) {
-
-                $tonKho = TonKho::where(
-                    'maSach',
-                    $chiTiet->maSach
-                )->first();
-
-                if ($tonKho) {
-                    $tonKho->soLuongTon -= $chiTiet->soLuong;
-
-                    if ($tonKho->soLuongTon < 0) {
-                        $tonKho->soLuongTon = 0;
-                    }
-
-                    $tonKho->ngayCapNhat = now();
-                    $tonKho->save();
-                }
-            }
-
-            /*
-             * 2. Xóa chi tiết cũ
-             */
-            $phieuNhap->chiTiet()->delete();
-
-            /*
-             * 3. Tạo chi tiết mới
-             */
-            $tongTien = 0;
-
-            foreach ($request->maSach as $index => $maSach) {
-
-                $soLuong = (int) $request->soLuong[$index];
-                $donGia = (float) $request->donGia[$index];
-
-                $thanhTien = $soLuong * $donGia;
-
-                CTPhieuNhap::create([
-                    'maPN' => $phieuNhap->maPN,
-                    'maSach' => $maSach,
-                    'soLuong' => $soLuong,
-                    'donGia' => $donGia,
-                    'thanhTien' => $thanhTien,
-                ]);
-
-                $tongTien += $thanhTien;
-
-                /*
-                 * 4. Cộng lại tồn kho theo dữ liệu mới
-                 */
-                $tonKho = TonKho::firstOrCreate(
-                    ['maSach' => $maSach],
-                    [
-                        'soLuongTon' => 0,
-                        'ngayCapNhat' => now(),
-                    ]
+                ->with(
+                    'success',
+                    'Lập phiếu nhập thành công. Phiếu đang ở trạng thái chưa xác nhận.'
                 );
 
-                $tonKho->soLuongTon += $soLuong;
-                $tonKho->ngayCapNhat = now();
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Không thể lưu phiếu nhập: '
+                    . $e->getMessage()
+                );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | XEM CHI TIẾT
+    |--------------------------------------------------------------------------
+    */
+    public function show($maPN)
+    {
+        $phieuNhap =
+            PhieuNhap::with([
+                'nhanVien',
+                'chiTiet.sach'
+            ])->findOrFail($maPN);
+
+
+        return view(
+            'quantri.phieunhap.show',
+            compact('phieuNhap')
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM SỬA
+    |--------------------------------------------------------------------------
+    */
+    public function edit($maPN)
+    {
+        $phieuNhap =
+            PhieuNhap::with('chiTiet')
+                ->findOrFail($maPN);
+
+
+        if (
+            $phieuNhap->trangThai === 'HoanThanh'
+        ) {
+
+            return redirect()
+                ->route('phieunhap.index')
+                ->with(
+                    'error',
+                    'Phiếu đã hoàn thành, không thể sửa.'
+                );
+        }
+
+
+        if (
+            $phieuNhap->trangThai === 'DaHuy'
+        ) {
+
+            return redirect()
+                ->route('phieunhap.index')
+                ->with(
+                    'error',
+                    'Phiếu đã hủy, không thể sửa.'
+                );
+        }
+
+
+        if (
+            $phieuNhap->trangThai !== 'ChoXacNhan'
+        ) {
+
+            return redirect()
+                ->route('phieunhap.index')
+                ->with(
+                    'error',
+                    'Phiếu nhập không ở trạng thái có thể sửa.'
+                );
+        }
+
+
+        $sachs =
+            Sach::orderBy(
+                'maSach',
+                'asc'
+            )->get();
+
+
+        return view(
+            'quantri.phieunhap.edit',
+            compact(
+                'phieuNhap',
+                'sachs'
+            )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CẬP NHẬT PHIẾU
+    |--------------------------------------------------------------------------
+    |
+    | Chỉ sửa phiếu Chưa xác nhận.
+    | Không cộng tồn kho ở đây.
+    |
+    */
+    public function update(
+        Request $request,
+        $maPN
+    ) {
+
+        $phieuNhap =
+            PhieuNhap::with('chiTiet')
+                ->findOrFail($maPN);
+
+
+        if (
+            $phieuNhap->trangThai === 'HoanThanh'
+        ) {
+
+            return redirect()
+                ->route('phieunhap.index')
+                ->with(
+                    'error',
+                    'Phiếu đã hoàn thành, không thể sửa.'
+                );
+        }
+
+
+        if (
+            $phieuNhap->trangThai === 'DaHuy'
+        ) {
+
+            return redirect()
+                ->route('phieunhap.index')
+                ->with(
+                    'error',
+                    'Phiếu đã hủy, không thể sửa.'
+                );
+        }
+
+
+        if (
+            $phieuNhap->trangThai !== 'ChoXacNhan'
+        ) {
+
+            return redirect()
+                ->route('phieunhap.index')
+                ->with(
+                    'error',
+                    'Phiếu nhập không ở trạng thái có thể sửa.'
+                );
+        }
+
+
+        $request->validate([
+
+            'ngayNhap' => [
+                'required',
+                'date'
+            ],
+
+            'maSach' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'maSach.*' => [
+                'required',
+                'integer',
+                'exists:sachs,maSach'
+            ],
+
+            'soLuong' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'soLuong.*' => [
+                'required',
+                'integer',
+                'min:1'
+            ],
+
+            'donGia' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'donGia.*' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'giaBan' => [
+                'required',
+                'array',
+                'min:1'
+            ],
+
+            'giaBan.*' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+        ], [
+
+            'ngayNhap.required' =>
+                'Vui lòng chọn ngày nhập.',
+
+            'ngayNhap.date' =>
+                'Ngày nhập không hợp lệ.',
+
+            'maSach.required' =>
+                'Vui lòng chọn ít nhất một sách.',
+
+            'maSach.*.required' =>
+                'Vui lòng chọn sách.',
+
+            'maSach.*.exists' =>
+                'Sách không tồn tại.',
+
+            'soLuong.required' =>
+                'Vui lòng nhập số lượng.',
+
+            'soLuong.*.required' =>
+                'Vui lòng nhập số lượng.',
+
+            'soLuong.*.integer' =>
+                'Số lượng phải là số nguyên.',
+
+            'soLuong.*.min' =>
+                'Số lượng phải lớn hơn 0.',
+
+            'donGia.required' =>
+                'Vui lòng nhập giá nhập.',
+
+            'donGia.*.required' =>
+                'Vui lòng nhập giá nhập.',
+
+            'donGia.*.numeric' =>
+                'Giá nhập phải là số.',
+
+            'donGia.*.min' =>
+                'Giá nhập không được nhỏ hơn 0.',
+
+            'giaBan.required' =>
+                'Vui lòng nhập giá bán.',
+
+            'giaBan.*.required' =>
+                'Vui lòng nhập giá bán.',
+
+            'giaBan.*.numeric' =>
+                'Giá bán phải là số.',
+
+            'giaBan.*.min' =>
+                'Giá bán không được nhỏ hơn 0.',
+        ]);
+
+
+        $maSach = $request->maSach;
+        $soLuong = $request->soLuong;
+        $donGia = $request->donGia;
+        $giaBan = $request->giaBan;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA SỐ DÒNG
+        |--------------------------------------------------------------------------
+        */
+        if (
+            count($maSach) !== count($soLuong) ||
+            count($maSach) !== count($donGia) ||
+            count($maSach) !== count($giaBan)
+        ) {
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Dữ liệu chi tiết phiếu nhập không hợp lệ.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA TRÙNG SÁCH
+        |--------------------------------------------------------------------------
+        */
+        $daCo = [];
+
+        foreach ($maSach as $i => $idSach) {
+
+            if (isset($daCo[$idSach])) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+
+                        'maSach.' . $i =>
+                            'Sách này đã được chọn trong phiếu.'
+
+                    ])
+                    ->with(
+                        'error',
+                        'Không được nhập trùng sách trong cùng một phiếu.'
+                    );
+            }
+
+            $daCo[$idSach] = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA GIÁ
+        |--------------------------------------------------------------------------
+        */
+        foreach ($maSach as $i => $idSach) {
+
+            if (
+                (float) $donGia[$i]
+                >=
+                (float) $giaBan[$i]
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+
+                        'donGia.' . $i =>
+                            'Giá nhập phải < giá bán.',
+
+                        'giaBan.' . $i =>
+                            'Giá nhập phải < giá bán.'
+
+                    ])
+                    ->with(
+                        'error',
+                        'Dữ liệu giá không hợp lệ.'
+                    );
+            }
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | XÓA CHI TIẾT CŨ
+            |--------------------------------------------------------------------------
+            */
+            CTPhieuNhap::where(
+                'maPN',
+                $phieuNhap->maPN
+            )->delete();
+
+
+            $tongTien = 0;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LƯU CHI TIẾT MỚI
+            |--------------------------------------------------------------------------
+            */
+            foreach (
+                $maSach as $i => $idSach
+            ) {
+
+                $thanhTien =
+                    (float) $soLuong[$i]
+                    *
+                    (float) $donGia[$i];
+
+
+                CTPhieuNhap::create([
+
+                    'maPN' =>
+                        $phieuNhap->maPN,
+
+                    'maSach' =>
+                        $idSach,
+
+                    'soLuong' =>
+                        $soLuong[$i],
+
+                    'donGia' =>
+                        $donGia[$i],
+
+                    'giaBan' =>
+                        $giaBan[$i],
+
+                    'thanhTien' =>
+                        $thanhTien,
+
+                ]);
+
+
+                $tongTien += $thanhTien;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CẬP NHẬT PHIẾU
+            |--------------------------------------------------------------------------
+            */
+            $phieuNhap->ngayNhap =
+                $request->ngayNhap;
+
+            $phieuNhap->tongTien =
+                $tongTien;
+
+            /*
+             * Vẫn giữ trạng thái Chưa xác nhận.
+             */
+            $phieuNhap->trangThai =
+                'ChoXacNhan';
+
+            $phieuNhap->save();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | KHÔNG CẬP NHẬT TỒN KHO
+            |--------------------------------------------------------------------------
+            */
+
+
+            DB::commit();
+
+
+            return redirect()
+                ->route(
+                    'phieunhap.show',
+                    $phieuNhap->maPN
+                )
+                ->with(
+                    'success',
+                    'Cập nhật phiếu nhập thành công.'
+                );
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Không thể cập nhật phiếu nhập: '
+                    . $e->getMessage()
+                );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | XÓA PHIẾU
+    |--------------------------------------------------------------------------
+    */
+    public function destroy($maPN)
+    {
+        return redirect()
+            ->route('phieunhap.index')
+            ->with(
+                'error',
+                'Không thể xóa phiếu nhập. Hãy sử dụng chức năng hủy phiếu.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | XÁC NHẬN PHIẾU
+    |--------------------------------------------------------------------------
+    |
+    | CHỈ ADMIN ĐƯỢC XÁC NHẬN.
+    |
+    | Khi xác nhận:
+    | 1. Kiểm tra phiếu
+    | 2. Cộng tồn kho
+    | 3. Chuyển trạng thái HoanThanh
+    |
+    */
+    public function confirm($maPN)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA QUYỀN ADMIN
+        |--------------------------------------------------------------------------
+        */
+        if (!$this->laAdmin()) {
+
+            return back()->with(
+                'error',
+                'Chỉ Quản trị viên mới có quyền xác nhận phiếu nhập.'
+            );
+        }
+
+
+        $phieuNhap =
+            PhieuNhap::with('chiTiet')
+                ->findOrFail($maPN);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA TRẠNG THÁI
+        |--------------------------------------------------------------------------
+        */
+        if (
+            $phieuNhap->trangThai === 'DaHuy'
+        ) {
+
+            return back()->with(
+                'error',
+                'Phiếu đã hủy, không thể xác nhận.'
+            );
+        }
+
+
+        if (
+            $phieuNhap->trangThai === 'HoanThanh'
+        ) {
+
+            return back()->with(
+                'error',
+                'Phiếu nhập đã hoàn thành.'
+            );
+        }
+
+
+        if (
+            $phieuNhap->trangThai !== 'ChoXacNhan'
+        ) {
+
+            return back()->with(
+                'error',
+                'Phiếu nhập không ở trạng thái chưa xác nhận.'
+            );
+        }
+
+
+        if (
+            $phieuNhap->chiTiet->isEmpty()
+        ) {
+
+            return back()->with(
+                'error',
+                'Phiếu nhập không có chi tiết.'
+            );
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | CỘNG TỒN KHO
+            |--------------------------------------------------------------------------
+            |
+            | Chỉ thực hiện tại thời điểm Admin xác nhận.
+            |
+            */
+            foreach (
+                $phieuNhap->chiTiet as $chiTiet
+            ) {
+
+                $tonKho =
+                    TonKho::firstOrCreate(
+
+                        [
+                            'maSach' =>
+                                $chiTiet->maSach
+                        ],
+
+                        [
+                            'soLuongTon' =>
+                                0,
+
+                            'ngayCapNhat' =>
+                                now()
+                        ]
+                    );
+
+
+                $tonKho->soLuongTon +=
+                    (int) $chiTiet->soLuong;
+
+
+                $tonKho->ngayCapNhat =
+                    now();
+
+
                 $tonKho->save();
             }
 
+
             /*
-             * 5. Cập nhật thông tin phiếu
-             */
-            $phieuNhap->maNV = $request->maNV;
-            $phieuNhap->ngayNhap = $request->ngayNhap;
-            $phieuNhap->tongTien = $tongTien;
+            |--------------------------------------------------------------------------
+            | CHUYỂN TRẠNG THÁI
+            |--------------------------------------------------------------------------
+            */
+            $phieuNhap->trangThai =
+                'HoanThanh';
+
             $phieuNhap->save();
-        });
 
-        return redirect()
-            ->route('phieunhap.index')
-            ->with('success', 'Cập nhật phiếu nhập thành công.');
-    }
 
-    /**
-     * Xóa phiếu chưa có chi tiết
-     */
-    public function destroy($maPN)
-    {
-        $phieuNhap = PhieuNhap::with('chiTiet')
-            ->findOrFail($maPN);
+            DB::commit();
 
-        // Đã hủy thì không xóa
-        if ($phieuNhap->trangThai === 'DaHuy') {
+
+            return back()->with(
+                'success',
+                'Xác nhận phiếu nhập thành công. Số lượng sách đã được cập nhật vào kho.'
+            );
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
             return back()->with(
                 'error',
-                'Phiếu đã hủy không thể xóa.'
+                'Không thể xác nhận phiếu nhập: '
+                . $e->getMessage()
             );
         }
-
-        // Có chi tiết thì không được xóa
-        if ($phieuNhap->chiTiet->count() > 0) {
-            return back()->with(
-                'error',
-                'Phiếu đã có dữ liệu, không được xóa. Vui lòng hủy phiếu.'
-            );
-        }
-
-        $phieuNhap->delete();
-
-        return redirect()
-            ->route('phieunhap.index')
-            ->with('success', 'Đã xóa phiếu nhập.');
     }
 
-    /**
-     * Hủy phiếu đã nhập
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | HỦY PHIẾU
+    |--------------------------------------------------------------------------
+    |
+    | Chỉ hủy phiếu Chưa xác nhận.
+    |
+    | Vì phiếu Chưa xác nhận chưa cộng tồn kho nên
+    | KHÔNG được trừ tồn kho khi hủy.
+    |
+    */
     public function cancel($maPN)
     {
-        $phieuNhap = PhieuNhap::with('chiTiet')
-            ->findOrFail($maPN);
+        $phieuNhap =
+            PhieuNhap::with('chiTiet')
+                ->findOrFail($maPN);
 
-        if ($phieuNhap->trangThai === 'DaHuy') {
+
+        /*
+        |--------------------------------------------------------------------------
+        | ĐÃ HOÀN THÀNH
+        |--------------------------------------------------------------------------
+        */
+        if (
+            $phieuNhap->trangThai === 'HoanThanh'
+        ) {
+
             return back()->with(
                 'error',
-                'Phiếu này đã được hủy.'
+                'Phiếu đã hoàn thành, không thể hủy.'
             );
         }
 
-        // Phiếu không có chi tiết thì xóa, không cần hủy
-        if ($phieuNhap->chiTiet->count() === 0) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | ĐÃ HỦY
+        |--------------------------------------------------------------------------
+        */
+        if (
+            $phieuNhap->trangThai === 'DaHuy'
+        ) {
+
             return back()->with(
                 'error',
-                'Phiếu chưa có dữ liệu nên chỉ được xóa.'
+                'Phiếu nhập đã được hủy.'
             );
         }
 
-        DB::transaction(function () use ($phieuNhap) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHỈ ĐƯỢC HỦY KHI CHƯA XÁC NHẬN
+        |--------------------------------------------------------------------------
+        */
+        if (
+            $phieuNhap->trangThai !== 'ChoXacNhan'
+        ) {
+
+            return back()->with(
+                'error',
+                'Phiếu nhập không ở trạng thái có thể hủy.'
+            );
+        }
+
+
+        if (
+            $phieuNhap->chiTiet->isEmpty()
+        ) {
+
+            return back()->with(
+                'error',
+                'Phiếu nhập không có chi tiết.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KIỂM TRA ĐƠN HÀNG ĐÃ PHÁT SINH
+        |--------------------------------------------------------------------------
+        |
+        | Giữ nguyên logic hiện tại của hệ thống:
+        | nếu sách trong phiếu đã phát sinh đơn hàng
+        | thì không cho hủy.
+        |
+        */
+        $maSachTrongPhieu =
+            $phieuNhap->chiTiet
+                ->pluck('maSach')
+                ->unique()
+                ->values()
+                ->toArray();
+
+
+        $daPhatSinhDon =
+            DB::table('ct_don_hangs')
+                ->whereIn(
+                    'maSach',
+                    $maSachTrongPhieu
+                )
+                ->exists();
+
+
+        if ($daPhatSinhDon) {
+
+            return back()->with(
+                'error',
+                'Không thể hủy phiếu nhập vì sách trong phiếu đã phát sinh đơn hàng.'
+            );
+        }
+
+
+        DB::beginTransaction();
+
+        try {
 
             /*
-             * Hoàn tác số lượng nhập vào tồn kho
-             */
-            foreach ($phieuNhap->chiTiet as $chiTiet) {
+            |--------------------------------------------------------------------------
+            | KHÔNG TRỪ TỒN KHO
+            |--------------------------------------------------------------------------
+            |
+            | Vì phiếu chưa xác nhận nên trước đó chưa cộng tồn kho.
+            |
+            */
 
-                $tonKho = TonKho::where(
-                    'maSach',
-                    $chiTiet->maSach
-                )->first();
 
-                if ($tonKho) {
+            $phieuNhap->trangThai =
+                'DaHuy';
 
-                    $tonKho->soLuongTon -= $chiTiet->soLuong;
-
-                    if ($tonKho->soLuongTon < 0) {
-                        $tonKho->soLuongTon = 0;
-                    }
-
-                    $tonKho->ngayCapNhat = now();
-                    $tonKho->save();
-                }
-            }
-
-            $phieuNhap->trangThai = 'DaHuy';
             $phieuNhap->save();
-        });
 
-        return redirect()
-            ->route('phieunhap.index')
-            ->with('success', 'Đã hủy phiếu nhập và cập nhật lại tồn kho.');
+
+            DB::commit();
+
+
+            return back()->with(
+                'success',
+                'Hủy phiếu nhập thành công.'
+            );
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Không thể hủy phiếu nhập: '
+                . $e->getMessage()
+            );
+        }
     }
 }

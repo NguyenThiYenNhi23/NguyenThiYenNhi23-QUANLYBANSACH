@@ -17,11 +17,13 @@ class CTPhieuNhap extends Model
         'maSach',
         'soLuong',
         'donGia',
+        'giaBan',
         'thanhTien',
     ];
     protected $casts = [
         'soLuong' => 'integer',
         'donGia' => 'decimal:2',
+        'giaBan' => 'decimal:2',
         'thanhTien' => 'decimal:2',
     ];
 

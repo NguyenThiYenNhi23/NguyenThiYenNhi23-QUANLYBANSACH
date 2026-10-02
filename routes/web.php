@@ -253,27 +253,45 @@ Route::middleware('auth')->prefix('customer/account')->group(function () {
 });
 
 // Phiếu nhập
+Route::middleware([
+    'auth',
+    'role:admin,employee'
+])->group(function () {
 
-Route::get('/phieunhap', [PhieuNhapController::class, 'index'])
-    ->name('phieunhap.index');
+    // Danh sách phiếu nhập
+    Route::get('/phieunhap', [PhieuNhapController::class, 'index'])
+        ->name('phieunhap.index');
 
-Route::get('/phieunhap/lap-phieu', [PhieuNhapController::class, 'create'])
-    ->name('phieunhap.create');
+    // Lập phiếu nhập
+    Route::get('/phieunhap/lap-phieu', [PhieuNhapController::class, 'create'])
+        ->name('phieunhap.create');
 
-Route::post('/phieunhap', [PhieuNhapController::class, 'store'])
-    ->name('phieunhap.store');
+    // Lưu phiếu nhập
+    Route::post('/phieunhap', [PhieuNhapController::class, 'store'])
+        ->name('phieunhap.store');
 
-Route::get('/phieunhap/{maPN}', [PhieuNhapController::class, 'show'])
-    ->name('phieunhap.show');
+    // Xem chi tiết phiếu nhập
+    Route::get('/phieunhap/{maPN}', [PhieuNhapController::class, 'show'])
+        ->name('phieunhap.show');
 
-Route::get('/phieunhap/{maPN}/sua', [PhieuNhapController::class, 'edit'])
-    ->name('phieunhap.edit');
+    // Sửa phiếu nhập
+    Route::get('/phieunhap/{maPN}/sua', [PhieuNhapController::class, 'edit'])
+        ->name('phieunhap.edit');
 
-Route::put('/phieunhap/{maPN}', [PhieuNhapController::class, 'update'])
-    ->name('phieunhap.update');
+    // Cập nhật phiếu nhập
+    Route::put('/phieunhap/{maPN}', [PhieuNhapController::class, 'update'])
+        ->name('phieunhap.update');
 
-Route::delete('/phieunhap/{maPN}', [PhieuNhapController::class, 'destroy'])
-    ->name('phieunhap.destroy');
+    // Hủy phiếu nhập
+    Route::put('/phieunhap/{maPN}/huy', [PhieuNhapController::class, 'cancel'])
+        ->name('phieunhap.cancel');
 
-Route::put('/phieunhap/{maPN}/huy', [PhieuNhapController::class, 'cancel'])
-    ->name('phieunhap.cancel');
+    // Xác nhận phiếu nhập
+    Route::patch('/phieunhap/{maPN}/confirm', [PhieuNhapController::class, 'confirm'])
+        ->name('phieunhap.confirm');
+
+    // Không cho xóa phiếu nhập
+    Route::delete('/phieunhap/{maPN}', [PhieuNhapController::class, 'destroy'])
+        ->name('phieunhap.destroy');
+
+});
