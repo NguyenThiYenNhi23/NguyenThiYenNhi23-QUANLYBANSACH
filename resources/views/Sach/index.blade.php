@@ -41,8 +41,12 @@
         display: flex;
         flex-direction: column;
         gap: 24px;
-        max-width: 1000px;
+
+        width: 100%;
+        max-width: 1500px;
+
         margin: 0 auto;
+        box-sizing: border-box;
     }
 
     .add-book-wrapper {

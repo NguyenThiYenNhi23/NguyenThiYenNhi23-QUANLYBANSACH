@@ -23,7 +23,8 @@ class CustomerDanhMucController extends Controller
         $sort = $request->input('sort', 'name-asc');
 
         // Lấy sách
-        $query = Sach::with(['danhMuc', 'tonKho']);
+        $query = Sach::with(['danhMuc', 'tonKho'])
+            ->where('trangThai', 'Đang kinh doanh');
 
         // Lọc theo danh mục nếu có chọn
         if ($maDanhMuc) {
