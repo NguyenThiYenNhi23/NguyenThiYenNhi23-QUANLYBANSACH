@@ -18,7 +18,7 @@
 
     .inventory-heading h1 {
         margin: 0;
-        color: #c62828;
+        color: #2f80ed;
         font-size: 28px;
         font-weight: 700;
         text-transform: uppercase;
@@ -28,8 +28,8 @@
 
     .inventory-summary {
         background: #ffffff;
-        border: 1px solid #f0d5d5;
-        border-left: 5px solid #c62828;
+        border: 1px solid #e5e5e5;
+        border-left: 5px solid #2f80ed;
         border-radius: 10px;
         padding: 15px 22px;
         margin-bottom: 22px;
@@ -42,7 +42,7 @@
     }
 
     .summary-line strong {
-        color: #c62828;
+        color: #2f80ed;
         font-weight: 700;
     }
 
@@ -50,21 +50,21 @@
 
     .inventory-card {
         background: #ffffff;
-        border: 1px solid #f0d5d5;
+        border: 1px solid #e5e5e5;
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 3px 12px rgba(198, 40, 40, 0.06);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
     }
 
     .inventory-card-header {
         padding: 18px 22px;
-        background: #fffafa;
-        border-bottom: 1px solid #f0dddd;
+        background: #f8f9fb;
+        border-bottom: 1px solid #eeeeee;
     }
 
     .inventory-card-header h2 {
         margin: 0 0 5px 0;
-        color: #b71c1c;
+        color: #333333;
         font-size: 18px;
         font-weight: 700;
     }
@@ -90,8 +90,8 @@
 
     .inventory-table th {
         padding: 14px 12px;
-        background: #c62828;
-        color: #ffffff;
+        background: #f5f6f8;
+        color: #666666;
         font-size: 13px;
         font-weight: 600;
         text-align: left;
@@ -143,7 +143,7 @@
     }
 
     .inventory-table tbody tr:hover td {
-        background: #fff8f8;
+        background: #f0f5ff;
     }
 
     .inventory-table tbody tr:last-child td {
@@ -153,7 +153,7 @@
     /* MÃ SÁCH */
 
     .book-code {
-        color: #b71c1c;
+        color: #2f80ed;
         font-weight: 600;
     }
 
@@ -171,7 +171,7 @@
     /* SỐ LƯỢNG */
 
     .quantity {
-        color: #c62828;
+        color: #2f80ed;
         font-size: 15px;
         font-weight: 700;
     }
@@ -213,7 +213,7 @@
 
     .inventory-empty-icon {
         margin-bottom: 10px;
-        color: #e57373;
+        color: #2f80ed;
         font-size: 36px;
     }
 
