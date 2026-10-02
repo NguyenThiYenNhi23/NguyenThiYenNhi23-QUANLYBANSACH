@@ -32,23 +32,22 @@ class PhieuNhapController extends Controller
             $query->where(function ($q) use ($search) {
 
                 if (is_numeric($search)) {
-
                     $q->where('maPN', $search);
                 }
 
                 $q->orWhereHas('nhanVien', function ($nv) use ($search) {
-
                     $nv->where(
                         'hoTen',
                         'like',
                         '%' . $search . '%'
                     );
-
                 });
-
             });
         }
 
+        /*
+         * Sắp xếp mã phiếu tăng dần
+         */
         $phieuNhaps = $query
             ->orderBy('maPN', 'asc')
             ->get();
@@ -127,137 +126,128 @@ class PhieuNhapController extends Controller
     | LẬP PHIẾU
     |--------------------------------------------------------------------------
     |
-    | Phiếu mới chỉ được lưu.
-    | KHÔNG cộng tồn kho tại đây.
+    | Phiếu mới:
+    | - Chưa xác nhận
+    | - Chưa cộng tồn kho
+    | - Giá bán lấy tự động từ bảng sachs
     |
     */
     public function store(Request $request)
     {
-        $request->validate([
+        /*
+         * KHÔNG validate giaBan.
+         *
+         * Người dùng không nhập giá bán.
+         * Giá bán được lấy trực tiếp từ bảng sachs.
+         */
+        $request->validate(
+            [
+                'ngayNhap' => [
+                    'required',
+                    'date'
+                ],
 
-            'ngayNhap' => [
-                'required',
-                'date'
+                'maSach' => [
+                    'required',
+                    'array',
+                    'min:1'
+                ],
+
+                'maSach.*' => [
+                    'required',
+                    'integer',
+                    'exists:sachs,maSach'
+                ],
+
+                'soLuong' => [
+                    'required',
+                    'array',
+                    'min:1'
+                ],
+
+                'soLuong.*' => [
+                    'required',
+                    'integer',
+                    'min:1'
+                ],
+
+                'donGia' => [
+                    'required',
+                    'array',
+                    'min:1'
+                ],
+
+                'donGia.*' => [
+                    'required',
+                    'numeric',
+                    'gt:0'
+                ],
             ],
+            [
+                'ngayNhap.required' =>
+                    'Vui lòng chọn ngày nhập.',
 
-            'maSach' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'ngayNhap.date' =>
+                    'Ngày nhập không hợp lệ.',
 
-            'maSach.*' => [
-                'required',
-                'integer',
-                'exists:sachs,maSach'
-            ],
+                'maSach.required' =>
+                    'Vui lòng chọn ít nhất một sách.',
 
-            'soLuong' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'maSach.min' =>
+                    'Vui lòng chọn ít nhất một sách.',
 
-            'soLuong.*' => [
-                'required',
-                'integer',
-                'min:1'
-            ],
+                'maSach.*.required' =>
+                    'Vui lòng chọn sách.',
 
-            'donGia' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'maSach.*.exists' =>
+                    'Sách không tồn tại.',
 
-            'donGia.*' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
+                'soLuong.required' =>
+                    'Vui lòng nhập số lượng.',
 
-            'giaBan' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'soLuong.min' =>
+                    'Vui lòng nhập số lượng.',
 
-            'giaBan.*' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
+                'soLuong.*.required' =>
+                    'Vui lòng nhập số lượng.',
 
-        ], [
+                'soLuong.*.integer' =>
+                    'Số lượng phải là số nguyên.',
 
-            'ngayNhap.required' =>
-                'Vui lòng chọn ngày nhập.',
+                'soLuong.*.min' =>
+                    'Số lượng phải lớn hơn 0.',
 
-            'ngayNhap.date' =>
-                'Ngày nhập không hợp lệ.',
+                'donGia.required' =>
+                    'Vui lòng nhập giá nhập.',
 
-            'maSach.required' =>
-                'Vui lòng chọn ít nhất một sách.',
+                'donGia.min' =>
+                    'Vui lòng nhập giá nhập.',
 
-            'maSach.*.required' =>
-                'Vui lòng chọn sách.',
+                'donGia.*.required' =>
+                    'Vui lòng nhập giá nhập.',
 
-            'maSach.*.exists' =>
-                'Sách không tồn tại.',
+                'donGia.*.numeric' =>
+                    'Giá nhập phải là số.',
 
-            'soLuong.required' =>
-                'Vui lòng nhập số lượng.',
-
-            'soLuong.*.required' =>
-                'Vui lòng nhập số lượng.',
-
-            'soLuong.*.integer' =>
-                'Số lượng phải là số nguyên.',
-
-            'soLuong.*.min' =>
-                'Số lượng phải lớn hơn 0.',
-
-            'donGia.required' =>
-                'Vui lòng nhập giá nhập.',
-
-            'donGia.*.required' =>
-                'Vui lòng nhập giá nhập.',
-
-            'donGia.*.numeric' =>
-                'Giá nhập phải là số.',
-
-            'donGia.*.min' =>
-                'Giá nhập không được nhỏ hơn 0.',
-
-            'giaBan.required' =>
-                'Vui lòng nhập giá bán.',
-
-            'giaBan.*.required' =>
-                'Vui lòng nhập giá bán.',
-
-            'giaBan.*.numeric' =>
-                'Giá bán phải là số.',
-
-            'giaBan.*.min' =>
-                'Giá bán không được nhỏ hơn 0.',
-        ]);
+                'donGia.*.gt' =>
+                    'Giá nhập phải lớn hơn 0.',
+            ]
+        );
 
 
         $maSach = $request->maSach;
         $soLuong = $request->soLuong;
         $donGia = $request->donGia;
-        $giaBan = $request->giaBan;
 
 
         /*
         |--------------------------------------------------------------------------
-        | KIỂM TRA SỐ LƯỢNG DÒNG
+        | KIỂM TRA SỐ DÒNG
         |--------------------------------------------------------------------------
         */
         if (
             count($maSach) !== count($soLuong) ||
-            count($maSach) !== count($donGia) ||
-            count($maSach) !== count($giaBan)
+            count($maSach) !== count($donGia)
         ) {
 
             return back()
@@ -283,10 +273,8 @@ class PhieuNhapController extends Controller
                 return back()
                     ->withInput()
                     ->withErrors([
-
                         'maSach.' . $i =>
                             'Sách này đã được chọn trong phiếu.'
-
                     ])
                     ->with(
                         'error',
@@ -302,40 +290,76 @@ class PhieuNhapController extends Controller
         |--------------------------------------------------------------------------
         | KIỂM TRA GIÁ
         |--------------------------------------------------------------------------
+        |
+        | Giá bán lấy từ bảng sachs.
+        |
         */
         foreach ($maSach as $i => $idSach) {
 
+            $sach = Sach::find($idSach);
+
+            if (!$sach) {
+
+                return back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Sách không tồn tại.'
+                    );
+            }
+
+
+            /*
+             * Lấy giá bán hiện tại từ bảng sachs
+             */
+            $giaBan = (float) $sach->giaBan;
+
+
+            /*
+             * Nếu sách chưa có giá bán
+             */
+            if ($giaBan <= 0) {
+
+                return back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Sách "' . $sach->tenSach . '" chưa có giá bán.'
+                    );
+            }
+
+
+            /*
+             * Giá nhập phải nhỏ hơn giá bán
+             */
             if (
-                (float) $donGia[$i]
-                >=
-                (float) $giaBan[$i]
+                (float) $donGia[$i] >= $giaBan
             ) {
 
                 return back()
                     ->withInput()
                     ->withErrors([
-
                         'donGia.' . $i =>
-                            'Giá nhập phải < giá bán.',
-
-                        'giaBan.' . $i =>
                             'Giá nhập phải < giá bán.'
-
                     ])
                     ->with(
                         'error',
-                        'Dữ liệu giá không hợp lệ.'
+                        'Giá nhập phải < giá bán.'
                     );
             }
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | BẮT ĐẦU TRANSACTION
+        |--------------------------------------------------------------------------
+        */
         DB::beginTransaction();
 
         try {
 
-            $nhanVien =
-                $this->getNhanVienDangNhap();
+            $nhanVien = $this->getNhanVienDangNhap();
 
 
             /*
@@ -343,11 +367,10 @@ class PhieuNhapController extends Controller
             | TẠO PHIẾU
             |--------------------------------------------------------------------------
             |
-            | Phiếu mới = Chưa xác nhận
+            | Phiếu mới luôn ở trạng thái Chưa xác nhận.
             |
             */
             $phieuNhap = PhieuNhap::create([
-
                 'maNV' =>
                     $nhanVien?->maNV,
 
@@ -359,7 +382,6 @@ class PhieuNhapController extends Controller
 
                 'trangThai' =>
                     'ChoXacNhan',
-
             ]);
 
 
@@ -368,12 +390,49 @@ class PhieuNhapController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | LƯU CHI TIẾT
+            | LƯU CHI TIẾT PHIẾU
             |--------------------------------------------------------------------------
             */
             foreach (
                 $maSach as $i => $idSach
             ) {
+
+                /*
+                 * Lấy lại sách từ database
+                 */
+                $sach = Sach::find($idSach);
+
+                if (!$sach) {
+                    throw new \Exception(
+                        'Sách không tồn tại.'
+                    );
+                }
+
+
+                /*
+                 * Giá bán tự động lấy từ bảng sachs
+                 */
+                $giaBan = (float) $sach->giaBan;
+
+
+                if ($giaBan <= 0) {
+                    throw new \Exception(
+                        'Sách "' . $sach->tenSach . '" chưa có giá bán.'
+                    );
+                }
+
+
+                /*
+                 * Kiểm tra lại giá nhập
+                 */
+                if (
+                    (float) $donGia[$i] >= $giaBan
+                ) {
+                    throw new \Exception(
+                        'Giá nhập phải < giá bán.'
+                    );
+                }
+
 
                 $thanhTien =
                     (float) $soLuong[$i]
@@ -382,7 +441,6 @@ class PhieuNhapController extends Controller
 
 
                 CTPhieuNhap::create([
-
                     'maPN' =>
                         $phieuNhap->maPN,
 
@@ -395,12 +453,14 @@ class PhieuNhapController extends Controller
                     'donGia' =>
                         $donGia[$i],
 
+                    /*
+                     * Không lấy giá bán từ form.
+                     */
                     'giaBan' =>
-                        $giaBan[$i],
+                        $giaBan,
 
                     'thanhTien' =>
                         $thanhTien,
-
                 ]);
 
 
@@ -413,18 +473,17 @@ class PhieuNhapController extends Controller
             | CẬP NHẬT TỔNG TIỀN
             |--------------------------------------------------------------------------
             */
-            $phieuNhap->tongTien =
-                $tongTien;
+            $phieuNhap->tongTien = $tongTien;
 
             $phieuNhap->save();
 
 
             /*
             |--------------------------------------------------------------------------
-            | QUAN TRỌNG
+            | KHÔNG CẬP NHẬT TỒN KHO
             |--------------------------------------------------------------------------
             |
-            | KHÔNG cập nhật tồn kho ở đây.
+            | Tồn kho chỉ tăng khi Admin xác nhận phiếu.
             |
             */
 
@@ -447,8 +506,8 @@ class PhieuNhapController extends Controller
                 ->withInput()
                 ->with(
                     'error',
-                    'Không thể lưu phiếu nhập: '
-                    . $e->getMessage()
+                    'Không thể lưu phiếu nhập: ' .
+                    $e->getMessage()
                 );
         }
     }
@@ -487,6 +546,9 @@ class PhieuNhapController extends Controller
                 ->findOrFail($maPN);
 
 
+        /*
+         * Phiếu hoàn thành không được sửa
+         */
         if (
             $phieuNhap->trangThai === 'HoanThanh'
         ) {
@@ -500,6 +562,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Phiếu đã hủy không được sửa
+         */
         if (
             $phieuNhap->trangThai === 'DaHuy'
         ) {
@@ -513,6 +578,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Chỉ phiếu chưa xác nhận mới được sửa
+         */
         if (
             $phieuNhap->trangThai !== 'ChoXacNhan'
         ) {
@@ -549,7 +617,7 @@ class PhieuNhapController extends Controller
     |--------------------------------------------------------------------------
     |
     | Chỉ sửa phiếu Chưa xác nhận.
-    | Không cộng tồn kho ở đây.
+    | Không cập nhật tồn kho.
     |
     */
     public function update(
@@ -562,6 +630,9 @@ class PhieuNhapController extends Controller
                 ->findOrFail($maPN);
 
 
+        /*
+         * Không cho sửa phiếu hoàn thành
+         */
         if (
             $phieuNhap->trangThai === 'HoanThanh'
         ) {
@@ -575,6 +646,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Không cho sửa phiếu đã hủy
+         */
         if (
             $phieuNhap->trangThai === 'DaHuy'
         ) {
@@ -588,6 +662,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Chỉ phiếu chưa xác nhận mới được sửa
+         */
         if (
             $phieuNhap->trangThai !== 'ChoXacNhan'
         ) {
@@ -601,120 +678,112 @@ class PhieuNhapController extends Controller
         }
 
 
-        $request->validate([
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE
+        |--------------------------------------------------------------------------
+        |
+        | KHÔNG validate giaBan.
+        |
+        */
+        $request->validate(
+            [
+                'ngayNhap' => [
+                    'required',
+                    'date'
+                ],
 
-            'ngayNhap' => [
-                'required',
-                'date'
+                'maSach' => [
+                    'required',
+                    'array',
+                    'min:1'
+                ],
+
+                'maSach.*' => [
+                    'required',
+                    'integer',
+                    'exists:sachs,maSach'
+                ],
+
+                'soLuong' => [
+                    'required',
+                    'array',
+                    'min:1'
+                ],
+
+                'soLuong.*' => [
+                    'required',
+                    'integer',
+                    'min:1'
+                ],
+
+                'donGia' => [
+                    'required',
+                    'array',
+                    'min:1'
+                ],
+
+                'donGia.*' => [
+                    'required',
+                    'numeric',
+                    'gt:0'
+                ],
             ],
+            [
+                'ngayNhap.required' =>
+                    'Vui lòng chọn ngày nhập.',
 
-            'maSach' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'ngayNhap.date' =>
+                    'Ngày nhập không hợp lệ.',
 
-            'maSach.*' => [
-                'required',
-                'integer',
-                'exists:sachs,maSach'
-            ],
+                'maSach.required' =>
+                    'Vui lòng chọn ít nhất một sách.',
 
-            'soLuong' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'maSach.min' =>
+                    'Vui lòng chọn ít nhất một sách.',
 
-            'soLuong.*' => [
-                'required',
-                'integer',
-                'min:1'
-            ],
+                'maSach.*.required' =>
+                    'Vui lòng chọn sách.',
 
-            'donGia' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'maSach.*.exists' =>
+                    'Sách không tồn tại.',
 
-            'donGia.*' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
+                'soLuong.required' =>
+                    'Vui lòng nhập số lượng.',
 
-            'giaBan' => [
-                'required',
-                'array',
-                'min:1'
-            ],
+                'soLuong.min' =>
+                    'Vui lòng nhập số lượng.',
 
-            'giaBan.*' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
+                'soLuong.*.required' =>
+                    'Vui lòng nhập số lượng.',
 
-        ], [
+                'soLuong.*.integer' =>
+                    'Số lượng phải là số nguyên.',
 
-            'ngayNhap.required' =>
-                'Vui lòng chọn ngày nhập.',
+                'soLuong.*.min' =>
+                    'Số lượng phải lớn hơn 0.',
 
-            'ngayNhap.date' =>
-                'Ngày nhập không hợp lệ.',
+                'donGia.required' =>
+                    'Vui lòng nhập giá nhập.',
 
-            'maSach.required' =>
-                'Vui lòng chọn ít nhất một sách.',
+                'donGia.min' =>
+                    'Vui lòng nhập giá nhập.',
 
-            'maSach.*.required' =>
-                'Vui lòng chọn sách.',
+                'donGia.*.required' =>
+                    'Vui lòng nhập giá nhập.',
 
-            'maSach.*.exists' =>
-                'Sách không tồn tại.',
+                'donGia.*.numeric' =>
+                    'Giá nhập phải là số.',
 
-            'soLuong.required' =>
-                'Vui lòng nhập số lượng.',
-
-            'soLuong.*.required' =>
-                'Vui lòng nhập số lượng.',
-
-            'soLuong.*.integer' =>
-                'Số lượng phải là số nguyên.',
-
-            'soLuong.*.min' =>
-                'Số lượng phải lớn hơn 0.',
-
-            'donGia.required' =>
-                'Vui lòng nhập giá nhập.',
-
-            'donGia.*.required' =>
-                'Vui lòng nhập giá nhập.',
-
-            'donGia.*.numeric' =>
-                'Giá nhập phải là số.',
-
-            'donGia.*.min' =>
-                'Giá nhập không được nhỏ hơn 0.',
-
-            'giaBan.required' =>
-                'Vui lòng nhập giá bán.',
-
-            'giaBan.*.required' =>
-                'Vui lòng nhập giá bán.',
-
-            'giaBan.*.numeric' =>
-                'Giá bán phải là số.',
-
-            'giaBan.*.min' =>
-                'Giá bán không được nhỏ hơn 0.',
-        ]);
+                'donGia.*.gt' =>
+                    'Giá nhập phải lớn hơn 0.',
+            ]
+        );
 
 
         $maSach = $request->maSach;
         $soLuong = $request->soLuong;
         $donGia = $request->donGia;
-        $giaBan = $request->giaBan;
 
 
         /*
@@ -724,8 +793,7 @@ class PhieuNhapController extends Controller
         */
         if (
             count($maSach) !== count($soLuong) ||
-            count($maSach) !== count($donGia) ||
-            count($maSach) !== count($giaBan)
+            count($maSach) !== count($donGia)
         ) {
 
             return back()
@@ -751,10 +819,8 @@ class PhieuNhapController extends Controller
                 return back()
                     ->withInput()
                     ->withErrors([
-
                         'maSach.' . $i =>
                             'Sách này đã được chọn trong phiếu.'
-
                     ])
                     ->with(
                         'error',
@@ -770,34 +836,71 @@ class PhieuNhapController extends Controller
         |--------------------------------------------------------------------------
         | KIỂM TRA GIÁ
         |--------------------------------------------------------------------------
+        |
+        | Giá bán lấy trực tiếp từ bảng sachs.
+        |
         */
         foreach ($maSach as $i => $idSach) {
 
+            $sach = Sach::find($idSach);
+
+            if (!$sach) {
+
+                return back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Sách không tồn tại.'
+                    );
+            }
+
+
+            /*
+             * Giá bán hiện tại của sách
+             */
+            $giaBan = (float) $sach->giaBan;
+
+
+            /*
+             * Sách chưa có giá bán
+             */
+            if ($giaBan <= 0) {
+
+                return back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Sách "' . $sach->tenSach . '" chưa có giá bán.'
+                    );
+            }
+
+
+            /*
+             * Giá nhập phải nhỏ hơn giá bán
+             */
             if (
-                (float) $donGia[$i]
-                >=
-                (float) $giaBan[$i]
+                (float) $donGia[$i] >= $giaBan
             ) {
 
                 return back()
                     ->withInput()
                     ->withErrors([
-
                         'donGia.' . $i =>
-                            'Giá nhập phải < giá bán.',
-
-                        'giaBan.' . $i =>
                             'Giá nhập phải < giá bán.'
-
                     ])
                     ->with(
                         'error',
-                        'Dữ liệu giá không hợp lệ.'
+                        'Giá nhập phải < giá bán.'
                     );
             }
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | TRANSACTION
+        |--------------------------------------------------------------------------
+        */
         DB::beginTransaction();
 
         try {
@@ -806,6 +909,9 @@ class PhieuNhapController extends Controller
             |--------------------------------------------------------------------------
             | XÓA CHI TIẾT CŨ
             |--------------------------------------------------------------------------
+            |
+            | Phiếu chưa xác nhận nên chưa ảnh hưởng tồn kho.
+            |
             */
             CTPhieuNhap::where(
                 'maPN',
@@ -825,6 +931,37 @@ class PhieuNhapController extends Controller
                 $maSach as $i => $idSach
             ) {
 
+                $sach = Sach::find($idSach);
+
+                if (!$sach) {
+                    throw new \Exception(
+                        'Sách không tồn tại.'
+                    );
+                }
+
+
+                /*
+                 * Lấy giá bán từ bảng sachs
+                 */
+                $giaBan = (float) $sach->giaBan;
+
+
+                if ($giaBan <= 0) {
+                    throw new \Exception(
+                        'Sách "' . $sach->tenSach . '" chưa có giá bán.'
+                    );
+                }
+
+
+                if (
+                    (float) $donGia[$i] >= $giaBan
+                ) {
+                    throw new \Exception(
+                        'Giá nhập phải < giá bán.'
+                    );
+                }
+
+
                 $thanhTien =
                     (float) $soLuong[$i]
                     *
@@ -832,7 +969,6 @@ class PhieuNhapController extends Controller
 
 
                 CTPhieuNhap::create([
-
                     'maPN' =>
                         $phieuNhap->maPN,
 
@@ -845,12 +981,14 @@ class PhieuNhapController extends Controller
                     'donGia' =>
                         $donGia[$i],
 
+                    /*
+                     * Giá bán lấy từ bảng sách.
+                     */
                     'giaBan' =>
-                        $giaBan[$i],
+                        $giaBan,
 
                     'thanhTien' =>
                         $thanhTien,
-
                 ]);
 
 
@@ -870,7 +1008,7 @@ class PhieuNhapController extends Controller
                 $tongTien;
 
             /*
-             * Vẫn giữ trạng thái Chưa xác nhận.
+             * Vẫn là Chưa xác nhận.
              */
             $phieuNhap->trangThai =
                 'ChoXacNhan';
@@ -906,8 +1044,8 @@ class PhieuNhapController extends Controller
                 ->withInput()
                 ->with(
                     'error',
-                    'Không thể cập nhật phiếu nhập: '
-                    . $e->getMessage()
+                    'Không thể cập nhật phiếu nhập: ' .
+                    $e->getMessage()
                 );
         }
     }
@@ -917,6 +1055,10 @@ class PhieuNhapController extends Controller
     |--------------------------------------------------------------------------
     | XÓA PHIẾU
     |--------------------------------------------------------------------------
+    |
+    | Không cho xóa trực tiếp.
+    | Dùng Hủy phiếu.
+    |
     */
     public function destroy($maPN)
     {
@@ -934,21 +1076,15 @@ class PhieuNhapController extends Controller
     | XÁC NHẬN PHIẾU
     |--------------------------------------------------------------------------
     |
-    | CHỈ ADMIN ĐƯỢC XÁC NHẬN.
-    |
-    | Khi xác nhận:
-    | 1. Kiểm tra phiếu
-    | 2. Cộng tồn kho
-    | 3. Chuyển trạng thái HoanThanh
+    | Chỉ Admin/QTV được xác nhận.
+    | Khi xác nhận mới cộng tồn kho.
     |
     */
     public function confirm($maPN)
     {
         /*
-        |--------------------------------------------------------------------------
-        | KIỂM TRA QUYỀN ADMIN
-        |--------------------------------------------------------------------------
-        */
+         * Kiểm tra quyền Admin
+         */
         if (!$this->laAdmin()) {
 
             return back()->with(
@@ -964,10 +1100,8 @@ class PhieuNhapController extends Controller
 
 
         /*
-        |--------------------------------------------------------------------------
-        | KIỂM TRA TRẠNG THÁI
-        |--------------------------------------------------------------------------
-        */
+         * Không xác nhận phiếu đã hủy
+         */
         if (
             $phieuNhap->trangThai === 'DaHuy'
         ) {
@@ -979,6 +1113,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Không xác nhận lại phiếu đã hoàn thành
+         */
         if (
             $phieuNhap->trangThai === 'HoanThanh'
         ) {
@@ -990,6 +1127,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Chỉ xác nhận phiếu Chưa xác nhận
+         */
         if (
             $phieuNhap->trangThai !== 'ChoXacNhan'
         ) {
@@ -1001,6 +1141,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Phải có chi tiết
+         */
         if (
             $phieuNhap->chiTiet->isEmpty()
         ) {
@@ -1020,9 +1163,6 @@ class PhieuNhapController extends Controller
             |--------------------------------------------------------------------------
             | CỘNG TỒN KHO
             |--------------------------------------------------------------------------
-            |
-            | Chỉ thực hiện tại thời điểm Admin xác nhận.
-            |
             */
             foreach (
                 $phieuNhap->chiTiet as $chiTiet
@@ -1030,28 +1170,37 @@ class PhieuNhapController extends Controller
 
                 $tonKho =
                     TonKho::firstOrCreate(
-
                         [
                             'maSach' =>
                                 $chiTiet->maSach
                         ],
-
                         [
                             'soLuongTon' =>
-                                0,
-
-                            'ngayCapNhat' =>
-                                now()
+                                0
                         ]
                     );
 
 
+                /*
+                 * Cộng số lượng nhập vào tồn kho
+                 */
                 $tonKho->soLuongTon +=
                     (int) $chiTiet->soLuong;
 
 
-                $tonKho->ngayCapNhat =
-                    now();
+                /*
+                 * Nếu bảng ton_khos có cột ngayCapNhat
+                 * thì cập nhật thời gian.
+                 */
+                if (
+                    isset($tonKho->ngayCapNhat)
+                    || array_key_exists(
+                        'ngayCapNhat',
+                        $tonKho->getAttributes()
+                    )
+                ) {
+                    $tonKho->ngayCapNhat = now();
+                }
 
 
                 $tonKho->save();
@@ -1083,8 +1232,8 @@ class PhieuNhapController extends Controller
 
             return back()->with(
                 'error',
-                'Không thể xác nhận phiếu nhập: '
-                . $e->getMessage()
+                'Không thể xác nhận phiếu nhập: ' .
+                $e->getMessage()
             );
         }
     }
@@ -1097,8 +1246,8 @@ class PhieuNhapController extends Controller
     |
     | Chỉ hủy phiếu Chưa xác nhận.
     |
-    | Vì phiếu Chưa xác nhận chưa cộng tồn kho nên
-    | KHÔNG được trừ tồn kho khi hủy.
+    | Vì phiếu Chưa xác nhận chưa cộng tồn kho
+    | nên khi hủy KHÔNG trừ tồn kho.
     |
     */
     public function cancel($maPN)
@@ -1109,10 +1258,8 @@ class PhieuNhapController extends Controller
 
 
         /*
-        |--------------------------------------------------------------------------
-        | ĐÃ HOÀN THÀNH
-        |--------------------------------------------------------------------------
-        */
+         * Phiếu hoàn thành không được hủy
+         */
         if (
             $phieuNhap->trangThai === 'HoanThanh'
         ) {
@@ -1125,10 +1272,8 @@ class PhieuNhapController extends Controller
 
 
         /*
-        |--------------------------------------------------------------------------
-        | ĐÃ HỦY
-        |--------------------------------------------------------------------------
-        */
+         * Phiếu đã hủy
+         */
         if (
             $phieuNhap->trangThai === 'DaHuy'
         ) {
@@ -1141,10 +1286,8 @@ class PhieuNhapController extends Controller
 
 
         /*
-        |--------------------------------------------------------------------------
-        | CHỈ ĐƯỢC HỦY KHI CHƯA XÁC NHẬN
-        |--------------------------------------------------------------------------
-        */
+         * Chỉ phiếu Chưa xác nhận mới được hủy
+         */
         if (
             $phieuNhap->trangThai !== 'ChoXacNhan'
         ) {
@@ -1156,6 +1299,9 @@ class PhieuNhapController extends Controller
         }
 
 
+        /*
+         * Phiếu phải có chi tiết
+         */
         if (
             $phieuNhap->chiTiet->isEmpty()
         ) {
@@ -1169,13 +1315,8 @@ class PhieuNhapController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | KIỂM TRA ĐƠN HÀNG ĐÃ PHÁT SINH
+        | KIỂM TRA SÁCH ĐÃ PHÁT SINH ĐƠN HÀNG
         |--------------------------------------------------------------------------
-        |
-        | Giữ nguyên logic hiện tại của hệ thống:
-        | nếu sách trong phiếu đã phát sinh đơn hàng
-        | thì không cho hủy.
-        |
         */
         $maSachTrongPhieu =
             $phieuNhap->chiTiet
@@ -1208,15 +1349,8 @@ class PhieuNhapController extends Controller
         try {
 
             /*
-            |--------------------------------------------------------------------------
-            | KHÔNG TRỪ TỒN KHO
-            |--------------------------------------------------------------------------
-            |
-            | Vì phiếu chưa xác nhận nên trước đó chưa cộng tồn kho.
-            |
-            */
-
-
+             * Không trừ tồn kho.
+             */
             $phieuNhap->trangThai =
                 'DaHuy';
 
@@ -1237,8 +1371,8 @@ class PhieuNhapController extends Controller
 
             return back()->with(
                 'error',
-                'Không thể hủy phiếu nhập: '
-                . $e->getMessage()
+                'Không thể hủy phiếu nhập: ' .
+                $e->getMessage()
             );
         }
     }

@@ -15,7 +15,7 @@
 
     .form-title {
         text-align: center;
-        color: #b5121b;
+        color: #2563eb;
         font-family: Arial, sans-serif;
         font-size: 30px;
         font-weight: 700;
@@ -24,10 +24,10 @@
 
     .form-card {
         background: #fff;
-        border: 1px solid #f0d8da;
-        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
         padding: 28px;
-        box-shadow: 0 5px 18px rgba(130, 20, 30, .06);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
     }
 
     .form-grid {
@@ -48,8 +48,8 @@
     .form-control {
         width: 100%;
         height: 44px;
-        border: 1px solid #dfc3c6;
-        border-radius: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
         padding: 0 13px;
         font-family: Arial, sans-serif;
         font-size: 14px;
@@ -59,12 +59,12 @@
     }
 
     .form-control:focus {
-        border-color: #c91422;
-        box-shadow: 0 0 0 3px rgba(201, 20, 34, .08);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
     }
 
     .detail-title {
-        color: #b5121b;
+        color: #2563eb;
         font-size: 18px;
         font-weight: 700;
         margin: 5px 0 15px;
@@ -74,14 +74,17 @@
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 15px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
     }
 
     .detail-table th {
-        background: #c91422;
-        color: #fff;
+        background: #f5f6f8;
+        color: #333;
         padding: 12px;
         font-size: 13px;
         text-align: center;
+        border-bottom: 1px solid #eee;
     }
 
     .detail-table td {
@@ -95,8 +98,8 @@
     .detail-table input {
         width: 100%;
         height: 40px;
-        border: 1px solid #dfc3c6;
-        border-radius: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
         padding: 0 10px;
         font-family: Arial, sans-serif;
         box-sizing: border-box;
@@ -105,18 +108,29 @@
     .detail-table select:focus,
     .detail-table input:focus {
         outline: none;
-        border-color: #c91422;
+        border-color: #2563eb;
+    }
+
+    /*
+     * Giá bán chỉ hiển thị,
+     * không cho người dùng sửa.
+     */
+
+    .gia-ban-display {
+        background: #f5f6f8 !important;
+        color: #555;
+        cursor: not-allowed;
     }
 
     .input-error {
-        border-color: #c91422 !important;
+        border-color: #dc2626 !important;
         background: #fff5f5 !important;
     }
 
     .price-error,
     .book-error {
         display: none;
-        color: #b5121b;
+        color: #dc2626;
         font-size: 12px;
         font-weight: 600;
         margin-top: 5px;
@@ -132,22 +146,22 @@
         width: 40px;
         height: 40px;
         border: none;
-        border-radius: 8px;
-        background: #ffe5e7;
-        color: #b5121b;
+        border-radius: 6px;
+        background: #fee2e2;
+        color: #dc2626;
         font-size: 18px;
         cursor: pointer;
     }
 
     .btn-remove:hover {
-        background: #ffd5d9;
+        background: #fecaca;
     }
 
     .btn-add-row {
-        border: 1px solid #c91422;
+        border: 1px solid #2563eb;
         background: #fff;
-        color: #b5121b;
-        border-radius: 9px;
+        color: #2563eb;
+        border-radius: 6px;
         padding: 9px 15px;
         font-family: Arial, sans-serif;
         font-weight: 700;
@@ -155,7 +169,7 @@
     }
 
     .btn-add-row:hover {
-        background: #fff3f4;
+        background: #eff6ff;
     }
 
     .total-box {
@@ -167,7 +181,7 @@
     }
 
     .total-box span {
-        color: #b5121b;
+        color: #2563eb;
         font-size: 20px;
     }
 
@@ -181,7 +195,7 @@
     .btn {
         min-width: 125px;
         height: 44px;
-        border-radius: 10px;
+        border-radius: 6px;
         padding: 0 20px;
         font-family: Arial, sans-serif;
         font-weight: 700;
@@ -194,29 +208,33 @@
     }
 
     .btn-save {
-        background: #c91422;
+        background: #2563eb;
         color: #fff;
         border: none;
     }
 
     .btn-save:hover {
-        background: #a90e19;
+        background: #1d4ed8;
     }
 
     .btn-back {
         background: #fff;
-        color: #b5121b;
-        border: 1px solid #c91422;
+        color: #2563eb;
+        border: 1px solid #2563eb;
     }
 
     .btn-back:hover {
-        background: #fff3f4;
+        background: #eff6ff;
     }
 
     .error {
-        color: #b5121b;
+        color: #dc2626;
         font-size: 13px;
         margin-bottom: 15px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 12px 15px;
     }
 
     .error div {
@@ -252,6 +270,7 @@
     </h1>
 
     {{-- Thông báo lỗi tổng quát --}}
+
     @if ($errors->any())
 
         <div class="error">
@@ -288,6 +307,8 @@
 
             <div class="form-grid">
 
+                {{-- NHÂN VIÊN LẬP --}}
+
                 <div class="form-group">
 
                     <label>
@@ -306,6 +327,8 @@
                     >
 
                 </div>
+
+                {{-- NGÀY NHẬP --}}
 
                 <div class="form-group">
 
@@ -370,23 +393,49 @@
                 <tbody id="detailBody">
 
                     @php
-                        $oldMaSach = old('maSach', ['']);
-                        $oldSoLuong = old('soLuong', [1]);
-                        $oldDonGia = old('donGia', [0]);
-                        $oldGiaBan = old('giaBan', [0]);
+
+                        $oldMaSach = old(
+                            'maSach',
+                            ['']
+                        );
+
+                        $oldSoLuong = old(
+                            'soLuong',
+                            [1]
+                        );
+
+                        $oldDonGia = old(
+                            'donGia',
+                            [0]
+                        );
+
                     @endphp
 
                     @foreach ($oldMaSach as $i => $oldBook)
 
+                        @php
+
+                            $oldSach = $sachs->firstWhere(
+                                'maSach',
+                                $oldBook
+                            );
+
+                            $giaBanHienTai = $oldSach
+                                ? $oldSach->giaBan
+                                : 0;
+
+                        @endphp
+
                         <tr class="detail-row">
 
                             {{-- SÁCH --}}
+
                             <td>
 
                                 <select
                                     name="maSach[]"
                                     required
-                                    onchange="checkDuplicateBooks()"
+                                    onchange="handleBookChange(this)"
                                 >
 
                                     <option value="">
@@ -397,7 +446,8 @@
 
                                         <option
                                             value="{{ $sach->maSach }}"
-                                            {{ (string)$oldBook === (string)$sach->maSach ? 'selected' : '' }}
+                                            data-gia-ban="{{ $sach->giaBan }}"
+                                            {{ (string) $oldBook === (string) $sach->maSach ? 'selected' : '' }}
                                         >
                                             {{ $sach->maSach }}
                                             -
@@ -409,9 +459,11 @@
                                 </select>
 
                                 @error('maSach.' . $i)
+
                                     <div class="book-error server-error">
                                         {{ $message }}
                                     </div>
+
                                 @enderror
 
                                 <div class="book-error js-book-error">
@@ -421,6 +473,7 @@
                             </td>
 
                             {{-- SỐ LƯỢNG --}}
+
                             <td>
 
                                 <input
@@ -433,14 +486,17 @@
                                 >
 
                                 @error('soLuong.' . $i)
+
                                     <div class="book-error server-error">
                                         {{ $message }}
                                     </div>
+
                                 @enderror
 
                             </td>
 
                             {{-- GIÁ NHẬP --}}
+
                             <td>
 
                                 <input
@@ -454,31 +510,35 @@
                                 >
 
                                 @error('donGia.' . $i)
+
                                     <div class="price-error server-error">
                                         {{ $message }}
                                     </div>
+
                                 @enderror
 
                             </td>
 
                             {{-- GIÁ BÁN --}}
+
                             <td>
 
                                 <input
-                                    type="number"
-                                    name="giaBan[]"
-                                    min="0"
-                                    step="0.01"
-                                    value="{{ $oldGiaBan[$i] ?? 0 }}"
-                                    oninput="validatePrices()"
-                                    required
+                                    type="text"
+                                    class="gia-ban-display"
+                                    value="{{
+                                        $giaBanHienTai > 0
+                                            ? number_format(
+                                                $giaBanHienTai,
+                                                0,
+                                                ',',
+                                                '.'
+                                            )
+                                            : ''
+                                    }}"
+                                    readonly
+                                    tabindex="-1"
                                 >
-
-                                @error('giaBan.' . $i)
-                                    <div class="price-error server-error">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
 
                                 <div class="price-error js-price-error">
                                     Giá nhập phải &lt; giá bán.
@@ -487,11 +547,13 @@
                             </td>
 
                             {{-- THÀNH TIỀN --}}
+
                             <td class="thanh-tien">
                                 0
                             </td>
 
                             {{-- XÓA --}}
+
                             <td>
 
                                 <button
@@ -558,77 +620,244 @@
 
 <script>
 
+/*
+|--------------------------------------------------------------------------
+| Lấy giá bán của sách đang chọn
+|--------------------------------------------------------------------------
+*/
+
+function getGiaBanFromBook(select) {
+
+    const option =
+        select.options[select.selectedIndex];
+
+    if (!option) {
+
+        return 0;
+
+    }
+
+    return Number(
+        option.getAttribute('data-gia-ban')
+    ) || 0;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Hiển thị giá bán theo sách
+|--------------------------------------------------------------------------
+*/
+
+function updateGiaBan(select) {
+
+    const row =
+        select.closest('.detail-row');
+
+    const giaBanInput =
+        row.querySelector(
+            '.gia-ban-display'
+        );
+
+    const giaBan =
+        getGiaBanFromBook(select);
+
+    if (giaBan > 0) {
+
+        giaBanInput.value =
+            giaBan.toLocaleString('vi-VN');
+
+    } else {
+
+        giaBanInput.value = '';
+
+    }
+
+    validatePrices();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Khi thay đổi sách
+|--------------------------------------------------------------------------
+*/
+
+function handleBookChange(select) {
+
+    updateGiaBan(select);
+
+    updateBookOptions();
+
+    calculateTotal();
+
+    validatePrices();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Thêm dòng sách
+|--------------------------------------------------------------------------
+*/
+
 function addRow() {
 
     const body =
-        document.getElementById('detailBody');
+        document.getElementById(
+            'detailBody'
+        );
 
     const firstRow =
-        body.querySelector('.detail-row');
+        body.querySelector(
+            '.detail-row'
+        );
 
     const newRow =
         firstRow.cloneNode(true);
 
-    // Reset sách
+
+    /*
+     * Reset sách
+     */
+
     const select =
         newRow.querySelector(
             'select[name="maSach[]"]'
         );
 
     select.value = '';
-    select.classList.remove('input-error');
 
-    // Xóa lỗi server của dòng clone
+    select.classList.remove(
+        'input-error'
+    );
+
+
+    /*
+     * Xóa lỗi server của dòng clone
+     */
+
     newRow
-        .querySelectorAll('.server-error')
+        .querySelectorAll(
+            '.server-error'
+        )
         .forEach(function(error) {
+
             error.remove();
+
         });
 
-    // Reset số lượng
-    newRow.querySelector(
-        'input[name="soLuong[]"]'
-    ).value = 1;
 
-    // Reset giá nhập
-    newRow.querySelector(
-        'input[name="donGia[]"]'
-    ).value = 0;
+    /*
+     * Reset số lượng
+     */
 
-    // Reset giá bán
+    newRow
+        .querySelector(
+            'input[name="soLuong[]"]'
+        )
+        .value = 1;
+
+
+    /*
+     * Reset giá nhập
+     */
+
+    newRow
+        .querySelector(
+            'input[name="donGia[]"]'
+        )
+        .value = 0;
+
+
+    /*
+     * Reset giá bán
+     */
+
     const giaBanInput =
         newRow.querySelector(
-            'input[name="giaBan[]"]'
+            '.gia-ban-display'
         );
 
-    giaBanInput.value = 0;
-    giaBanInput.classList.remove('input-error');
+    giaBanInput.value = '';
 
-    // Reset lỗi JS
-    newRow
-        .querySelector('.js-price-error')
-        .style.display = 'none';
+    giaBanInput.classList.remove(
+        'input-error'
+    );
+
+
+    /*
+     * Reset lỗi giá
+     */
+
+    const priceError =
+        newRow.querySelector(
+            '.js-price-error'
+        );
+
+    if (priceError) {
+
+        priceError.style.display =
+            'none';
+
+    }
+
+
+    /*
+     * Reset lỗi trùng sách
+     */
+
+    const bookError =
+        newRow.querySelector(
+            '.js-book-error'
+        );
+
+    if (bookError) {
+
+        bookError.style.display =
+            'none';
+
+    }
+
+
+    /*
+     * Reset thành tiền
+     */
 
     newRow
-        .querySelector('.js-book-error')
-        .style.display = 'none';
-
-    newRow
-        .querySelector('.thanh-tien')
+        .querySelector(
+            '.thanh-tien'
+        )
         .textContent = '0';
+
 
     body.appendChild(newRow);
 
+
     updateBookOptions();
+
     calculateTotal();
+
     validatePrices();
 
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Xóa dòng
+|--------------------------------------------------------------------------
+*/
+
 function removeRow(button) {
 
     const rows =
-        document.querySelectorAll('.detail-row');
+        document.querySelectorAll(
+            '.detail-row'
+        );
 
     if (rows.length === 1) {
 
@@ -640,22 +869,35 @@ function removeRow(button) {
 
     }
 
+
     button
         .closest('.detail-row')
         .remove();
 
+
     updateBookOptions();
+
     calculateTotal();
+
     validatePrices();
 
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Tính thành tiền và tổng tiền
+|--------------------------------------------------------------------------
+*/
 
 function calculateTotal() {
 
     let total = 0;
 
     document
-        .querySelectorAll('.detail-row')
+        .querySelectorAll(
+            '.detail-row'
+        )
         .forEach(function(row) {
 
             const quantity =
@@ -665,6 +907,7 @@ function calculateTotal() {
                     ).value
                 ) || 0;
 
+
             const price =
                 Number(
                     row.querySelector(
@@ -672,31 +915,48 @@ function calculateTotal() {
                     ).value
                 ) || 0;
 
+
             const money =
                 quantity * price;
+
 
             row.querySelector(
                 '.thanh-tien'
             ).textContent =
-                money.toLocaleString('vi-VN');
+                money.toLocaleString(
+                    'vi-VN'
+                );
+
 
             total += money;
 
         });
 
+
     document.getElementById(
         'totalMoney'
     ).textContent =
-        total.toLocaleString('vi-VN');
+        total.toLocaleString(
+            'vi-VN'
+        );
 
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Kiểm tra Giá nhập < Giá bán
+|--------------------------------------------------------------------------
+*/
 
 function validatePrices() {
 
     let valid = true;
 
     document
-        .querySelectorAll('.detail-row')
+        .querySelectorAll(
+            '.detail-row'
+        )
         .forEach(function(row) {
 
             const donGia =
@@ -706,29 +966,85 @@ function validatePrices() {
                     ).value
                 ) || 0;
 
-            const giaBanInput =
+
+            const select =
                 row.querySelector(
-                    'input[name="giaBan[]"]'
+                    'select[name="maSach[]"]'
                 );
 
+
             const giaBan =
-                Number(
-                    giaBanInput.value
-                ) || 0;
+                getGiaBanFromBook(select);
+
+
+            const giaBanInput =
+                row.querySelector(
+                    '.gia-ban-display'
+                );
+
 
             const jsError =
-                row.querySelector('.js-price-error');
+                row.querySelector(
+                    '.js-price-error'
+                );
+
 
             /*
-             * Giá nhập phải NHỎ HƠN giá bán.
+             * Chưa chọn sách
              */
-            if (giaBan <= donGia) {
+
+            if (!select.value) {
+
+                giaBanInput.classList.remove(
+                    'input-error'
+                );
+
+                jsError.style.display =
+                    'none';
+
+                return;
+
+            }
+
+
+            /*
+             * Nếu sách chưa có giá bán
+             */
+
+            if (giaBan <= 0) {
 
                 giaBanInput.classList.add(
                     'input-error'
                 );
 
-                jsError.style.display = 'block';
+                jsError.textContent =
+                    'Sách chưa có giá bán.';
+
+                jsError.style.display =
+                    'block';
+
+                valid = false;
+
+                return;
+
+            }
+
+
+            /*
+             * Giá nhập phải nhỏ hơn giá bán
+             */
+
+            if (donGia >= giaBan) {
+
+                giaBanInput.classList.add(
+                    'input-error'
+                );
+
+                jsError.textContent =
+                    'Giá nhập phải < giá bán.';
+
+                jsError.style.display =
+                    'block';
 
                 valid = false;
 
@@ -738,15 +1054,24 @@ function validatePrices() {
                     'input-error'
                 );
 
-                jsError.style.display = 'none';
+                jsError.style.display =
+                    'none';
 
             }
 
         });
 
+
     return valid;
 
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Kiểm tra trùng sách
+|--------------------------------------------------------------------------
+*/
 
 function checkDuplicateBooks() {
 
@@ -759,29 +1084,48 @@ function checkDuplicateBooks() {
             'select[name="maSach[]"]'
         );
 
-    // Xóa lỗi cũ
+
+    /*
+     * Xóa lỗi cũ
+     */
+
     selects.forEach(function(select) {
 
         select.classList.remove(
             'input-error'
         );
 
+
         const row =
-            select.closest('.detail-row');
+            select.closest(
+                '.detail-row'
+            );
+
 
         const error =
-            row.querySelector('.js-book-error');
+            row.querySelector(
+                '.js-book-error'
+            );
 
-        error.style.display = 'none';
+
+        error.style.display =
+            'none';
 
     });
 
-    // Kiểm tra trùng
+
+    /*
+     * Kiểm tra trùng
+     */
+
     selects.forEach(function(select) {
 
         if (select.value === '') {
+
             return;
+
         }
+
 
         if (selected[select.value]) {
 
@@ -789,37 +1133,64 @@ function checkDuplicateBooks() {
                 'input-error'
             );
 
+
             selected[select.value]
-                .classList.add('input-error');
+                .classList.add(
+                    'input-error'
+                );
+
 
             const currentRow =
-                select.closest('.detail-row');
+                select.closest(
+                    '.detail-row'
+                );
+
 
             const oldRow =
                 selected[select.value]
-                    .closest('.detail-row');
+                    .closest(
+                        '.detail-row'
+                    );
+
 
             currentRow
-                .querySelector('.js-book-error')
-                .style.display = 'block';
+                .querySelector(
+                    '.js-book-error'
+                )
+                .style.display =
+                    'block';
+
 
             oldRow
-                .querySelector('.js-book-error')
-                .style.display = 'block';
+                .querySelector(
+                    '.js-book-error'
+                )
+                .style.display =
+                    'block';
+
 
             valid = false;
 
         } else {
 
-            selected[select.value] = select;
+            selected[select.value] =
+                select;
 
         }
 
     });
 
+
     return valid;
 
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Ẩn sách đã được chọn ở các dòng khác
+|--------------------------------------------------------------------------
+*/
 
 function updateBookOptions() {
 
@@ -828,7 +1199,9 @@ function updateBookOptions() {
             'select[name="maSach[]"]'
         );
 
+
     const selected = [];
+
 
     selects.forEach(function(select) {
 
@@ -842,13 +1215,17 @@ function updateBookOptions() {
 
     });
 
+
     selects.forEach(function(select) {
 
         const current =
             select.value;
 
+
         select
-            .querySelectorAll('option')
+            .querySelectorAll(
+                'option'
+            )
             .forEach(function(option) {
 
                 option.hidden =
@@ -862,12 +1239,22 @@ function updateBookOptions() {
 
     });
 
+
     checkDuplicateBooks();
 
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Submit form
+|--------------------------------------------------------------------------
+*/
+
 document
-    .getElementById('phieuNhapForm')
+    .getElementById(
+        'phieuNhapForm'
+    )
     .addEventListener(
         'submit',
         function(event) {
@@ -875,12 +1262,18 @@ document
             const priceValid =
                 validatePrices();
 
+
             const bookValid =
                 checkDuplicateBooks();
 
-            if (!priceValid || !bookValid) {
+
+            if (
+                !priceValid ||
+                !bookValid
+            ) {
 
                 event.preventDefault();
+
 
                 alert(
                     'Vui lòng kiểm tra lại thông tin phiếu nhập.'
@@ -891,8 +1284,28 @@ document
         }
     );
 
+
+/*
+|--------------------------------------------------------------------------
+| Khởi tạo khi mở trang
+|--------------------------------------------------------------------------
+*/
+
+document
+    .querySelectorAll(
+        'select[name="maSach[]"]'
+    )
+    .forEach(function(select) {
+
+        updateGiaBan(select);
+
+    });
+
+
 calculateTotal();
+
 updateBookOptions();
+
 </script>
 
 @endsection

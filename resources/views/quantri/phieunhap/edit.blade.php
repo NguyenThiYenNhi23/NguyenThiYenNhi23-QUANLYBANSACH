@@ -7,7 +7,6 @@
 @section('content')
 
 <style>
-
     .form-page {
         padding: 30px 35px;
         font-family: Arial, sans-serif;
@@ -15,7 +14,7 @@
 
     .form-title {
         text-align: center;
-        color: #b5121b;
+        color: #2f5f98;
         font-size: 30px;
         font-weight: 700;
         margin-bottom: 28px;
@@ -23,10 +22,10 @@
 
     .form-card {
         background: #fff;
-        border: 1px solid #f0d8da;
+        border: 1px solid #d7e3ef;
         border-radius: 16px;
         padding: 28px;
-        box-shadow: 0 5px 18px rgba(130, 20, 30, .06);
+        box-shadow: 0 5px 18px rgba(47, 95, 152, .08);
     }
 
     .form-grid {
@@ -47,7 +46,7 @@
     .form-control {
         width: 100%;
         height: 44px;
-        border: 1px solid #dfc3c6;
+        border: 1px solid #b8cbe0;
         border-radius: 10px;
         padding: 0 13px;
         font-family: Arial, sans-serif;
@@ -58,12 +57,12 @@
     }
 
     .form-control:focus {
-        border-color: #c91422;
-        box-shadow: 0 0 0 3px rgba(201, 20, 34, .08);
+        border-color: #4f81bd;
+        box-shadow: 0 0 0 3px rgba(79, 129, 189, .12);
     }
 
     .detail-title {
-        color: #b5121b;
+        color: #2f5f98;
         font-size: 18px;
         font-weight: 700;
         margin-bottom: 15px;
@@ -76,7 +75,7 @@
     }
 
     .detail-table th {
-        background: #c91422;
+        background: #4f81bd;
         color: #fff;
         padding: 12px;
         font-size: 13px;
@@ -85,7 +84,7 @@
 
     .detail-table td {
         padding: 9px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #e3ebf4;
         text-align: center;
         vertical-align: top;
     }
@@ -94,7 +93,7 @@
     .detail-table input {
         width: 100%;
         height: 40px;
-        border: 1px solid #dfc3c6;
+        border: 1px solid #b8cbe0;
         border-radius: 8px;
         padding: 0 10px;
         font-family: Arial, sans-serif;
@@ -104,18 +103,25 @@
     .detail-table select:focus,
     .detail-table input:focus {
         outline: none;
-        border-color: #c91422;
+        border-color: #4f81bd;
+    }
+
+    /* Giá bán chỉ hiển thị, không cho sửa */
+    .gia-ban-display {
+        background: #f1f5f9 !important;
+        color: #555;
+        cursor: not-allowed;
     }
 
     .input-error {
-        border-color: #c91422 !important;
+        border-color: #d9534f !important;
         background: #fff5f5 !important;
     }
 
     .price-error,
     .book-error {
         display: none;
-        color: #b5121b;
+        color: #c0392b;
         font-size: 12px;
         font-weight: 600;
         margin-top: 5px;
@@ -132,20 +138,20 @@
         height: 40px;
         border: none;
         border-radius: 8px;
-        background: #ffe5e7;
-        color: #b5121b;
+        background: #e5eef7;
+        color: #2f5f98;
         font-size: 18px;
         cursor: pointer;
     }
 
     .btn-remove:hover {
-        background: #ffd5d9;
+        background: #d3e2f0;
     }
 
     .btn-add-row {
-        border: 1px solid #c91422;
+        border: 1px solid #4f81bd;
         background: #fff;
-        color: #b5121b;
+        color: #2f5f98;
         border-radius: 9px;
         padding: 9px 15px;
         font-family: Arial, sans-serif;
@@ -154,7 +160,7 @@
     }
 
     .btn-add-row:hover {
-        background: #fff3f4;
+        background: #edf5fc;
     }
 
     .total-box {
@@ -165,7 +171,7 @@
     }
 
     .total-box span {
-        color: #b5121b;
+        color: #2f5f98;
         font-size: 20px;
     }
 
@@ -192,27 +198,27 @@
     }
 
     .btn-save {
-        background: #c91422;
+        background: #4f81bd;
         color: #fff;
         border: none;
     }
 
     .btn-save:hover {
-        background: #a90e19;
+        background: #3f6fa8;
     }
 
     .btn-back {
         background: #fff;
-        color: #b5121b;
-        border: 1px solid #c91422;
+        color: #2f5f98;
+        border: 1px solid #4f81bd;
     }
 
     .btn-back:hover {
-        background: #fff3f4;
+        background: #edf5fc;
     }
 
     .error {
-        color: #b5121b;
+        color: #c0392b;
         font-size: 13px;
         margin-bottom: 15px;
     }
@@ -222,7 +228,6 @@
     }
 
     @media (max-width: 768px) {
-
         .form-grid {
             grid-template-columns: 1fr;
         }
@@ -238,11 +243,8 @@
         .detail-table {
             min-width: 900px;
         }
-
     }
-
 </style>
-
 <div class="form-page">
 
     <h1 class="form-title">
@@ -251,27 +253,19 @@
 
     {{-- Thông báo lỗi tổng quát --}}
     @if ($errors->any())
-
         <div class="error">
-
             @foreach ($errors->all() as $error)
-
                 <div>
                     {{ $error }}
                 </div>
-
             @endforeach
-
         </div>
-
     @endif
 
     @if (session('error'))
-
         <div class="error">
             {{ session('error') }}
         </div>
-
     @endif
 
     <div class="form-card">
@@ -279,20 +273,15 @@
         <form
             id="phieuNhapForm"
             method="POST"
-            action="{{ route(
-                'phieunhap.update',
-                $phieuNhap->maPN
-            ) }}"
+            action="{{ route('phieunhap.update', $phieuNhap->maPN) }}"
         >
-
             @csrf
-
             @method('PUT')
 
             <div class="form-grid">
 
+                {{-- MÃ PHIẾU --}}
                 <div class="form-group">
-
                     <label>
                         Mã phiếu
                     </label>
@@ -308,11 +297,10 @@
                         ) }}"
                         readonly
                     >
-
                 </div>
 
+                {{-- NHÂN VIÊN LẬP --}}
                 <div class="form-group">
-
                     <label>
                         Nhân viên lập
                     </label>
@@ -324,18 +312,14 @@
                             $phieuNhap->maNV === null
                                 ? 'Admin'
                                 : 'Nhân viên: ' .
-                                (
-                                    $phieuNhap->nhanVien->hoTen
-                                    ?? 'Không xác định'
-                                )
+                                    ($phieuNhap->nhanVien->hoTen ?? 'Không xác định')
                         }}"
                         readonly
                     >
-
                 </div>
 
+                {{-- NGÀY NHẬP --}}
                 <div class="form-group">
-
                     <label>
                         Ngày nhập
                     </label>
@@ -347,9 +331,7 @@
                         value="{{
                             old(
                                 'ngayNhap',
-                                $phieuNhap->ngayNhap?->format(
-                                    'Y-m-d\TH:i'
-                                )
+                                $phieuNhap->ngayNhap?->format('Y-m-d\TH\:i')
                             )
                         }}"
                         required
@@ -360,7 +342,6 @@
                             {{ $message }}
                         </div>
                     @enderror
-
                 </div>
 
             </div>
@@ -372,7 +353,6 @@
             <table class="detail-table">
 
                 <thead>
-
                     <tr>
 
                         <th style="width: 34%;">
@@ -399,7 +379,6 @@
                         </th>
 
                     </tr>
-
                 </thead>
 
                 <tbody id="detailBody">
@@ -431,11 +410,18 @@
                                     $chiTietCu?->donGia ?? 0
                                 );
 
-                            $giaBanCu =
-                                old(
-                                    'giaBan.' . $i,
-                                    $chiTietCu?->giaBan ?? 0
+                            /*
+                             * Lấy sách hiện tại từ bảng sachs
+                             * để lấy giá bán mới nhất.
+                             */
+                            $sachCu =
+                                $sachs->firstWhere(
+                                    'maSach',
+                                    $maSachCu
                                 );
+
+                            $giaBanHienTai =
+                                $sachCu?->giaBan ?? 0;
 
                         @endphp
 
@@ -447,7 +433,7 @@
                                 <select
                                     name="maSach[]"
                                     required
-                                    onchange="updateBookOptions(); checkDuplicateBooks()"
+                                    onchange="handleBookChange(this)"
                                 >
 
                                     <option value="">
@@ -458,15 +444,12 @@
 
                                         <option
                                             value="{{ $sach->maSach }}"
-                                            {{ (string)$maSachCu === (string)$sach->maSach
-                                                ? 'selected'
-                                                : '' }}
+                                            data-gia-ban="{{ $sach->giaBan }}"
+                                            {{ (string) $maSachCu === (string) $sach->maSach ? 'selected' : '' }}
                                         >
-
                                             {{ $sach->maSach }}
                                             -
                                             {{ $sach->tenSach }}
-
                                         </option>
 
                                     @endforeach
@@ -530,20 +513,21 @@
                             <td>
 
                                 <input
-                                    type="number"
-                                    name="giaBan[]"
-                                    min="0"
-                                    step="0.01"
-                                    value="{{ $giaBanCu }}"
-                                    oninput="validatePrices()"
-                                    required
+                                    type="text"
+                                    class="gia-ban-display"
+                                    value="{{
+                                        $giaBanHienTai > 0
+                                            ? number_format(
+                                                $giaBanHienTai,
+                                                0,
+                                                ',',
+                                                '.'
+                                            )
+                                            : ''
+                                    }}"
+                                    readonly
+                                    tabindex="-1"
                                 >
-
-                                @error('giaBan.' . $i)
-                                    <div class="price-error server-error">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
 
                                 <div class="price-error js-price-error">
                                     Giá nhập phải &lt; giá bán.
@@ -575,12 +559,13 @@
 
                         <tr class="detail-row">
 
+                            {{-- SÁCH --}}
                             <td>
 
                                 <select
                                     name="maSach[]"
                                     required
-                                    onchange="updateBookOptions(); checkDuplicateBooks()"
+                                    onchange="handleBookChange(this)"
                                 >
 
                                     <option value="">
@@ -591,6 +576,7 @@
 
                                         <option
                                             value="{{ $sach->maSach }}"
+                                            data-gia-ban="{{ $sach->giaBan }}"
                                         >
                                             {{ $sach->maSach }}
                                             -
@@ -607,6 +593,7 @@
 
                             </td>
 
+                            {{-- SỐ LƯỢNG --}}
                             <td>
 
                                 <input
@@ -620,6 +607,7 @@
 
                             </td>
 
+                            {{-- GIÁ NHẬP --}}
                             <td>
 
                                 <input
@@ -634,16 +622,15 @@
 
                             </td>
 
+                            {{-- GIÁ BÁN --}}
                             <td>
 
                                 <input
-                                    type="number"
-                                    name="giaBan[]"
-                                    min="0"
-                                    step="0.01"
-                                    value="0"
-                                    oninput="validatePrices()"
-                                    required
+                                    type="text"
+                                    class="gia-ban-display"
+                                    value=""
+                                    readonly
+                                    tabindex="-1"
                                 >
 
                                 <div class="price-error js-price-error">
@@ -652,10 +639,12 @@
 
                             </td>
 
+                            {{-- THÀNH TIỀN --}}
                             <td class="thanh-tien">
                                 0
                             </td>
 
+                            {{-- XÓA --}}
                             <td>
 
                                 <button
@@ -685,15 +674,11 @@
             </button>
 
             <div class="total-box">
-
                 Tổng tiền:
-
                 <span id="totalMoney">
                     0
                 </span>
-
                 đ
-
             </div>
 
             <div class="form-actions">
@@ -722,6 +707,79 @@
 
 <script>
 
+/*
+|--------------------------------------------------------------------------
+| Lấy giá bán từ option của sách
+|--------------------------------------------------------------------------
+*/
+function getGiaBanFromBook(select) {
+
+    const option =
+        select.options[select.selectedIndex];
+
+    if (!option) {
+        return 0;
+    }
+
+    return Number(
+        option.getAttribute('data-gia-ban')
+    ) || 0;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Cập nhật giá bán khi chọn sách
+|--------------------------------------------------------------------------
+*/
+function updateGiaBan(select) {
+
+    const row =
+        select.closest('.detail-row');
+
+    const giaBanInput =
+        row.querySelector('.gia-ban-display');
+
+    const giaBan =
+        getGiaBanFromBook(select);
+
+    if (giaBan > 0) {
+
+        giaBanInput.value =
+            giaBan.toLocaleString('vi-VN');
+
+    } else {
+
+        giaBanInput.value = '';
+
+    }
+
+    validatePrices();
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Khi thay đổi sách
+|--------------------------------------------------------------------------
+*/
+function handleBookChange(select) {
+
+    updateGiaBan(select);
+
+    updateBookOptions();
+
+    calculateTotal();
+
+    validatePrices();
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Thêm dòng mới
+|--------------------------------------------------------------------------
+*/
 function addRow() {
 
     const body =
@@ -737,6 +795,9 @@ function addRow() {
     const newRow =
         firstRow.cloneNode(true);
 
+    /*
+     * Reset sách
+     */
     const select =
         newRow.querySelector(
             'select[name="maSach[]"]'
@@ -752,6 +813,9 @@ function addRow() {
 
     }
 
+    /*
+     * Reset số lượng
+     */
     const soLuong =
         newRow.querySelector(
             'input[name="soLuong[]"]'
@@ -761,6 +825,9 @@ function addRow() {
         soLuong.value = 1;
     }
 
+    /*
+     * Reset giá nhập
+     */
     const donGia =
         newRow.querySelector(
             'input[name="donGia[]"]'
@@ -770,14 +837,17 @@ function addRow() {
         donGia.value = 0;
     }
 
+    /*
+     * Reset giá bán
+     */
     const giaBan =
         newRow.querySelector(
-            'input[name="giaBan[]"]'
+            '.gia-ban-display'
         );
 
     if (giaBan) {
 
-        giaBan.value = 0;
+        giaBan.value = '';
 
         giaBan.classList.remove(
             'input-error'
@@ -785,15 +855,24 @@ function addRow() {
 
     }
 
-    // Xóa lỗi server của dòng được clone
+    /*
+     * Xóa lỗi server của dòng clone
+     */
     newRow
         .querySelectorAll('.server-error')
         .forEach(function(error) {
+
             error.remove();
+
         });
 
+    /*
+     * Reset lỗi giá
+     */
     const priceError =
-        newRow.querySelector('.js-price-error');
+        newRow.querySelector(
+            '.js-price-error'
+        );
 
     if (priceError) {
 
@@ -802,8 +881,13 @@ function addRow() {
 
     }
 
+    /*
+     * Reset lỗi trùng sách
+     */
     const bookError =
-        newRow.querySelector('.js-book-error');
+        newRow.querySelector(
+            '.js-book-error'
+        );
 
     if (bookError) {
 
@@ -812,8 +896,13 @@ function addRow() {
 
     }
 
+    /*
+     * Reset thành tiền
+     */
     const thanhTien =
-        newRow.querySelector('.thanh-tien');
+        newRow.querySelector(
+            '.thanh-tien'
+        );
 
     if (thanhTien) {
 
@@ -828,9 +917,15 @@ function addRow() {
 
     calculateTotal();
 
+    validatePrices();
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Xóa dòng
+|--------------------------------------------------------------------------
+*/
 function removeRow(button) {
 
     const rows =
@@ -845,7 +940,6 @@ function removeRow(button) {
         );
 
         return;
-
     }
 
     button
@@ -857,10 +951,14 @@ function removeRow(button) {
     calculateTotal();
 
     validatePrices();
-
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Tính thành tiền
+|--------------------------------------------------------------------------
+*/
 function calculateTotal() {
 
     let total = 0;
@@ -879,7 +977,10 @@ function calculateTotal() {
                     'input[name="donGia[]"]'
                 );
 
-            if (!quantityInput || !priceInput) {
+            if (
+                !quantityInput ||
+                !priceInput
+            ) {
                 return;
             }
 
@@ -920,10 +1021,14 @@ function calculateTotal() {
         total.toLocaleString(
             'vi-VN'
         );
-
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Kiểm tra Giá nhập < Giá bán
+|--------------------------------------------------------------------------
+*/
 function validatePrices() {
 
     let valid = true;
@@ -937,9 +1042,14 @@ function validatePrices() {
                     'input[name="donGia[]"]'
                 );
 
+            const select =
+                row.querySelector(
+                    'select[name="maSach[]"]'
+                );
+
             const giaBanInput =
                 row.querySelector(
-                    'input[name="giaBan[]"]'
+                    '.gia-ban-display'
                 );
 
             const error =
@@ -949,6 +1059,7 @@ function validatePrices() {
 
             if (
                 !donGiaInput ||
+                !select ||
                 !giaBanInput ||
                 !error
             ) {
@@ -961,11 +1072,27 @@ function validatePrices() {
                 ) || 0;
 
             const giaBan =
-                Number(
-                    giaBanInput.value
-                ) || 0;
+                getGiaBanFromBook(select);
 
-            if (giaBan <= donGia) {
+            /*
+             * Chưa chọn sách thì chưa báo lỗi giá
+             */
+            if (!select.value) {
+
+                giaBanInput.classList.remove(
+                    'input-error'
+                );
+
+                error.style.display =
+                    'none';
+
+                return;
+            }
+
+            /*
+             * Giá nhập phải nhỏ hơn giá bán
+             */
+            if (donGia >= giaBan) {
 
                 giaBanInput.classList.add(
                     'input-error'
@@ -990,10 +1117,14 @@ function validatePrices() {
         });
 
     return valid;
-
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Kiểm tra trùng sách
+|--------------------------------------------------------------------------
+*/
 function checkDuplicateBooks() {
 
     let valid = true;
@@ -1005,7 +1136,9 @@ function checkDuplicateBooks() {
             'select[name="maSach[]"]'
         );
 
-    // Xóa lỗi cũ
+    /*
+     * Xóa lỗi cũ
+     */
     selects.forEach(function(select) {
 
         select.classList.remove(
@@ -1029,7 +1162,9 @@ function checkDuplicateBooks() {
 
     });
 
-    // Kiểm tra trùng
+    /*
+     * Kiểm tra trùng
+     */
     selects.forEach(function(select) {
 
         if (select.value === '') {
@@ -1049,12 +1184,16 @@ function checkDuplicateBooks() {
             );
 
             const currentRow =
-                select.closest('.detail-row');
+                select.closest(
+                    '.detail-row'
+                );
 
             const oldRow =
                 selected[
                     select.value
-                ].closest('.detail-row');
+                ].closest(
+                    '.detail-row'
+                );
 
             const currentError =
                 currentRow.querySelector(
@@ -1093,10 +1232,14 @@ function checkDuplicateBooks() {
     });
 
     return valid;
-
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Ẩn sách đã chọn ở các dòng khác
+|--------------------------------------------------------------------------
+*/
 function updateBookOptions() {
 
     const selects =
@@ -1139,10 +1282,14 @@ function updateBookOptions() {
     });
 
     checkDuplicateBooks();
-
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Submit form
+|--------------------------------------------------------------------------
+*/
 document
     .getElementById('phieuNhapForm')
     .addEventListener(
@@ -1170,8 +1317,27 @@ document
 
         }
     );
+
+
+/*
+|--------------------------------------------------------------------------
+| Khởi tạo khi mở trang
+|--------------------------------------------------------------------------
+*/
+document
+    .querySelectorAll(
+        'select[name="maSach[]"]'
+    )
+    .forEach(function(select) {
+
+        updateGiaBan(select);
+
+    });
+
 calculateTotal();
+
 updateBookOptions();
+
 </script>
 
 @endsection

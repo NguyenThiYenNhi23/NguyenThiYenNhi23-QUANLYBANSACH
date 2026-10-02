@@ -15,7 +15,7 @@
 
     .show-title {
         text-align: center;
-        color: #b5121b;
+        color: #2f5f98;
         font-size: 30px;
         font-weight: 700;
         margin-bottom: 28px;
@@ -23,10 +23,10 @@
 
     .show-card {
         background: #fff;
-        border: 1px solid #f0d8da;
+        border: 1px solid #d7e3ef;
         border-radius: 16px;
         padding: 28px;
-        box-shadow: 0 5px 18px rgba(130, 20, 30, .06);
+        box-shadow: 0 5px 18px rgba(47, 95, 152, .08);
     }
 
     .info-grid {
@@ -37,8 +37,8 @@
     }
 
     .info-item {
-        background: #fffafa;
-        border: 1px solid #f1dddd;
+        background: #f8fbfe;
+        border: 1px solid #dfe9f3;
         border-radius: 11px;
         padding: 15px;
     }
@@ -56,7 +56,7 @@
     }
 
     .ma-phieu {
-        color: #b5121b;
+        color: #2f5f98;
     }
 
     .status {
@@ -69,13 +69,13 @@
 
     /* Chưa xác nhận */
     .status-waiting {
-        color: #9a6700;
+        color: #8a6800;
         background: #fff4cc;
     }
 
     /* Hoàn thành */
     .status-done {
-        color: #0d7438;
+        color: #18713c;
         background: #e8f7ee;
     }
 
@@ -86,7 +86,7 @@
     }
 
     .detail-title {
-        color: #b5121b;
+        color: #2f5f98;
         font-size: 18px;
         font-weight: 700;
         margin-bottom: 15px;
@@ -98,7 +98,7 @@
     }
 
     .detail-table th {
-        background: #c91422;
+        background: #4f81bd;
         color: #fff;
         padding: 13px;
         text-align: center;
@@ -107,13 +107,13 @@
 
     .detail-table td {
         padding: 13px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #e3ebf4;
         text-align: center;
         font-size: 14px;
     }
 
     .detail-table tbody tr:hover {
-        background: #fffafa;
+        background: #f5f9fd;
     }
 
     .total {
@@ -124,13 +124,14 @@
     }
 
     .total span {
-        color: #b5121b;
+        color: #2f5f98;
         font-size: 21px;
     }
 
     /*
      * Khu vực nút
      */
+
     .actions {
         display: flex;
         justify-content: flex-end;
@@ -142,12 +143,13 @@
     /*
      * Nút quay lại
      */
+
     .btn-back {
         min-width: 125px;
         height: 44px;
         border-radius: 10px;
-        border: 1px solid #c91422;
-        color: #b5121b;
+        border: 1px solid #4f81bd;
+        color: #2f5f98;
         background: #fff;
         text-decoration: none;
         display: flex;
@@ -159,13 +161,14 @@
     }
 
     .btn-back:hover {
-        background: #c91422;
+        background: #4f81bd;
         color: #fff;
     }
 
     /*
      * Nút xác nhận
      */
+
     .btn-confirm {
         min-width: 180px;
         height: 44px;
@@ -192,6 +195,7 @@
     /*
      * Thông báo
      */
+
     .alert {
         padding: 13px 16px;
         border-radius: 10px;
@@ -201,7 +205,7 @@
     }
 
     .alert-success {
-        color: #0d7438;
+        color: #18713c;
         background: #e8f7ee;
         border: 1px solid #b7e4c7;
     }
@@ -245,6 +249,7 @@
         Chi tiết phiếu nhập
     </h1>
 
+
     {{-- ================= THÔNG BÁO ================= --}}
 
     @if (session('success'))
@@ -254,6 +259,7 @@
         </div>
 
     @endif
+
 
     @if (session('error'))
 
@@ -266,11 +272,14 @@
 
     <div class="show-card">
 
+
         {{-- ================= THÔNG TIN PHIẾU ================= --}}
 
         <div class="info-grid">
 
+
             {{-- Mã phiếu --}}
+
             <div class="info-item">
 
                 <div class="info-label">
@@ -292,6 +301,7 @@
 
 
             {{-- Nhân viên lập --}}
+
             <div class="info-item">
 
                 <div class="info-label">
@@ -318,6 +328,7 @@
 
 
             {{-- Ngày nhập --}}
+
             <div class="info-item">
 
                 <div class="info-label">
@@ -336,6 +347,7 @@
 
 
             {{-- Trạng thái --}}
+
             <div class="info-item">
 
                 <div class="info-label">
@@ -373,6 +385,7 @@
                 </div>
 
             </div>
+
 
         </div>
 
@@ -432,24 +445,38 @@
 
                     <tr>
 
+                        {{-- STT --}}
+
                         <td>
                             {{ $index + 1 }}
                         </td>
 
+
+                        {{-- Mã sách --}}
+
                         <td>
                             {{ $chiTiet->maSach }}
                         </td>
+
+
+                        {{-- Tên sách --}}
 
                         <td>
                             {{ $chiTiet->sach->tenSach
                                 ?? 'Không xác định' }}
                         </td>
 
+
+                        {{-- Số lượng --}}
+
                         <td>
                             {{ number_format(
                                 $chiTiet->soLuong
                             ) }}
                         </td>
+
+
+                        {{-- Giá nhập --}}
 
                         <td>
 
@@ -464,12 +491,19 @@
 
                         </td>
 
+
+                        {{-- Giá bán --}}
+
                         <td>
 
-                            @if ($chiTiet->giaBan !== null)
+                            @if (
+                                $chiTiet->sach
+                                && $chiTiet->sach->giaBan !== null
+                                && $chiTiet->sach->giaBan > 0
+                            )
 
                                 {{ number_format(
-                                    $chiTiet->giaBan,
+                                    $chiTiet->sach->giaBan,
                                     0,
                                     ',',
                                     '.'
@@ -484,6 +518,9 @@
                             @endif
 
                         </td>
+
+
+                        {{-- Thành tiền --}}
 
                         <td>
 
@@ -543,7 +580,9 @@
 
         <div class="actions">
 
+
             {{-- XÁC NHẬN CHỈ ADMIN MỚI ĐƯỢC THẤY --}}
+
             @if (
                 $phieuNhap->trangThai === 'ChoXacNhan'
                 && Auth::check()
@@ -579,6 +618,7 @@
 
 
             {{-- QUAY LẠI --}}
+
             <a
                 href="{{ route('phieunhap.index') }}"
                 class="btn-back"
@@ -586,7 +626,9 @@
                 Quay lại
             </a>
 
+
         </div>
+
 
     </div>
 
